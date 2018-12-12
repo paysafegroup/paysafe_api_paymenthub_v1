@@ -1,1 +1,1 @@
-# paysafe_api_paymenthub_v1
+# paysafe_api_paymenthub
