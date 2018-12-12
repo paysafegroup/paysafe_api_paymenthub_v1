@@ -1,0 +1,1960 @@
+FORMAT: 1A
+HOST: https://api.test.paysafe.com/paymenthub
+
+# Paysafe Payments API 
+
+# Release Notes
+
+| Version   | Date          | Details |
+|---        |---            |---      |
+| v1        | January 2019  | Document release |
+
+# Overview
+
+**UPDATE THIS SECTION WITH NEW MATERIAL**
+
+Text
+* Bullet points
+
+<a name="apikey" title="Authentication"></a>
+# Authentication
+
+In order for you to use the Paysafe Payments RESTful API, Paysafe must first set you up on their system
+and provide you with an API key. Your API key will have the following format:
+
+ * Key Username – MerchantXYZ
+ * Key Password – B-tst1-0-51ed39e4-312d02345d3f123120881dff9bb4020a89e8ac44cdfdcecd702151182fdc952272661d290ab2e5849e31bb03deede7e
+
+> **Note:** This is not the same the username and password you use to access the Merchant Portal. Your Production API key will be different from your Test API key. Contact your account manager for details. You must keep your API keys safe and ensure that it is used appropriately for your needs.
+
+The case-sensitive API key is sent using HTTP Basic Authentication. To use HTTP Basic Authentication, you must send the API key credentials using the Authorization header with every request. The Authorization header is constructed as follows:
+
+ 1. The Key Username and Key Password are combined into a string separated by a colon, e.g.,“Key Username:Key Password”.
+ 2. The resulting string literal is then encoded using Base64.
+ 3. The authorization method and a space (i.e., “Basic”) are then put before the encoded string.
+
+For example, using the Key Username and Password examples above, the header is formed as follows:
+
+``Authorization: Basic
+TWVyY2hhbnRYWVo6Qi10c3QxLTAtNTFlZDM5ZTQtMzEyZDAyMzQ1ZDNmMTIzMTIwODgxZGZmOWJiNDAyMGE4OWU4YWM0NGNkZmRjZWNkNzAyMTUxMTgyZmRjOTU yMjcyNjYxZDI5MGFiMmU1ODQ5ZTMxYmIwM2RlZWRlN2U=``
+
+For additional details, please refer to [http://en.wikipedia.org/wiki/Basic_access_authentication](http://en.wikipedia.org/wiki/Basic_access_authentication).
+
+> **IMPORTANT:** The API key that you will use for the Paysafe Payments API is **different from** the API key used for all the other Developer Center APIs.
+
+**BE SURE TO PROVIDE CLEAR INSTRUCTIONS HERE ON HOW THEY WILL GET THEIR API KEY FOR THIS API**
+
+## Getting Started
+
+Paysafe Payment Hub encapsulates integration with multiple payment methods into a single API 
+that simplifies the development effort for a new payment method integration to bare minimum 
+or even none in certain cases.
+
+The following payment methods are supported
+
+- Card Payments
+- Skrill
+- Neteller
+- PaysafeCard
+- PaysafeCash
+- Guaranteed ACH
+- Sightline Prepaid Cards
+
+
+# Group Payment Methods
+
+## Fetch Available Payment Methods [/v1/paymentmethods]
+
+### Payment Methods [POST]
+
+This API will provide all the available payment methods for the Merchant. Merchant can have his own configuration defined at Paysafe side, which will be used to filter the payment methods based on amount and currency.
+
++ Request (application/json)
+
+    + Headers
+
+            Authorization: "Basic YOUR-BASE64-ENCODED-API-KEY"
+    
+    + Body
+
+            {
+                "currency" : "CAD",
+                "amount" : "200"
+            } 
+
++ Response 200 (application/json)
+
+    + Body
+
+            {
+                "currency" : "CAD",
+                "paymentMethods": [
+                {
+                  "name": "Card",
+                  "type": "scheme",
+                  "operationsSupported" : ["payment", "settlement", "refund"],
+                  "details": [
+                    {
+                      "key": "cardNumber",
+                      "type": "number"
+                    },
+                    {
+                      "key": "securityCode",
+                      "type": "number"
+                    },
+                    {
+                      "key": "encryptedExpiryMonth",
+                      "type": "number"
+                    },
+                    {
+                      "key": "encryptedExpiryYear",
+                      "type": "number"
+                    },
+                    {
+                      "key": "holderName",
+                      "optional": "true",
+                      "type": "text"
+                    }
+                  ]
+                },
+                {
+                  "name" : "Skrill",
+                  "type" : "wallet",
+                  "operationsSupported" : ["payment", "settlement", "refund"]
+                },
+                {
+                  "name" : "Neteller",
+                  "type" : "wallet",
+                  "operationsSupported" : ["payment", "settlement", "refund"]
+                },
+                {
+                  "name" : "Paysafecash",
+                  "type" : "wallet",
+                  "operationsSupported" : ["payment", "settlement", "refund"]
+                },
+                {
+                  "name" : "Paysafecard",
+                  "type" : "wallet",
+                  "operationsSupported" : ["payment", "settlement", "refund"]
+                }
+              ]
+            }
+            
+
+# Group Payment Handles
+
+## Payment Handle [/v1/paymenthandles]
+
+PaymentHandle is a contract of a Payment, which contains customer's payment instrument and other details like amount, payment method, customer profile etc. This accepts a variety of payment methods with a single API. 
+<br>
+Payment Handle has its own states. Payment can be initiated on this Payment Handle only if the status is PAYABLE.
+
+### Create Payment Handle [POST]
+
+Creates a new Payment Handle object.
+
++ Request Card payment handle creation without 3DS (application/json)
+
+    + Headers
+
+            Authorization: "Basic YOUR-BASE64-ENCODED-API-KEY"
+            
+    + Attributes (PaymentHandleRequest)
+    
+    + Body
+
+            {
+              "merchantRefNum": "merchantRefNum-101",
+              "transactionType": "PAYMENT",
+              "card": {
+                "cardNum": "5191330000004415",
+                "cardExpiry": {
+                  "month": 10,
+                  "year": 2020
+                },
+                "cvv": "111",
+                "holderName": "poorna"
+              },
+              "paymentType": "CARDS",
+              "amount": 190,
+              "currencyCode": "GBP",
+              "customerIp": "172.0.0.1",
+              "billingDetails": {
+                "nickName": "Home",
+                "street": "100 Queen",
+                "street2": "Unit 201",
+                "city": "Toronto",
+                "zip": "M5H 2N2",
+                "country": "CA"
+              },
+              "returnLinks": [
+                {
+                  "rel": "on_completed",
+                  "href": "https://usgaminggamblig/payment/return/success",
+                  "method": "GET"
+                },
+                {
+                  "rel": "on_failed",
+                  "href": "https://usgaminggamblig/payment/return/failed",
+                  "method": "GET"
+                }
+              ]
+            }
+
++ Response 200 (application/json)
+
+    + Body
+
+            {
+              "id": "26359efd-7cfb-4014-a13d-1724e3ff17fa",
+              "amount": 190,
+              "merchantRefNum": "merchantRefNum-101",
+              "action": "NONE",
+              "currencyCode": "GBP",
+              "usage": "SINGLE_USE",
+              "status": "PAYABLE",
+              "paymentType": "CARD",
+              "executionMode": "SYNCHRONOUS",
+              "customerIp": "172.0.0.1",
+              "paymentHandleToken": "SCO3wKcIyLoQbQvw",
+              "billingDetails": {
+                "nickName": "Home",
+                "street": "100 Queen",
+                "street2": "Unit 201",
+                "city": "Toronto",
+                "country": "CA",
+                "zip": "M5H 2N2"
+              },
+              "card": {
+                "cardExpiry": {
+                  "month": "10",
+                  "year": "2020"
+                },
+                "holderName": "poorna",
+                "cardType": "MC",
+                "cardBin": "519133",
+                "lastDigits": "4415"
+              },
+              "returnLinks": [
+                {
+                  "rel": "on_completed",
+                  "href": "https://usgaminggamblig/payment/return/success",
+                  "method": "GET"
+                },
+                {
+                  "rel": "on_failed",
+                  "href": "https://usgaminggamblig/payment/return/failed",
+                  "method": "GET"
+                }
+              ],
+              "timeToLiveSeconds": 299,
+              "transactionType": "PAYMENT"
+            }
+
++ Request CARD Payment Handle with 3DS enabled (application/json)
+
+    + Headers
+
+            Authorization: "Basic YOUR-BASE64-ENCODED-API-KEY"
+            
+    + Body
+
+            {
+              "merchantRefNum": "merchantRefNum-124",
+              "transactionType": "PAYMENT",
+              "card": {
+                "cardNum": "4538261230000003",
+                "cardExpiry": {
+                  "month": 10,
+                  "year": 2020
+                },
+                "cvv": "111",
+                "holderName": "poorna"
+              },
+              "paymentType": "CARDS",
+              "amount": 3000,
+              "currencyCode": "GBP",
+              "customerIp": "172.0.0.1",
+              "billingDetails": {
+                "nickName": "Home",
+                "street": "100 Queen",
+                "street2": "Unit 201",
+                "city": "Toronto",
+                "zip": "M5H 2N2",
+                "country": "CA"
+              },
+              "returnLinks": [
+                {
+                  "rel": "on_completed",
+                  "href": "https://usgaminggamblig/payment/return/success",
+                  "method": "GET"
+                },
+                {
+                  "rel": "on_failed",
+                  "href": "https://usgaminggamblig/payment/return/failed",
+                  "method": "GET"
+                }
+              ]
+            }
+
++ Response 200 (application/json)
+
+    + Body
+
+            {
+              "id": "372b5ee7-6360-4403-b444-164f8f1d2709",
+              "amount": 3000,
+              "merchantRefNum": "merchantRefNum-124",
+              "action": "REDIRECT",
+              "currencyCode": "GBP",
+              "usage": "SINGLE_USE",
+              "status": "INITIATED",
+              "paymentType": "CARD",
+              "executionMode": "SYNCHRONOUS",
+              "customerIp": "172.0.0.1",
+              "paymentHandleToken": "SCyGZDlUuZ9zxjyd",
+              "billingDetails": {
+                "nickName": "Home",
+                "street": "100 Queen",
+                "street2": "Unit 201",
+                "city": "Toronto",
+                "country": "CA",
+                "zip": "M5H 2N2"
+              },
+              "card": {
+                "cardExpiry": {
+                  "month": "10",
+                  "year": "2020"
+                },
+                "holderName": "poorna",
+                "cardType": "VI",
+                "cardBin": "453826",
+                "lastDigits": "0003"
+              },
+              "returnLinks": [
+                {
+                  "rel": "on_completed",
+                  "href": "https://usgaminggamblig/payment/return/success",
+                  "method": "GET"
+                },
+                {
+                  "rel": "on_failed",
+                  "href": "https://usgaminggamblig/payment/return/failed",
+                  "method": "GET"
+                },
+                {
+                  "rel": "payment_redirect",
+                  "href": "http://hyd-dev-ms1.in.paysafe.com:8287/cardadapter/v1/card/redirect/372b5ee7-6360-4403-b444-164f8f1d2709",
+                  "method": "GET"
+                }
+              ],
+              "timeToLiveSeconds": 299,
+              "transactionType": "PAYMENT"
+            }
+
++ Request Create payment handle for STANDALONE_CREDIT or ORIGINAL_CREDIT using non-3ds or 3ds cards (application/json)
+
+    + Headers
+
+            Authorization: "Basic YOUR-BASE64-ENCODED-API-KEY"
+            
+    + Body
+
+            {
+              "merchantRefNum": "merchantRefNum-190",
+              "transactionType": "STANDALONE_CREDIT",
+              "card": {
+                "cardNum": "4538261230000003",
+                "cardExpiry": {
+                  "month": 10,
+                  "year": 2020
+                },
+                "cvv": "111",
+                "holderName": "poorna"
+              },
+              "paymentType": "CARDS",
+              "amount": 3000,
+              "currencyCode": "GBP",
+              "customerIp": "172.0.0.1",
+              "billingDetails": {
+                "nickName": "Home",
+                "street": "100 Queen",
+                "street2": "Unit 201",
+                "city": "Toronto",
+                "zip": "M5H 2N2",
+                "country": "CA"
+              }
+            }
+
++ Response 200 (application/json)
+
+    + Body
+
+            {
+              "id": "372b5ee7-6360-4403-b444-164f8f1d2709",
+              "amount": 3000,
+              "merchantRefNum": "merchantRefNum-190",
+              "action": "NONE",
+              "currencyCode": "GBP",
+              "usage": "SINGLE_USE",
+              "status": "PAYABLE",
+              "paymentType": "CARD",
+              "executionMode": "SYNCHRONOUS",
+              "customerIp": "172.0.0.1",
+              "paymentHandleToken": "SCyGZDlUuZ9zxjyd",
+              "billingDetails": {
+                "nickName": "Home",
+                "street": "100 Queen",
+                "street2": "Unit 201",
+                "city": "Toronto",
+                "country": "CA",
+                "zip": "M5H 2N2"
+              },
+              "card": {
+                "cardExpiry": {
+                  "month": "10",
+                  "year": "2020"
+                },
+                "holderName": "poorna",
+                "cardType": "VI",
+                "cardBin": "453826",
+                "lastDigits": "0003"
+              },
+              "timeToLiveSeconds": 299,
+              "transactionType": "STANDALONE_CREDIT"
+            }
+            
++ Request Create payment handle of transaction type VERIFICATION without amount (application/json)
+
+    + Headers
+
+            Authorization: "Basic YOUR-BASE64-ENCODED-API-KEY"
+            
+    + Body
+
+            {
+              "merchantRefNum": "merchantRefNum-196",
+              "transactionType": "VERIFICATION",
+              "card": {
+                "cardNum": "4107857757053670",
+                "cardExpiry": {
+                  "month": 12,
+                  "year": 2034
+                },
+                "cvv": "222"
+              },
+              "paymentType": "CARDS",
+              "currencyCode": "GBP",
+              "customerIp": "172.0.0.1",
+              "billingDetails": {
+                "nickName": "Home",
+                "street": "100 Queen",
+                "street2": "Unit 201",
+                "city": "Toronto",
+                "zip": "M5H 2N2",
+                "country": "CA"
+              }
+            }
+
++ Response 200 (application/json)
+
+    + Body
+
+            {
+              "id": "16113177-3d68-4c91-8f69-ce41903f1446",
+              "merchantRefNum": "merchantRefNum-196",
+              "action": "NONE",
+              "currencyCode": "GBP",
+              "usage": "SINGLE_USE",
+              "status": "PAYABLE",
+              "timeToLiveSeconds": 299,
+              "transactionType": "VERIFICATION",
+              "paymentType": "CARD",
+              "executionMode": "SYNCHRONOUS",
+              "customerIp": "172.0.0.1",
+              "paymentHandleToken": "SCfZX0QEvEvSszKy",
+              "billingDetails": {
+                "nickName": "Home",
+                "street": "100 Queen",
+                "street2": "Unit 201",
+                "city": "Toronto",
+                "country": "CA",
+                "zip": "M5H 2N2"
+              },
+              "card": {
+                "cardExpiry": {
+                  "month": "12",
+                  "year": "2034"
+                },
+                "cardType": "VI",
+                "cardBin": "410785",
+                "lastDigits": "3670"
+              }
+            }
+
+### Get Payment Handle [GET /v1/paymenthandles/{paymenthandle_id}]
+
+Fetch an existing payment handle object, using the unique payment handle ID returned during payment handle creation request.
+
++ Parameter
+
+ + paymenthandle_id : `26359efd-7cfb-4014-a13d-1724e3ff17fa` - This is the ID returned in the response to the Payment handle request.
+
++ Response 200 (application/json)
+
+    + Body
+
+            {
+              "id": "26359efd-7cfb-4014-a13d-1724e3ff17fa",
+              "amount": 1900,
+              "merchantRefNum": "merchantRefNum-115",
+              "action": "NONE",
+              "currencyCode": "GBP",
+              "usage": "SINGLE_USE",
+              "status": "EXPIRED",
+              "timeToLiveSeconds": 0,
+              "transactionType": "PAYMENT",
+              "paymentType": "CARD",
+              "executionMode": "SYNCHRONOUS",
+              "customerIp": "172.0.0.1",
+              "paymentHandleToken": "SC0YsGIIgFksiOsQ",
+              "paymentToken": "SC0YsGIIgFksiOsQ",
+              "billingDetails": {
+                "street": "100 Queen",
+                "street2": "Unit 201",
+                "city": "Toronto",
+                "country": "CA",
+                "zip": "M5H 2N2"
+              },
+              "card": {
+                "cardExpiry": {
+                  "month": "12",
+                  "year": "2034"
+                },
+                "holderName": "poorna",
+                "cardType": "MC",
+                "cardBin": "519133",
+                "lastDigits": "4415"
+              },
+              "returnLinks": [
+                {
+                  "rel": "on_completed",
+                  "href": "https://usgaminggamblig/payment/return/success",
+                  "method": "GET"
+                },
+                {
+                  "rel": "on_failed",
+                  "href": "https://usgaminggamblig/payment/return/failed",
+                  "method": "GET"
+                }
+              ]
+            }
+
+### Get Payment Handle by Merchant Reference Number [GET /v1/paymenthandles?merchantRefNum={merchant_ref_num}]
+
+Fetch an existing payment handle object, using the merchant genereated unique id used during payment handle creation request.
+
++ Parameter
+
+    + merchant_ref_num : `13995817730005389` - This is the ID returned in the response to the Payment handle request.
+
++ Response 200 (application/json)
+
+    + Body
+
+            {
+              "id": "cc719995-59ed-4146-a936-b54db72bcaa8",
+              "amount": 1900,
+              "merchantRefNum": "merchantRefNum-130",
+              "action": "NONE",
+              "currencyCode": "GBP",
+              "usage": "SINGLE_USE",
+              "status": "EXPIRED",
+              "timeToLiveSeconds": 0,
+              "transactionType": "PAYMENT",
+              "paymentType": "CARD",
+              "executionMode": "SYNCHRONOUS",
+              "customerIp": "172.0.0.1",
+              "paymentHandleToken": "SC0YsGIIgFksiOsQ",
+              "billingDetails": {
+                "street": "100 Queen",
+                "street2": "Unit 201",
+                "city": "Toronto",
+                "country": "CA",
+                "zip": "M5H 2N2"
+              },
+              "card": {
+                "cardExpiry": {
+                  "month": "12",
+                  "year": "2034"
+                },
+                "holderName": "poorna",
+                "cardType": "MC",
+                "cardBin": "519133",
+                "lastDigits": "4415"
+              },
+              "returnLinks": [
+                {
+                  "rel": "on_completed",
+                  "href": "https://usgaminggamblig/payment/return/success",
+                  "method": "GET"
+                },
+                {
+                  "rel": "on_failed",
+                  "href": "https://usgaminggamblig/payment/return/failed",
+                  "method": "GET"
+                }
+              ]
+            }
+
+# Group Payments
+
+## Payments [/v1/payments]
+
+Payments is used to authorize an amount. The authorized amount must be settled in a subsequent settlement transaction.
+For Purchase requests. i.e., requests which authorizes and settles in the same request, set the settleWithAuth  parameter to true.
+
+
+### Create Payment with Payment Handle Token [POST]
+
+- An Payment request that will have to be settled later
+- A purchase/sale request, which authorizes and settles the payment in a single request by setting the settleWithAuth parameter to true
+
+
++ Request Card Payment with Payment Handle (application/json)
+
+    + Headers
+
+            Authorization: "Basic YOUR-BASE64-ENCODED-API-KEY"
+            
+    + Attributes (PaymentsRequest)
+    
+    + Body
+
+            {
+              "merchantRefNum": "merchantRefNum-108",
+              "amount": 190,
+              "currencyCode": "GBP",
+              "dupCheck": true,
+              "settleWithAuth": false,
+              "paymentHandleToken": "SCZJg09GWSv36NLB",
+              "customerIp": "10.10.12.64",
+              "description": "Magazine subscription"
+            }
+            
++ Response 200 (application/json)
+
+    + Body
+
+            {
+              "id": "3aeb9c63-6386-46a3-9f8e-f452e722228a",
+              "amount": 190,
+              "merchantRefNum": "merchantRefNum-108",
+              "settleWithAuth": false,
+              "paymentHandleToken": "SCZJg09GWSv36NLB",
+              "txnTime": "2018-12-09T11:05:24+0000",
+              "customerIp": "10.10.12.64",
+              "dupCheck": true,
+              "description": "Magazine subscription",
+              "currencyCode": "GBP",
+              "status": "COMPLETED",
+              "availableToSettle": 1900,
+              "gatewayResponse": {
+                "authCode": "135880",
+                "avsResponse": "MATCH",
+                "cvvVerification": "MATCH"
+              },
+              "merchantDescriptor": {
+                "dynamicDescriptor": "54321",
+                "phone": "333-123456789"
+              }
+            }
+
+### Get Payments [GET /v1/payments/{payment_id}]
+
+Click on Get Payments above to see how to fetch the payments by payment_id.
+
++ Parameter
+
+   + payment_id : `3aeb9c63-6386-46a3-9f8e-f452e722228a` - This is the ID returned in the response to the Payments request.
+
++ Response 200 (application/json)
+
+    + Body
+
+            {
+              "id": "3aeb9c63-6386-46a3-9f8e-f452e722228a",
+              "amount": 190,
+              "merchantRefNum": "merchantRefNum-108",
+              "settleWithAuth": false,
+              "paymentHandleToken": "SCZJg09GWSv36NLB",
+              "txnTime": "2018-12-09T11:05:24+0000",
+              "customerIp": "10.10.12.64",
+              "dupCheck": true,
+              "description": "Magazine subscription",
+              "currencyCode": "GBP",
+              "status": "COMPLETED",
+              "availableToSettle": 1900,
+              "gatewayResponse": {
+                "authCode": "135880",
+                "avsResponse": "MATCH",
+                "cvvVerification": "MATCH"
+              },
+              "merchantDescriptor": {
+                "dynamicDescriptor": "54321",
+                "phone": "333-123456789"
+              }
+            }
+            
+### Get Payments by Merchant Reference number [GET /v1/payments?merchantRefNum={merchant_ref_num}]
+
+Click on above to fetch the payments by merchant refernce number.
+
++ Parameter
+
+   + merchant_ref_num : `merchantRefNum-145` -This is the merchant reference number created by the merchant and submitted as part of the request.
+
++ Response 200 (application/json)
+
+    + Body
+
+            {
+              "payments": [
+                {
+                  "id": "8190c675-6d68-4cd7-a29c-55b406addaeb",
+                  "amount": 40,
+                  "merchantRefNum": "merchantRefNum-145",
+                  "settleWithAuth": false,
+                  "paymentHandleToken": "SChfCGCURe5NiLIv",
+                  "authCode": "107212",
+                  "txnTime": 1544108515000,
+                  "customerIp": "10.10.12.64",
+                  "description": "Magazine subscription",
+                  "currencyCode": "GBP",
+                  "status": "COMPLETED",
+                  "avsResponse": "MATCH",
+                  "cvvVerification": "MATCH",
+                  "availableToSettle": 40,
+                  "merchantDescriptor": {
+                    "dynamicDescriptor": "54321",
+                    "phone": "333-123456789"
+                  }
+                }
+              ]
+            }
+            
+# Group Settlements 
+
+## Settlements [/v1/payments/{payment_id}/settlements]
+
+Settlement with dupCheck and merchentRefNum
+
++ Parameter
+
+    + payment_id : `c64ecbf2-a942-4f7c-b412-70217a0eb16e` - This is the ID returned in the response to the Payments request.
+
+### Post Settlement [POST]
+
+- A regular Settlement, where the initial request was an Authorization that now has to be settled
+- A partial Settlement, where only part of the initial Authorization is settled, leaving the balance to be settled later
+- A Settlement that is split into multiple merchant accounts, for merchant accounts that are configured to do so
+
++ Request (application/json)
+
+    + Headers
+
+            Authorization: "Basic YOUR-BASE64-ENCODED-API-KEY"
+            
+    + Attributes(SettlementResponse)
+    
+    + Body
+
+            {
+              "merchantRefNum": "merchantRefNum-117",
+              "amount": 190
+            }
+                        
++ Response 200 (application/json)
+
+    + Body
+
+            {
+              "merchantRefNum": "merchantRefNum-117",
+              "amount": 190,
+              "id": "a07b0597-f106-4790-9661-f0d452619f5d",
+              "availableToRefund": 190,
+              "txnTime": "2018-12-09T10:56:36+0000",
+              "status": "PENDING"
+            }
+            
+
+### Cancel a Settlement [PUT /v1/settlement/{settlement_id}]
+
+- Settlement with dupCheck and merchentRefNum
+- Partial Settlement with amount in Request Body 
+
++ Parameter
+
+    + settlement_id : `d9bcfd85-8aa6-469d-80a3-e2ca196544da` - This is the ID returned in the response to the Settlement request. 
+
++ Request (application/json)
+
+    + Headers
+
+            Authorization: "Basic YOUR-BASE64-ENCODED-API-KEY"
+    
+    + Body
+
+            {
+              "status": "CANCELLED"
+            }
+                        
++ Response 200 (application/json)
+
+    + Body
+
+            {
+              "id": "ea49ab6c-cf9b-4efd-bde8-2fa3bb5ccd85",
+              "txnTime": "2018-12-09T11:17:29+0000",
+              "status": "CANCELLED"
+            }
+            
+
+### Get Settlements [GET /v1/settlements/{settlement_id}]
+
+Click on Get Settlements above to see how to fetch the settlements by settlement_id.
+
++ Parameter
+
+   + settlement_id : `ea49ab6c-cf9b-4efd-bde8-2fa3bb5ccd85` - This is the ID returned in the response to the Payments request.
+
++ Response 200 (application/json)
+
+    + Body
+
+            {
+              "merchantRefNum": "merchantRefNum-144",
+              "amount": 40,
+              "id": "ea49ab6c-cf9b-4efd-bde8-2fa3bb5ccd85",
+              "availableToRefund": 40,
+              "txnTime": "2018-12-09T10:56:36+0000",
+              "status": "PENDING"
+            }
+            
+### Get Settlements by Merchant Reference number [GET /v1/settlements?merchantRefNum={merchant_ref_num}]
+
+Click on above to fetch the Settlements by merchant refernce number.
+
++ Parameter
+
+   + merchant_ref_num : `merchantRefNum-144` -This is the merchant reference number created by the merchant and submitted as part of the request.
+
++ Response 200 (application/json)
+
+    + Body
+
+            {
+              "settlements": [
+                {
+                  "merchantRefNum": "merchantRefNum-144",
+                  "amount": 40,
+                  "id": "ea49ab6c-cf9b-4efd-bde8-2fa3bb5ccd85",
+                  "availableToRefund": 40,
+                  "txnTime": "2018-12-09T10:56:36+0000",
+                  "status": "PENDING"
+                }
+              ]
+            }
+
+# Group Refunds
+
+## Refunds [/v1/payments/{settlement_id}/refunds]
+
+The settlement details in case of Card payment method can be sent through Request Body
+
++ Parameter
+
+    + settlement_id : `d9bcfd85-8aa6-469d-80a3-e2ca196544da`
+
+### Post Refund [POST]
+
+- A regular Refund
+- A Refund that is split into multiple merchant accounts, for merchant accounts that are configured to do so
+
++ Request (application/json)
+
+    + Headers
+
+            Authorization: "Basic YOUR-BASE64-ENCODED-API-KEY"
+            
+    + Attributes(RefundResponse)
+    
+    + Body
+
+            {
+              "merchantRefNum": "merchantRefNum-118",
+              "amount": 190,
+              "dupCheck": true
+            }
+                        
++ Response 200 (application/json)
+
+    + Body
+            
+            {
+              "id": "c7ef07b2-0069-4f58-b9e2-0f4cdbc6c725",
+              "merchantRefNum": "merchantRefNum-118",
+              "amount": 190,
+              "txnTime": "2018-12-09T11:41:09+0000",
+              "status": "PENDING"
+            }
+            
+### Cancel Refund [PUT /v1/refunds/{refund_id}]
+
+Click on Cancel a Refund above to see how to submit a Cancel Refund request.
+
++ Parameter
+
+    + refund_id : `c7ef07b2-0069-4f58-b9e2-0f4cdbc6c725` - This is the ID returned in the response to the Refund request
+    
++ Request (application/json)
+
+    + Headers
+
+            Authorization: "Basic YOUR-BASE64-ENCODED-API-KEY"
+    
+    + Body
+
+            {
+              "status": "CANCELLED"
+            }
+                        
++ Response 200 (application/json)
+
+    + Body
+
+            {
+              "id": "c7ef07b2-0069-4f58-b9e2-0f4cdbc6c725",
+              "txnTime": "2018-12-10T11:19:51Z",
+              "status": "CANCELLED"
+            }
+            
+### Get Refund [GET /v1/refunds/{refund_id}]
+
+Click on above to fetch the Refunds by Id.
+
++ Parameter
+
+    + refund_id : `c7ef07b2-0069-4f58-b9e2-0f4cdbc6c725` - This is the ID returned in the response to the Refund request
+
++ Response 200 (application/json)
+
+    + Body
+
+            {
+              "id": "c7ef07b2-0069-4f58-b9e2-0f4cdbc6c725",
+              "merchantRefNum": "merchantRefNum-118",
+              "amount": 190,
+              "txnTime": "2018-12-09T11:41:09+0000",
+              "status": "PENDING"
+            }
+            
+### Get Refunds by Merchant Reference number [GET /v1/refunds?merchantRefNum={merchant_ref_num}]
+
+Click on above to fetch the Refunds by merchant refernce number.
+
++ Parameter
+
+   + merchant_ref_num : `merchantRefNum-118` -This is the merchant reference number created by the merchant and submitted as part of the request.
+
++ Response 200 (application/json)
+
+    + Body
+
+            {
+              "refunds": [
+                {
+                  "id": "c7ef07b2-0069-4f58-b9e2-0f4cdbc6c725",
+                  "merchantRefNum": "merchantRefNum-118",
+                  "amount": 190,
+                  "txnTime": "2018-12-09T11:41:09+0000",
+                  "status": "PENDING"
+                }
+              ]
+            }
+         
+# Group Standalone Credits 
+
+## Standalone Credits [/v1/standalonecredits]
+
+Standalone Credits allow merchants to issue credits to cardholders without requiring a previous Authorization/Settlement.
+
+### Post Standalone Credit [POST]
+
+- Credit with original Card information with Payment Handle Token
+
+
++ Request (application/json)
+
+    + Headers
+
+            Authorization: "Basic YOUR-BASE64-ENCODED-API-KEY"
+            
+    + Attributes (OriginalCreditResponse)
+    
+    + Body
+
+            {
+              "amount": 40,
+              "merchantRefNum": "merchantRefNum-151",
+              "currencyCode": "GBP",
+              "paymentHandleToken": "SC9mbfZSITB5OwDJ",
+              "customerIp": "204.91.0.12",
+              "description": "Winning payment from Loto 649"
+            }    
+            
++ Response 200 (application/json)
+
+    + Body
+
+            {
+              "id": "e075f2ae-dfc4-4f6d-8d89-61158367b6a6",
+              "amount": 40,
+              "merchantRefNum": "merchantRefNum-151",
+              "card": {
+                "cardExpiry": {
+                  "month": "10",
+                  "year": "2020"
+                },
+                "lastDigits": "0003"
+              },
+              "billingDetails": {
+                "street": "100 Queen",
+                "street2": "Unit 201",
+                "city": "Toronto",
+                "country": "CA",
+                "zip": "M5H2N2"
+              },
+              "customerIp": "204.91.0.12",
+              "currencyCode": "GBP",
+              "status": "PENDING",
+              "description": "Winning payment from Loto 649"
+            }
+            
+### Cancel Standalone Credit [PUT /v1/standalonecredits/{standalone_credit_id}]
+
+Click on Cancel a Standalone Credit above to see how to submit a Cancel Standalone Credit request.
+
++ Parameter
+
+    + standalone_credit_id : `e075f2ae-dfc4-4f6d-8d89-61158367b6a6`
+    
+
++ Request (application/json)
+
+    + Headers
+
+            Authorization: "Basic YOUR-BASE64-ENCODED-API-KEY"
+    
+    + Body
+
+            {
+              "status": "CANCELLED"
+            }
+
+
++ Response 200 (application/json)
+
+    + Body
+
+            {
+              "id": "e075f2ae-dfc4-4f6d-8d89-61158367b6a6",
+              "status": "CANCELLED"
+            }
+            
+
+### Get Standalone Credit [GET /v1/standalonecredits/{standalone_credit_id}]
+
+Click on Get Standalone Credit above to see how to look up a Standalone Credit request using the ID returned in the response to the original request.
+
++ Parameter
+
+    + standalone_credit_id : `e075f2ae-dfc4-4f6d-8d89-61158367b6a6`
+
++ Response 200 (application/json)
+
+    + Body
+
+            {
+              "id": "e075f2ae-dfc4-4f6d-8d89-61158367b6a6",
+              "amount": 40,
+              "merchantRefNum": "merchantRefNum-151",
+              "card": {
+                "cardExpiry": {
+                  "month": "10",
+                  "year": "2020"
+                },
+                "lastDigits": "0003"
+              },
+              "billingDetails": {
+                "street": "100 Queen",
+                "street2": "Unit 201",
+                "city": "Toronto",
+                "country": "CA",
+                "zip": "M5H2N2"
+              },
+              "customerIp": "204.91.0.12",
+              "currencyCode": "GBP",
+              "status": "PENDING",
+              "description": "Winning payment from Loto 649"
+            }
+            
+### Get Standalone Credit Using Merchant Reference Number  [GET /v1/standalonecredits?merchantRefNum={merchantRefNum}]
+
+Click on Get Standalone Credit Using Merchant Reference Number above to see how to look up a Standalone Credit using the merchant reference number used in the original request.
+
++ Parameter
+
+   + merchantRefNum : "merchantRefNum-151"
+
++ Response 200 (application/json)
+
+    + Body
+
+            {
+              "standaloneCredits": [
+                {
+                  "id": "e075f2ae-dfc4-4f6d-8d89-61158367b6a6",
+                  "amount": 40,
+                  "merchantRefNum": "merchantRefNum-151",
+                  "card": {
+                    "cardExpiry": {
+                      "month": "10",
+                      "year": "2020"
+                    },
+                    "lastDigits": "0003"
+                  },
+                  "billingDetails": {
+                    "street": "100 Queen",
+                    "street2": "Unit 201",
+                    "city": "Toronto",
+                    "country": "CA",
+                    "zip": "M5H2N2"
+                  },
+                  "customerIp": "204.91.0.12",
+                  "currencyCode": "GBP",
+                  "status": "PENDING",
+                  "description": "Winning payment from Loto 649"
+                }
+              ]
+            }
+            
+
+
+# Group Original Credits 
+
+## Original Credits [/v1/originalcredits]
+
+Original Credits allow merchants with specific merchant category codes (MCCs) to issue winnings as credits to cardholders, without requiring a previous Authorization/Settlement.
+
+### Original Credit [POST]
+
+- An Original Credit request using a Payment Handle token.
+
++ Request (application/json)
+
+    + Headers
+
+            Authorization: "Basic YOUR-BASE64-ENCODED-API-KEY"
+    
+    + Attributes (OriginalCreditResponse)
+    
+    + Body
+
+            {
+              "amount": 40,
+              "merchantRefNum": "merchantRefNum-151",
+              "currencyCode": "GBP",
+              "paymentHandleToken": "SC9mbfZSITB5OwDJ",
+              "customerIp": "204.91.0.12",
+              "description": "Winning payment from Loto 649"
+            }
+     
++ Response 200 (application/json)
+
+    + Body
+
+            {
+              "id": "e075f2ae-dfc4-4f6d-8d89-61158367b6a6",
+              "amount": 40,
+              "merchantRefNum": "merchantRefNum-151",
+              "card": {
+                "cardExpiry": {
+                  "month": "10",
+                  "year": "2020"
+                },
+                "lastDigits": "0003"
+              },
+              "billingDetails": {
+                "street": "100 Queen",
+                "street2": "Unit 201",
+                "city": "Toronto",
+                "country": "CA",
+                "zip": "M5H2N2"
+              },
+              "customerIp": "204.91.0.12",
+              "currencyCode": "GBP",
+              "status": "PENDING",
+              "description": "Winning payment from Loto 649"
+            }
+
+### Cancel an Original Credit [PUT /v1/originalcredits/{original_credit_id}]
+
+Click on Cancel an Original Credit above to see how to submit a Cancel Original Credit request.
+
++ Parameter
+
+   + original_credit_id : `86dcb68d-cbd0-4878-8da7-ffc0e6554513` - This is the ID returned in the response to the Original Credit request. Example: 86dcb68d-cbd0-4878-8da7-ffc0e6554513.
+
++ Request (application/json)
+
+    + Headers
+
+            Authorization: "Basic YOUR-BASE64-ENCODED-API-KEY"
+    
+    + Body
+
+            {
+              "status": "CANCELLED"
+            }
+
+
++ Response 200 (application/json)
+
+    + Body
+
+            {
+              "id": "e075f2ae-dfc4-4f6d-8d89-61158367b6a6",
+              "status": "CANCELLED"
+            }
+            
+
+### Get Original Credit [GET /v1/originalcredits/{original_credit_id}]
+
+Click on Get Original Credit above to see how to look up an Original Credit request using the ID returned in the response to the original request.
+
++ Parameter
+
+   + original_credit_id : `86dcb68d-cbd0-4878-8da7-ffc0e6554513` - This is the ID returned in the response to the Original Credit request. Example: 86dcb68d-cbd0-4878-8da7-ffc0e6554513.
+
+
++ Response 200 (application/json)
+
+    + Body
+
+            {
+              "id": "86dcb68d-cbd0-4878-8da7-ffc0e6554513",
+              "merchantRefNum": "13995817730005399",
+              "txnTime": "2017-07-06T19:59:17Z",
+              "status": "PENDING",
+              "amount": 1000,
+              "card": {
+                "type": "VI",
+                "lastDigits": "1111",
+                "cardExpiry": {
+                  "month": 2,
+                  "year": 2019
+                }
+              },
+              "profile": {
+                "firstName": "Joe",
+                "lastName": "Smith",
+                "email": "Joe.Smith@canada.com"
+              },
+              "billingDetails": {
+                "street": "100 Queen Street West",
+                "city": "Toronto",
+                "state": "ON",
+                "country": "CA",
+                "zip": "M5H2N2"
+              },
+              "customerIp": "204.91.0.12",
+              "description": "Winning payment from Loto",
+              "currencyCode": "CAD",
+              "accountId": "123456789",
+              "links": [
+                {
+                  "rel": "self",
+                  "href": "https://api.test.paysafe.com/cardpayments/v1/originalcredits/86dcb68d-cbd0-4878-8da7-ffc0e6554513"
+                }
+              ]
+            }
+            
+### Get Original Credit Using Merchant Reference Number [GET /v1/originalcredits?merchantRefNum={merchantRefNum}]
+
+Click on Get Original Credit Using Merchant Reference Number above to see how to look up an Original Credit request using the merchant reference number used in the original request.
+
++ Parameter
+
+   + merchantRefNum : merchantRefNum-151 - This is the merchant reference number created by the merchant and submitted as part of the request. 
+
++ Response 200 (application/json)
+  
+   + Body
+
+            {
+              "standaloneCredits": [
+                {
+                  "id": "e075f2ae-dfc4-4f6d-8d89-61158367b6a6",
+                  "amount": 40,
+                  "merchantRefNum": "merchantRefNum-151",
+                  "card": {
+                    "cardExpiry": {
+                      "month": "10",
+                      "year": "2020"
+                    },
+                    "lastDigits": "0003"
+                  },
+                  "billingDetails": {
+                    "street": "100 Queen",
+                    "street2": "Unit 201",
+                    "city": "Toronto",
+                    "country": "CA",
+                    "zip": "M5H2N2"
+                  },
+                  "customerIp": "204.91.0.12",
+                  "currencyCode": "GBP",
+                  "status": "PENDING",
+                  "description": "Winning payment from Loto 649"
+                }
+              ]
+            }
+            
+# Group Void Authorizations 
+
+Void Authorization allow merchants to cancel/void authorisation. 
+
+### Void an Authorization [POST /v1/payments/{PAYMENT_ID}/voidauths]
+
+- Click on Void an Authorization above to see how to submit a Void Authorization request. You can void an Authorization only if it has not yet been settled.
+
++ Parameter
+
+    + PAYMENT_ID : `86dcb68d-cbd0-4878-8da7-ffc0e6554513` - This is the ID returned in the response to the Payment request.
+    
++ Request (application/json)
+
+    + Headers
+
+            Authorization: "Basic YOUR-BASE64-ENCODED-API-KEY"
+            
+    + Attributes (voidAuthResponse)
+            
+    + Body
+
+            {
+              "amount": 900,
+              "merchantRefNum": "13915817720025003"
+            }
+     
++ Response 200 (application/json)
+
+    + Body
+
+            {
+              "id": "50175d73-be3d-4594-b570-9095a17121de",
+              "merchantRefNum": "13915817720025003",
+              "amount": 900,
+              "txnTime": "2018-12-10T11:00:53+0000",
+              "status": "COMPLETED"
+            }
+
+### Get Void Authorization [GET /v1/voidauths/{VOID_AUTH_ID}]
+
+Click on Get Void Authorization above to see how to look up a Void Authorization request using the ID returned in the response to the original request.
+
++ Parameter
+
+   + VOID_AUTH_ID : `86dcb68d-cbd0-4878-8da7-ffc0e6554513` - This is the ID returned in the response to the void authorisation request.
+
+
++ Response 200 (application/json)
+
+    + Body
+
+            {
+              "id": "65bb2b2e-be2f-4ae8-9a2a-f24239309c7d",
+              "merchantRefNum": "1391581772002515624",
+              "amount": 900,
+              "txnTime": "2018-12-10T11:17:23Z",
+              "status": "COMPLETED"
+            }
+            
+### Get Void Authorization Using Merchant Reference Number [GET /v1/voidauths?merchantRefNum={MERCHANT_REF_NUM}]
+
+Click on Get Void Authorization Using Merchant Reference Number above to see how to look up a Void Authorization request using the merchant reference number used in the original request.
+
++ Parameter
+
+   + MERCHANT_REF_NUM : 1391581772002515624 - This is the merchant reference number created by the merchant and submitted as part of the request. 
+
++ Response 200 (application/json)
+  
+   + Body
+
+            {
+              "voidAuths": [
+                {
+                  "id": "65bb2b2e-be2f-4ae8-9a2a-f24239309c7d",
+                  "merchantRefNum": "1391581772002515624",
+                  "amount": 900,
+                  "txnTime": "2018-12-10T11:17:23Z",
+                  "status": "COMPLETED"
+                }
+              ]
+            }
+
+
+
+## Create Customer [/v1/customers]
+
+### Create Customer Profile [POST]
+
++ Request (application/json)
+
+    + Headers
+
+            Authorization: "Basic YOUR-BASE64-ENCODED-API-KEY"
+    
+    + Body
+
+            {
+                "firstName": "John",
+                "lastName": "Smith",
+                "phone" : "123-456-7890",
+                "dateOfBirth": {
+                    "year": 1981,
+                    "month": 10,
+                    "day": 24
+                },
+                "address": {
+                    "nickName": "Home",
+                    "street": "100 Queen",
+                    "street2": "Unit 200",
+                    "city": "Toronto",
+                    "zip": "M5H 2N2",
+                    "country": "CA",
+                    "state": "ON"
+                },
+                "email": "john.smith@email.com"
+            }
+
++ Response 200 (application/json)
+
+    + Body
+
+            {
+                "customerId": "Gt56fR6",
+                "firstName": "John",
+                "lastName": "Smith",
+                "phone" : "123-456-7890",
+                "dateOfBirth": {
+                    "year": 1981,
+                    "month": 10,
+                    "day": 24
+                },
+                "address": {
+                    "addressId": "DF45FDtrR",
+                    "nickName": "Home",
+                    "street": "100 Queen",
+                    "street2": "Unit 200",
+                    "city": "Toronto",
+                    "zip": "M5H 2N2",
+                    "country": "CA",
+                    "state": "ON"
+                },
+                "email": "john.smith@email.com"
+            }
+
+## Single User Customer Tokens [/v1/singleusecustomertokens]
+
+### Create Single Use Customer Tokens [POST]
+
+The API allows creation of single use customer token needed for cases where saved payment handles for a customer needs to be displayed in UI.
+
++ Request (application/json)
+
+    + Headers
+
+            Authorization: "Basic YOUR-BASE64-ENCODED-API-KEY"
+    
+    + Body
+
+            {
+               "customerId" : "e979132e-a1f7-454b-a764-2aada299b3be",
+               "paymentTypes" : [ "CARD", "ACH"]
+            }
+
+
++ Response 200 (application/json)
+
+    + Body
+
+            {
+             "id" : "86dcb68d-cbd0-4878-8da7-ffc0e6554513",     
+             "customerId" : "e979132e-a1f7-454b-a764-2aada299b3be",
+             "paymentTypes" : [ "CARD", "ACH"],
+             "timeToLiveSeconds" : "899",
+             "status" : "ACTIVE",
+             "merchantCustomerId" : "mycustomer1",
+             "locale" : "en_US",
+             "firstName" : "John",
+             "lastName" : "Smith",
+             "email" : "john.smith@somedomain.com",
+             "phone" : "713-444-5555",
+             "addresses": [
+                {
+                  "id": "6a275b7c-6f11-4ed1-ae77-21071724574a",
+                  "status": "ACTIVE",
+                  "nickName": "Home",
+                  "street": "100 Queen",
+                  "street2": "Unit 201",
+                  "city": "Toronto",
+                  "zip": "M5H 2N2",
+                  "country": "CA",
+                  "state": "ON",
+                  "recipientName": "Jane Smith",
+                  "phone": "647-788-3901"
+                }
+              ],
+             "paymentHandles" : [
+              {
+                "id" : "52c54707-a536-4c3d-b2e9-ebdba8c1bd3e",
+                "timeToLiveSeconds" : "899",
+                "usage": "LOOKUP",
+                "paymentType": "CARD",
+                "paymentHandleToken" : "hdhfsafhdfsahg",
+                "card": {
+                    "lastDigits": "1111",
+                    "cardExpiry": {
+                        "month" : "12",
+                        "year" : "2020"
+                    },
+                    "holderName": "TEST CUSTOMER",
+                    "cardBin": "453091",
+                    "cardType": "VI"
+                },
+                "billingAddressId": "6a275b7c-6f11-4ed1-ae77-21071724574a"
+             }]
+            }
+
+### Get Saved Payment Handles using single use Customer Token Id [GET /v1/singleusecustomertokens/{id}]
+
+The operation allows look up of saved payment handles using a single use customer token. The payment handles are created with usage set to LOOKUP in a PENDING state.
+The payment handles returned can be converted into a single Use payment handle when a user clicks on the pay button and the flow continues as with a non-saved flow.
+
+Note: This API will be accessible with public API key. 
+
++ Parameter
+
+   + id : `86dcb68d-cbd0-4878-8da7-ffc0e6554513` 
+
+
++ Response 200 (application/json)
+
+    + Body
+            
+            {
+             "id" : "86dcb68d-cbd0-4878-8da7-ffc0e6554513",     
+             "customerId" : "e979132e-a1f7-454b-a764-2aada299b3be",
+             "paymentTypes" : [ "CARD", "ACH"],
+             "timeToLiveSeconds" : "899",
+             "status" : "ACTIVE",
+             "merchantCustomerId" : "mycustomer1",
+             "locale" : "en_US",
+             "firstName" : "John",
+             "lastName" : "Smith",
+             "email" : "john.smith@somedomain.com",
+             "phone" : "713-444-5555",
+             "addresses": [
+                {
+                  "id": "6a275b7c-6f11-4ed1-ae77-21071724574a",
+                  "status": "ACTIVE",
+                  "nickName": "Home",
+                  "street": "100 Queen",
+                  "street2": "Unit 201",
+                  "city": "Toronto",
+                  "zip": "M5H 2N2",
+                  "country": "CA",
+                  "state": "ON",
+                  "recipientName": "Jane Smith",
+                  "phone": "647-788-3901"
+                }
+              ],
+             "paymentHandles" : [
+              {
+                "id" : "52c54707-a536-4c3d-b2e9-ebdba8c1bd3e",
+                "timeToLiveSeconds" : "899",
+                "usage": "LOOKUP",
+                "paymentType": "CARD",
+                "paymentHandleToken" : "hdhfsafhdfsahg",
+                "card": {
+                    "lastDigits": "1111",
+                    "cardExpiry": {
+                        "month" : "12",
+                        "year" : "2020"
+                    },
+                    "cardBin": "453091",
+                    "cardType": "VI",
+                    "holderName": "TEST CUSTOMER"
+                },
+                "billingAddressId": "6a275b7c-6f11-4ed1-ae77-21071724574a"
+             }]
+            }
+
+# Data Structures
+
+## level2Level3Request (object)
++ level2Level3.exemptLocalTax (boolean)
++ level2Level3.localTaxAmount (number) : `length <=99999999999`  - This is the local sales tax applied to the purchase. 
++ level2Level3.nationalTaxAmount  : `length <=99999999999` - This is the national tax included in the transaction amount.
++ level2Level3.freightAmount (number) : `length <=99999999999` - This is the freight or shipping portion of the total transaction amount.
++ level2Level3.dutyAmount (number) : `length <=99999999999` - This is the duty associated with the import of the purchased goods.
++ level2Level3.destinationZip : `length <=10` - This is the postal/zip code of the address to which the purchased goods will be delivered. This field can be identical to the shipFromZip if the customer is present and takes immediate possession of the goods.
++ level2Level3.destinationCountry : `Size = 2` - This is the country to which the goods are being shipped. See Country Codes.
++ level2Level3.shipFromZip : `length <=10` - This is the postal/zip code of the address from which the purchased goods are being shipped
++ level2Level3.lineItems (array) - This is more detailed information about the items that are being purchased.
+    + lineItems.description : `length <=50` - This is a description of the item(s) being purchased.
+    + lineItems.productCode : `length <=12` - This is a merchant-defined description code of the item being purchased.
+    + lineItems.quantity  : `length =99999999999` - This is the quantity of the item.
+    + lineItems.unitAmount : 'length = 100' - This is the tax rate used to calculate the tax amount. For example, if the tax rate is 10.5%, this value should be 10.5.
+    + lineItems.taxAmount : `length =99999999999` - This is the amount of any value-added taxes that can be associated with the purchased item, in minor units. The currency will be based on the account setting.Our system will not validate the accuracy of this value. The merchant's application must calculate this value correctly.
+    + lineItems.totalAmount : `length =99999999999` - This is the total amount of the line item, typically calculated as price multiplied by quantity, in minor units. The currency will be based on the account setting. Our system will not validate the accuracy of this value. The merchant's application must calculate this value correctly.
+
+## gatewayRequest (object)
++ authCode : `length <= 50` - This is the Authorization code assigned by the issuing bank and returned in the response.
++ avsResponse (enum) - This is the AVS response from the card issuer.
+    + MATCH
+    + MATCH_ADDRESS_ONLY
+    + MATCH_ZIP_ONLY
+    + NO_MATCH
+    + NOT_PROCESSED
+    + UNKNOWN
++ cvvVerification (enum) - This is the response to the cvv submitted with the transaction request.
+    + MATCH
+    + NO_MATCH
+    + NOT_PROCESSED
+    + UNKNOWN
++ code -This is acquirer identification code, such as DJN, CRX, etc.
++ responseCode -This is the raw response returned by the acquirer.
++ avsCode -This is the raw AVS code returned by the acquirer.
++ balanceResponse -This is the balance remaining on a gift card, if a gift card was used for the original transaction.
++ mid -This is the acquirer MID that was sent to the clearing house.
++ terminalId -This is the merchant's terminal ID.
++ batchNumber -This is the batch number.
++ seqNumber -This is the merchant's sequence number.
++ effectiveDate -This is the date of the bank deposit associated with the transaction. 
++ financingType -This is the type of financing offered.
++ plan -This is the plan number for this financing transaction.
++ gracePeriod -This is the grace period, in months, associated with deferred payment transactions.
++ term - This is the number of payments, in months, for equal payment transactions.
++ responseId -This is the response ID assigned by Credorax.
++ requestId -This is the request ID assigned by NETBANX.
++ description -This is a description of the response.
++ authCode -This is the authorization code.
++ txnDateTime -This is the transaction date and time.
++ referenceNbr -Bank net transaction Id/Merch Tran Ref
++ responseReasonCode -This is the raw response reason code returned by Credorax.
++ cvv2Result -This is the raw cvv2 result code.
+
+## accordDRequest (object)
++ accordD.finanacingType(enum) - This is the type of financing offered.
+    + DEFERRED_PAYMENT – Deferred payment financing
+    + EQUAL_PAYMENT – Equal payment financing
++ accordD.plan : `length <=3` - This is the plan number for this financing transaction.
++ accordD.gracePeriod : `length <=99` - This is the grace period, in months, associated with deferred payment transactions.
++ accordD.term : `length <=99` -This is the number of payments, in months, for equal payment transactions.
+
+## recipientAttributes (object)
++ recipient.dateOfBirth (object) - This is the date of birth of the recipient.
+    + dateOfBirth.day(number) - This is the day of the dateOfBirth.
+    + dateOfBirth.month(number) - This is the month of the dateOfBirth.
+    + dateOfBirth.year(number) - This is the year of the dateOfBirth.
++ recipient.zip - This is the ZIP Code of the recipient.
++ recipient.lastName - This is the last name of the recipient.
++ recipient.accountNumber - This is the account number of the recipient.
+
+## splitpayAttributes (object)
++ linkedAccount -This is the ID of the linked account.
++ amount (number) -This is the amount to transfer to the linked account in minor currency units.
++ percent(number) -This is the percentage of the total transaction amount to transfer to that account.
+
+## storedCredentialDetailsAttributes (object)
++ type (enum) - This specifies the type of request being made. Possible values are: 
+    + ADHOC – Ad hoc consumer-initiated request.
+    + TOPUP – Unscheduled merchant iniitated request when a consumer balance is below a set limit.
+    + RECURRING –  Scheduled merchant initiated recurring request.
++ occurrence (enum) - This specifies whether this stored credential request is initial or recurring. Possible values are: 
+    + INITIAL – Used when this is the first time the consumer uses this credit card.
+    + SUBSEQUENT – Used when the consumer uses this credit card for subsquent requests.
+
+## merchantDescriptorAttributes (object)
++ merchantDescriptor.dynamicDescriptor: `length = 20` - This is a merchant descriptor that will be displayed on a customer’s card statement.
++ merchantDescriptor.phone: `length = 13` - This is the merchant’s phone number, which will be appended to the merchant descriptor on a customer’s card statement.
+
+## acquirerDataAttributes (object)
++ acquirerData.code - This is the code of the acquirer data. Possible values are:
+        + CRX (Credorax)
++ acquirerData.authId - This is the auth idof the acquirer data.
++ acquirerData.externalSubMerchantId - This is the external merchant id of the acquirer data.
+
+## errorAttributes (object)
++ error.code -This is the error code.
++ error.internalCode -This is the internal error code.
++ error.message -This is the description of the error.
++ error.riskReasonCode -if applicable The corresponding reason code from the risk system
++ error.details(array) -if applicable This is a collection of detailed description.
++ error.fieldErrors(array) - if applicable This is a list of fields that have issues.
+    + field -Field name.
+    + error -Error associated with the field name.
++ error.links (array) - if applicable This is a list of links to the related resource
+    + rel - Description or relation of the link. Eg: default, self, first, prev, next, last
+    + href - The actual URL of the link.
+
+## metadataAttributes (object)
++ key : `length = 50` -This is a description of the data being added to the order.
++ value : `length = 100` - This is the value for the key/value pair.
+
+## authenticationAttributes (object)
++ authentication.id -This is the id of authentication.
++ authentication.eci -This is the eci of authentication.
++ authentication.cavv -This is the cavv of authentication.
++ authentication.xid -This is the xid of authentication.
++ authentication.status -This is the status of authentication.
++ authentication.merchantRefNum -This is the merchantRefNumof authentication.
++ authentication.threeDEnrollment -This is the threeDEnrollmentof authentication.
++ authentication.threeDResult -This is the threeDResultof authentication.
++ authentication.signatureStatus -This is the signatureStatus of authentication.
++ authentication.error (object) -This is the error details of authentication.
+    + code -This is the error code.
+    + message -This is the description of the error.
+    + fieldErrors (object) -This is a list of fields that have issues.
+    + field -Field name.
+    + error -Error associated with the field name.
+
+## statusAttributes (enum)
++ RECEIVED - Our system has received the request and is waiting for the downstream processor’s response.
++ INITIATED - The transaction was initiated with the downstream provider.
++ PAYABLE - The merchant can proceed with payments post request.
++ PROCESSING - Payment Handle was authorized by customer, awaiting PSP response.
++ FAILED - The transaction failed, due to either an error or being declined. 
++ CANCELLED - The authorization request has been fully reversed.
++ EXPIRED - The payment handle got expired due to merchant not proceeding with transaction payments post.
++ COMPLETED - Payments call was initiated successfully using the payment Handle.
+
+## consumerOperationAttributes(enum)
++ ADD - Consumer wants to save the payment instrument to the profile.
++ EDIT - Consumer wants to edit the payment instrument which is attached to the profile.
++ DELETE - Consumer wants to delete the saved payment instrument from his profile.
+
+## transactionTypeAttributes(enum)
++ PAYMENT - Payment Handle is created to continue the Payment.
++ STANDALONE_CREDIT - Payment Handle is created to continue the standalone credit.
++ ORIGINAL_CREDIT - Payment Handle is created to continue the original credit.
++ VERIFICATION - Payment Handle is created to continue the verification request.
+
+## PaymentHandleRequest (object)
+
++ id: `length <=36`(required) - This is the ID returned in the response. This ID can be used for future associated requests, e,g., Payments.
++ paymentHandleTokenFrom: `length <= 36` - This is the existing payment handle id, from which payment instrument and profile details has to be fetched.
++ merchantRefNum: `length <= 100` - This is the merchant reference number created by the merchant and submitted as part of the request. It must be unique for each request.
++ consumerOperation(consumerOperationAttributes) -Either consumerOperation or transactionType is Mandatory. This is the consumer operation on the payment instrument.
++ singleUseProfileToken - This is the single use profile token of the profile on which consumer operation (ADD/EDIT/DELETE) need to be done.
++ transactionType(transactionTypeAttributes) - This specifies for which transaction type Payment Handle is created.
++ status(statusAttributes) - This is the status of the transaction request.
++ usage (enum) - Payment handle usage - whether single of multi use
+    + SINGLE_USE - The payment handle can be used only once for transaction, it gets expired after due time.
+    + MULTI_USE - The payment handle can be used multiple times like recurring/subscription payments.
++ paymentType (enum)(required) - The related payment Type/Channel/Method associated with this handle
+    + CARD
+    + SKRILL
+    + NETELLER
+    + PAYSAFE_CASH
+    + PAYSAFE_CARD
++ action (enum) - The associated action that needs to be done by merchant for this handle
+    + NONE
+    + REDIRECT
+    + AUTHENTICATE
++ executionMode (enum) - The type of execution of the payment
+    + ASYNCHRONOUS - For some payment types the actual payment will differently be completed after some hours or days, where customer has to complete it offline. In this case Merchant has to rely on Webhooks, which will get the Payment success/fail event.
+    + SYNCHRONOUS - In case the status of the Payment call will be returned to Merchant Synchronously. Example : Cards (with 3DS and without 3DS), Skrill, Neteller, Paysafe Card. In these cases Is it OK for Merchant to poll the PROCESSING/PENDING Payments in a regular intervals.
++ amount: 100 - Max =99999999999 This is the amount of the request, in minor units.
++ currencyCode: CAD - Max = 3 This is the currency of the merchant account, e.g., USD or CAD, returned in the request response.
++ paymentHandleToken - The handle token generated by our system which will be used by merchants for payments post later.
++ card (object) - These are the details of the card used for the request.
+    + paymentToken - Max = 80 If the payment token is provided, no other card information is necessary.
+    + cardNum - Min = 8,Max = 20 This is the card number used for the request.
+    + type (enum) - This is type of card used for the request.
+        - AM – American Express
+        - DC – Diners Club
+        - DI – Discover
+        - JC – JCB
+        - MC – MasterCard
+        - MD – Maestro
+        - SF – Swiff
+        - SO – Solo
+        - VI – Visa
+        - VD – Visa Debit
+        - VE – Visa Electron
+    + lastDigits - Size=4 This is the last four digits of the card used for the request.
+    + cardExpiry - This is the card's expiry date.
+        + month - length=2 This is the card expiry month.
+        + year - length=4 This is the card expiry year.
+    + cvv - Min = 3,Max = 4 This is the 3- or 4-digit security code that appears on the card following the card number.
+    + track1 - This is Track 1 information read from the card's magnetic stripe.
+    + track2 - This is Track 2 information read from the card's magnetic stripe.
++ profile - Customer information is mandatory if savePaymentInstrument is set to true
+ - id: Gt56fR6 - Id is enough, and if id is not present, customer details like firstName, lastName, email ... has to be provided,if id is specified, the additional details provided will be overwritten to existing customer profile?
+ - status - The status of customer in the system, returned in the response.
+ - merchantCustomerId - length = 255 This is the reference number for the customer created by the merchant and submitted as part of the request. It must be unique for each customer.
+ - firstName: test - length<=80 This is the customer’s first name.
+ - lastname: user - length<=80 This is the customer's last name.
+ - locale - Customer's locale preference
+ - dateOfBirth: year,month,day(array)
+ - email: john.smith@email.com - length<=255 This is the customer's email address.
+ - phone:12345678
+ - mobile - mobile
+ - gender - gender
+ - nationality - indian
++ billingDetails - These are the billing details for the request.
+ - street: 100 queen - length<=50 This is the first line of the street address in the billing address.
+ - street2: unit 201 - length<=50 This is the second line of the street address in the billing address, if required (e.g., apartment number).
+ - city: Toronto - length<=40 This is the city in the billing address.
+ - zip: MSH 2N2 - length<=10 This is the postal/zip code in the billing address.
+ - country: CA - Size = 2
+ - state: ON - length<=40 Use the 2-character state or province codes for Canada or the United States.
+ - phone - length<=40 This is the customer's telephone number.
++ merchantDescriptor - This is the merchant descriptor that will be displayed on the customer's card statement.
+    + dynamicDescriptor: Online Store - This is a merchant descriptor that will be displayed on a customer’s card statement. Length = 20
+    + phone: 12345678 - This is the merchant’s phone number, which will be appended to the merchant descriptor on a customer’s card statement. Length = 13
++ returnLinks (object) - Specifies all links
+    + rel(enum) -This is the link type, allowing different endpoints to be targeted depending on the end state of the transaction. The link relation describes how this link relates to the previous call. 
+        + self - This will get details of the current call.
+        + payment_redirect - Merchant needs to redirect this consumer to this url to complete payment
+    + href - The actual URL
+    + method - The http method
++ customerIp - length<=39 This is the customer's IP address.
++ timeToLiveSeconds: 1212121212 (number) - This is the period of time the single-use token is valid before expiration, in seconds, returned in the response.(Long)
+
+
+## PaymentsRequest (object)
+
++  id: `length <=36` read only - This is the ID returned in the response. This ID can be used for future associated requests, e,g., Settlements.
++ merchantRefNum: `length <= 255`(required) - This is the merchant reference number created by the merchant and submitted as part of the request. It must be unique for each request.
++ amount: 100 - Max =99999999999(required)  This is the amount of the request, in minor units.
++ dupCheck: true (boolean) - This validates that this request is not a duplicate. A request is considered a duplicate if the merchantRefNum has already been used in a previous request within the past 90 days.
++ settleWithAuth: true (boolean) - This indicates whether the request is an Authorization only (no Settlement), or a Purchase (Authorization and Settlement).
+        - false - the request is not settled
+        - true  - the request is settled
++ preAuth: false  (boolean) - This indicates whether the Authorization request should be sent as a Pre-Authorization.
+        - You should use the preAuth element in cases where you are not sure that you can fully settle the Authorization within 4 days. Contact your account manager for more information.
++ partialAuth (object)  -This is the authorization that is approved for an amount lower than the requested amount. The reminder of the amount could be paid by other means.     
+    + partialAuth.requested (boolean) -This specifies whether partial auth is requested or not.
+    + partialAuth.amountDue (number) -This is the amount for which auth is not provided.
+    + partialAuth.orginalAmount (number) -This is the actual amount for which authorization is asked.
++ paymentHandleToken (string) - This is the payment handle token.
++ paymentHandle (PaymentHandleRequest) - This is the Payment Handle details.
++ availableToSettle (number) -This is the amount of of the Authorization remaining to settle, in minor units.
++ childAccountNum : `length <= 10` -This is the child merchant account number. It is returned only if the transaction was processed via a master account.
++ customerIp - `length<=39` -This is the customer's IP address.
++ description: `length<=255` -This is a description of the transaction, provided by the merchant.
++ status (statusAttributes) - This is the status of the transaction request.
++ currencyCode: CAD - Max = 3 This is the currency of the merchant account, e.g., USD or CAD, returned in the request response.
++ level2Level3(level2Level3Request) - This allows merchants who are enabled to provide additional L2/L3 transaction data.
+        Not all processing gateways support this parameter. Contact your account manager for more information.
++ gatewayResponse(gatewayRequest) - This is the raw response returned by an acquirer. It is returned only if your account is configured accordingly.
++ accorD(accordDRequest) - These are parameters for financing plans supported for certain merchant configurations.
+        Include this element only when instructed to do so by NETBANX.
++ recipient(recipientAttributes) - This is recipient information.
++ riskReasonCode (array) - An array of integers is returned, displaying the detailed risk reason codes if your transaction was declined. It is returned only if your account is configured accordingly.
++ splitPay (splitpayAttributes) - NOTE: For splitpay transactions only.
+        An array containing the linked accounts and the amount shared with each. You must include either amount or percent. However, you cannot include both values.
++ storedCredential(storedCredentialDetailsAttributes) - The storedCredential object is used to identify authorization requests that use stored credentials for a consumer, in order to improve authorization rates and reduce fraud. Stored credentials can be used in two cases:
+Using a payment token – An authorization request that uses a paymentToken from the Customer Vault API.           
+Using a card number – An authorization request that uses a credit card number stored by the merchant
++ merchantDescriptor(merchantDescriptorAttributes) - This is the merchant descriptor that will be displayed on the customer's card statement.
+        Not all processing gateways support this parameter. Contact your account manager for more information.
++ settlements (array) - This is the list of all settlements. This will be returned only if settleWithAuth=true in the request.
++ acquirerData(acquirerDataAttributes) - This is additional information about the card acquirer required when you are performing an original credit request.
+        This object is required only when you are using Credorax (CRX) as your acquirer for Original Credits. Contact your account manager for details.
++ error(errorAttributes) - Details of the error.
++ metadata(metadataAttributes) - This allows the merchant to specify additional data (e.g., affiliate codes, session IDs, etc.) to be stored against the transaction and returned to in status calls, reports, etc.
+        Up to 10 metadata key/value pairs are enabled per order. They do not need to be defined in advance and can be different on each transaction.
++ statusReason - This is reason for the status. This is present in case of ERROR, FAILURE, HELD status.
++ authentication(authenticationAttributes) - This is the 3DS authentication details.
+
+
+## OriginalCreditResponse (object)
++ id: 25f6dadf-176a-415f-95c9-6ff39ff697ba - Read Only, length<=36    This is the ID returned in the response. This ID can be used for future associated requests, e,g., Refunds.
++ merchantRefNum: P1234 (required) - length<=255 This is the merchant reference number created by the merchant and submitted as part of the request.
++ amount: 100 (required) - max=99999999999 This is the amount of the request, in minor units.
++ card (object) - These are the details of the card used for the request.Only one card object can be included in the request.
+    + paymentToken (required) - Max = 80 This is the payment token representing the card.
++ card (object) - These are the details of the card used for the request.Only one card object can be included in the request.   
+    + cardNum (): 4111111111111111 (required) - length=8-20 This is the card number used for the request.
+        + cardExpiry (required) - This is the card's expiry date.
+        + month:12 (number, required) - This is the card expiry month. length=2
+        + year:2020 (number, required) - This is the card expiry year. length=4
+    + cvv - This is the 3- or 4-digit security code that appears on the card following the card number.
+    + track1 - This is Track 1 information read from the card's magnetic stripe.
+    + track2 - This is Track 2 information read from the card's magnetic stripe.`
++ dupCheck: true (boolean) - This validates that this request is not a duplicate. A request is considered a duplicate if the merchantRefNum has already been used in a previous request within the past 90 days.
++ description: Purchase Credit - This is a description of the transaction, provided by the merchant. length<=255
++ customerIp: 204.91.0.12 -This is the customer's IP address.length<=39
++ accountId: 123456789 (optional) -This is the merchant account number.
++ profile - These are some details about the customer.
+ - firstName: test -  This is the customer’s first name. length<=80
+ - lastname: user -  This is the customer's last name. length<=80
+ - email: john.smith@email.com -  This is the customer's email address. length<=255
++ billingAddress - These are the billing details for the request.
+ - street: 100 queen - length<=50 This is the first line of the street address in the billing address.
+ - street2: unit 201 - length<=50 This is the second line of the street address in the billing address, if required (e.g., apartment number).
+ - city: Toronto - This is the city in the billing address. length<=40
+ - zip: MSH 2N2 - This is the postal/zip code in the billing address. length<=10
+ - country: CA - Size = 2
+ - state: ON - Use the 2-character state or province codes for Canada or the United States. length<=40
+ - phone - This is the customer's telephone number. length<=40
+
+## RefundResponse (object)
++ id: 25f6dadf-176a-415f-95c9-6ff39ff697ba - Read Only, length<=36    This is the ID returned in the response. This ID can be used for future associated requests, e,g., Refunds.
++ merchantRefNum: P1234 (required) - length<=255 This is the merchant reference number created by the merchant and submitted as part of the request.
++ amount: 100 (required) - max=99999999999 This is the amount of the request, in minor units.
++ dupCheck: true (boolean) - This validates that this request is not a duplicate. A request is considered a duplicate if the merchantRefNum has already been used in a previous request within the past 90 days.
++ childAccountNum : `length <= 10` -This is the child merchant account number. It is returned only if the transaction was processed via a master account.
++ txnTime : `date` - This is the date and time the transaction was processed.For example, 2018-11-27T09:12:11Z
++ status (statusAttributes) - This is the status of the transaction request.
++ error(errorAttributes) - Details of the error.
++ splitPay (splitpayAttributes) - NOTE: For splitpay transactions only.
+        An array containing the linked accounts and the amount shared with each. You must include either amount or percent. However, you cannot include both values.
++ riskReasonCode (array) - An array of integers is returned, displaying the detailed risk reason codes if your transaction was declined. It is returned only if your account is configured accordingly.        
++ gatewayResponse(gatewayRequest) - This is the raw response returned by an acquirer. It is returned only if your account is configured accordingly.
+
+
+## SettlementResponse (object)
++ id: 25f6dadf-176a-415f-95c9-6ff39ff697ba - Read Only, length<=36    This is the ID returned in the response. This ID can be used for future associated requests, e,g., Refunds.
++ merchantRefNum: P1234 (required) - length<=255 This is the merchant reference number created by the merchant and submitted as part of the request.
++ amount: 100 (required) - max=99999999999 This is the amount of the request, in minor units.
++ dupCheck: true (boolean) - This validates that this request is not a duplicate. A request is considered a duplicate if the merchantRefNum has already been used in a previous request within the past 90 days.
++ availableToRefund (number) -This is the amount of of the Authorization remaining to refund, in minor units.
++ childAccountNum : `length <= 10` -This is the child merchant account number. It is returned only when the transaction is processed via a master account.
++ status (statusAttributes) - This is the status of the transaction request.
++ error(errorAttributes) - Details of the error.
++ splitPay (splitpayAttributes) - NOTE: For splitpay transactions only.
+        An array containing the linked accounts and the amount shared with each. You must include either amount or percent. However, you cannot include both values.
++ riskReasonCode (array) - An array of integers is returned, displaying the detailed risk reason codes if your transaction was declined. It is returned only if your account is configured accordingly.        
++ gatewayResponse(gatewayRequest) - This is the raw response returned by an acquirer. It is returned only if your account is configured accordingly.
+
+## voidAuthResponse (object)
++ id: 25f6dadf-176a-415f-95c9-6ff39ff697ba - Read Only, length<=36    This is the ID returned in the response. This ID can be used for future associated requests, e,g., Refunds.
++ merchantRefNum: P1234 (required) - length<=255 This is the merchant reference number created by the merchant and submitted as part of the request.
++ amount: 100 (required) - max=99999999999 This is the amount of the request, in minor units.
