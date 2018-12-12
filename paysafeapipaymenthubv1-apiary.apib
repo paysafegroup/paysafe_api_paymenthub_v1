@@ -44,7 +44,107 @@ For additional details, please refer to [http://en.wikipedia.org/wiki/Basic_acce
 
 **BE SURE TO PROVIDE CLEAR INSTRUCTIONS HERE ON HOW THEY WILL GET THEIR API KEY FOR THIS API**
 
-## Getting Started
+# URLs
+
+##  Test URL
+In order to test your integration with Paysafe, use the following Test URL:
+
+`https://api.test.paysafe.com`
+
+For example:
+
+`https://api.test.paysafe.com/paymenthub/v1/payments/{payment_id}`
+
+## Production URL
+In order to process live requests with Paysafe, use the following Production URL:
+
+`https://api.paysafe.com`
+
+For example:
+
+`https://api.paysafe.com/paymenthub/v1/payments/{payment_id}`
+
+
+<a name="pagination" title="Pagination"></a>
+# Pagination
+
+In the case where an API GET request returns multiple results, Paysafe returns the first 10 records by default and uses HATEOAS links to provide page navigation. In addition to the default behavior, it is also possible to control the number of results and starting point by passing in query parameters as follows:
+
+|    Name       | Description   |
+|---            |---            |
+| limit         | This is the total number of records to return. Max = 50. Default = 10. |
+| offset        | This is the starting position, where 0 is the first record. Default = 0. |
+| startDate     | This is the start date in UTC. Default = 30 days before the *endDate*.|
+| endDate       | This is the end date in UTC. Default = current date and time. |
+
+**IS THIS THE BEHAVIOUR FOR THE NEW PAYMENTS API?**
+
+<a name="globalinvalidcharacters" title="Global Invalid Characters"></a>
+# Global Invalid Characters
+
+You must not include any of the characters in the following table as values in any of your request parameters. If you do, your request will result in an error.
+
+|    Character    |    HEX    |    Description                     |
+|-----------------|-----------|------------------------------------|
+| "               | 22        | Double quotes (or speech marks)    |
+| ;               | 3B        | Semicolon                          |
+| ^               | 5E        | Caret, circumflex                  |
+| *               | 2A        | Asterisk                           |
+| <               | 3C        | Less than (or open angled bracket) |
+| /               | 2F        | Slash or divide                    |
+| [               | 5B        | Opening bracket                    |
+| ]               | 5D        | Closing bracket                    |
+| \               | 5C        | Backslash                          |
+
+**IS THIS ACCURATE FOR THE NEW PAYMENTS API?**
+
+# API
+
+The Payments API allows merchants to process payment requests across a wide variety of payment methods with a simple integration a single API using the REST protocol. The protocol uses JSON for all requests and responses.
+
+The following request types are supported:
+
+**UPDATE LINKS BELOW TO APPROPRIATE SECTIONS ONCE THEY ARE CREATED**
+
+  * [Payment Methods](#)
+  * [Payment Handles](#)
+  * [Payments](#)
+  * [Settlements](#)
+  * [Refunds](#)
+  * [Standalone Credits](#)
+  * [Original Credits](#)
+  * [Void Authorizations](#voidauths)
+  
+**API Endpoint**
+
+`https://api.paysafe.com/paymenthub/v1/payments/{payment_id}`
+
+**Resource Patterns**
+
+|Endpoint URL                                   |Description                            |Action |
+|---                                            |---                                    |---    |
+|/paymentmethods                                |Look Up Payment Methods for a Merchant |POST   |
+|/paymenthandles                                |Create a Customer Payment Handle       |POST   |
+|/paymenthandles/{payment_handle_id}            |Look Up a Payment Handle               |GET    |
+|/payments                                      |Submit a Payment Request               |POST   |
+|/payments/{payment_id}                         |Look Up a Payment                      |GET    |
+|/payments/{payment_id}/settlements             |Settle an Authorization                |POST   |
+|/settlements/{settlement_id}                   |Cancel a Settlement                    |PUT    |
+|/settlements/{settlement_id}                   |Look Up a Settlement                   |GET    |
+|/payments/{settlement_id}/refunds              |Submit a Refund                        |POST   |
+|/refunds/{refund_id}                           |Cancel a Refund                        |PUT    |
+|/refunds/{refund_id}                           |Look Up a Refund                       |GET    |
+|/standalonecredits                             |Submit a Standalone Credit             |POST   |
+|/standalonecredits/{standalone_credit_id}      |Cancel a Standalone Credit             |PUT    |
+|/standalonecredits/{standalone_credit_id}      |Look Up a Standalone Credit            |GET    |
+|/originalcredits                               |Submit an Original Credit              |POST   |
+|/originalcredits/{original_credit_id}          |Cancel an Original Credit              |PUT    |
+|/originalcredits/{original_credit_id}          |Look Up an Original Credit             |GET    |
+|/payments/{payment_id}/voidauths               |Void (Reverse) an Authorization        |POST   |
+|/voidauths/{void_auth_id}                      |Look Up a Void Authorization           |GET    |
+
+
+# Getting Started
 
 Paysafe Payment Hub encapsulates integration with multiple payment methods into a single API 
 that simplifies the development effort for a new payment method integration to bare minimum 
@@ -60,6 +160,22 @@ The following payment methods are supported
 - Guaranteed ACH
 - Sightline Prepaid Cards
 
+
+<a name="isostandards" title="ISO Standards"></a>
+# ISO Standards
+
+**ADD IF ANY ARE REQUIRED FOR REQUESTS, E.G., CURRENCY CODES.
+
+# Common Objects
+
+<a name="paymenthandleobject" title="Payment Handle Object"></a>
+## Payment Handle
+|Element            |Type                       |Description                        |
+|---                |---                        |---       |
+|id                 |string<br/>`length<=32`    |This is the ID returned in the response. This ID can be used to retrieve the Payment Handle.|
+|plan               |string<br/>`length<=3`     |This is the plan number for this financing transaction.|
+|gracePeriod        |number<br/>`max=99`        |This is the grace period, in months, associated with deferred payment transactions.|
+|term               |number<br/>`max=99`        |This is the number of payments, in months, for equal payment transactions.|
 
 # Group Payment Methods
 
