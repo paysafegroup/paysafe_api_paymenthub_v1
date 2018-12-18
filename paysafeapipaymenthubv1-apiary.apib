@@ -1,7 +1,10 @@
 FORMAT: 1A
-HOST: https://api.test.paysafe.com/paymenthub
+HOST: https://api.test.paysafe.com/paymenthub/
 
 # Paysafe Payments API 
+
+# QUESTIONS
+ * The CANCELLED status for payment handle talks about an auth request being reversed. Is this correct?
 
 # Release Notes
 
@@ -164,18 +167,1014 @@ The following payment methods are supported
 <a name="isostandards" title="ISO Standards"></a>
 # ISO Standards
 
-**ADD IF ANY ARE REQUIRED FOR REQUESTS, E.G., CURRENCY CODES.
+<a name="currencycodes" title="Currency Codes"></a>
+## Currency Codes
+
+**Note**
+ * The table below lists the currencies in which transaction requests are processed, but note that they may be settled in a different currency.
+ * Not all currencies are supported by all banks. Contact your account manager for more information about which currencies are supported for your merchant account.
+
+|Currency |Code |
+|--- |--- |
+|Argentine Peso |ARS |
+|Australian Dollar  |AUD |
+|Azerbaijanian Manat    |AZN |
+|Bahraini Dinar |BHD  |
+|Belarusian Ruble   |BYR  |
+|Bolivian Boliviano |BOB  |
+|Bosnia and Herzegovina Convertible Mark |BAM  |
+|Brazilian Real |BRL  |
+|Bulgarian Lev  |BGN  |
+|Canadian Dollar    |CAD  |
+|Chilean Peso   |CLP  |
+|China Yuan Renminbi    |CNY  |
+|Columbian Peso |COP  |
+|Costa Rican Colon  |CRC  |
+|Croatian Kuna  |HRK  |
+|Czech Koruna   |CZK  |
+|Danish Krone   |DKK  |
+|Dominican Peso |DOP  |
+|East Caribbean Dollar  |XCD  |
+|Egyptian Pound |EGP  |
+|Ethiopian Birr |ETB  |
+|Euro   |EUR  |
+|Fiji Dollar    |FJD  |
+|Georgian Lari  |GEL  |
+|Guatemala Quetzal  |GTQ  |
+|Haiti Goude    |HTG  |
+|Honduran Lempira   |HNL  |
+|Hong Kong Dollar   |HKD  |
+|Hungarian Forint   |HUF  |
+|Iceland Krona  |ISK  |
+|Indian Rupee   |INR  |
+|Indonesia Rupiah   |IDR  |
+|Iranian Rial   |IRR  |
+|Jamaican Dollar    |JMD  |
+|Japanese Yen   |JPY  |
+|Jordanian Dinar    |JOD  |
+|Kazakhstan Tenge   |KZT  |
+|Kenyan Shilling    |KES  |
+|Korean Won |KRW  |
+|Kuwaiti Dinar  |KWD  |
+|Latvian Lats   |LVL  |
+|Lebanese Pound |LBP  |
+|Libyan Dinars  |LYD  |
+|Lithuanian Litas   |LTL  |
+|Malawi Kwacha  |MWK  |
+|Malaysian Ringgit  |MYR  |
+|Mauritius Rupee    |MUR  |
+|Mexican Peso   |MXN  |
+|Moldovan Leu   |MDL  |
+|Moroccan Dirham    |MAD  |
+|New Israeli Shekel |ILS  |
+|New Zealand Dollar |NZD  |
+|Nigerian Naira |NGN  |
+|Norwegian Krone    |NOK  |
+|Omani Rial |OMR  |
+|Pakistan Rupee |PKR  |
+|Panamanian Balboa  |PAB  |
+|Paraguayan Guarani |PYG  |
+|Peruvian Sol   |PEN  |
+|Philippine Peso    |PHP  |
+|Polish Zloty   |PLN  |
+|Pound Sterling |GBP  |
+|Qatari Rial    |QAR  |
+|Romanian New Leu   |RON  |
+|Russian Ruble  |RUB  |
+|Saudi Arabian Riyal    |SAR  |
+|Serbian Dinar  |RSD  |
+|Singapore Dollar   |SGD  |
+|South African Rand |ZAR  |
+|Sri Lanka Rupee    |LKR  |
+|Swedish Krona  |SEK  |
+|Swiss Franc    |CHF  |
+|Syrian Pound   |SYP  |
+|Taiwan New Dollar  |TWD  |
+|Thai Baht  |THB  |
+|Trinidad and Tobago Dollar |TTD  |
+|Tunisian Dinar |TND  |
+|Turkish Lira   |TRY  |
+|Ukranian Hryunia   |UAH  |
+|UAE Dirham |AED  |
+|Uruguay Peso   |UYU  |
+|US Dollar  |USD  |
+|Venezuelan Bolivar |VEF  |
+|Viet Nam Dong  |VND  |
+
+<a name="provincecodes" title="Province Codes"></a>
+## Province Codes
+
+|Province               |Code   |
+|---                    |---    |
+|Alberta                |AB     |
+|British Columbia       |BC     |
+|Manitoba               |MB     |
+|New Brunswick          |NB     |
+|Newfoundland           |NL     |
+|Nova Scotia            |NS     |
+|Northwest Territories  |NT     |
+|Nunavut                |NU     |
+|Ontario                |ON     |
+|Prince Edward Island   |PE     |
+|Quebec                 |QC     |
+|Saskatchewan           |SK     |
+|Yukon                  |YT     |
+
+<a name="statecodes" title="State Codes"></a>
+## State Codes
+
+|State                  |Code   |
+|---                    |---    |
+|Alabama                |AL     |
+|Alaska                 |AK     |
+|American Samoa         |AS     |
+|Arizona                |AZ     |
+|Arkansas               |AR     |
+|Armed Forces Americas  |AA     |
+|Armed Forces Europe    |AE     |
+|Armed Forces Pacific   |AP     |
+|California             |CA     |
+|Colorado               |CO     |
+|Connecticut            |CT     |
+|Delaware               |DE     |
+|District of Columbia   |DC     |
+|Florida                |FL     |
+|Georgia                |GA     |
+|Guam                   |GU     |
+|Hawaii                 |HI     |
+|Idaho                  |ID     |
+|Illinois               |IL     |
+|Indiana                |IN     |
+|International          |IT     |
+|Iowa                   |IA     |
+|Kansas                 |KS     |
+|Kentucky               |KY     |
+|Louisiana              |LA     |
+|Maine                  |ME     |
+|Maryland               |MD     |
+|Massachusetts          |MA     |
+|Michigan               |MI     |
+|Minnesota              |MN     |
+|Mississippi            |MS     |
+|Missouri               |MO     |
+|Montana                |MT     |
+|Nebraska               |NE     |
+|Nevada                 |NV     |
+|New Hampshire          |NH     |
+|New Jersey             |NJ     |
+|New Mexico             |NM     |
+|New York               |NY     |
+|North Carolina         |NC     |
+|North Dakota           |ND     |
+|Northern Mariana Is.   |MP     |
+|Ohio                   |OH     |
+|Oklahoma               |OK     |
+|Oregon                 |OR     |
+|Palau                  |PW     |
+|Pennsylvania           |PA     |
+|Puerto Rico            |PR     |
+|Rhode Island           |RI     |
+|South Carolina         |SC     |
+|South Dakota           |SD     |
+|Tennessee              |TN     |
+|Texas                  |TX     |
+|U.S. Virgin Islands    |VI     |
+|United States Federal  |US     |
+|Utah                   |UT     |
+|Vermont                |VT     |
+|Virginia               |VA     |
+|Washington             |WA     |
+|West Virginia          |WV     |
+|Wisconsin              |WI     |
+|Wyoming                |WY     |
+
+
+<a name="countrycodes" title="Country Codes"></a>
+## Country Codes
+| Country                       | Code |
+|---                                |---       |
+| Afghanistan                       | AF |
+| Åland Islands                     | AX |
+| Albania                           | AL |
+| Algeria                           | DZ |
+| American Samoa                    | AS |
+| Andorra                           | AD |
+| Angola                            | AO |
+| Anguilla                          | AI |
+| Antarctica                        | AQ |
+| Antigua and Barbuda               | AG |
+| Argentina                         | AR |
+| Armenia                           | AM |
+| Aruba                             | AW |
+| Australia                         | AU |
+| Austria                           | AT |
+| Azerbaijan                        | AZ |
+| Bahamas                           | BS |
+| Bahrain                           | BH |
+| Bangladesh                        | BD |
+| Barbados                          | BB |
+| Belarus                           | BY |
+| Belgium                           | BE |
+| Belize                            | BZ |
+| Benin                             | BJ |
+| Bermuda                           | BM |
+| Bhutan                            | BT |
+| Bolivia                           | BO |
+| Bonaire, Sint Eustatius and Saba  | BQ |
+| Bosnia and Herzegovina            | BA |
+| Botswana                          | BW |
+| Bouvet Island                     | BV |
+| Brazil                            | BR |
+| British Indian Ocean Territory    | IO |
+| Brunei Darussalam                 | BN |
+| Bulgaria                          | BG |
+| Burkina Faso                      | BF |
+| Burundi                           | BI |
+| Cambodia                          | KH |
+| Cameroon                          | CM |
+| Canada                            | CA |
+| Cape Verde                        | CV |
+| Cayman Islands                    | KY |
+| Central African Republic          | CF |
+| Chad                              | TD |
+| Chile                             | CL |
+| China                             | CN |
+| Christmas Island                  | CX |
+| Cocos (Keeling) Islands           | CC |
+| Colombia                          | CO |
+| Comoros                           | KM |
+| Congo                             | CG |
+| Congo, Democratic Republic of     | CD |
+| Cook Islands                      | CK |
+| Costa Rica                        | CR |
+| Côte D’Ivoire                     | CI |
+| Croatia                           | HR |
+| Cuba                              | CU |
+| Curaçao                           | CW |
+| Cyprus                            | CY |
+| Czech Republic                    | CZ |
+| Denmark                           | DK |
+| Djibouti                          | DJ |
+| Dominica                          | DM |
+| Dominican Republic                | DO |
+| Ecuador                           | EC |
+| Egypt                             | EG |
+| El Salvador                       | SV |
+| Equatorial Guinea                 | GQ |
+| Eritrea                           | ER |
+| Estonia                           | EE |
+| Ethiopia                          | ET |
+| Falkland Islands                  | FK |
+| Faroe Islands                     | FO |
+| Fiji                              | FJ |
+| Finland                           | FI |
+| France                            | FR |
+| French Guiana                     | GF |
+| French Polynesia                  | PF |
+| French Southern Territories       | TF |
+| Gabon                             | GA |
+| Gambia                            | GM |
+| Georgia                           | GE |
+| Germany                           | DE |
+| Ghana                             | GH |
+| Gibraltar                         | GI |
+| Greece                            | GR |
+| Greenland                         | GL |
+| Grenada                           | GD |
+| Guadeloupe                        | GP |
+| Guam                              | GU |
+| Guatemala                         | GT |
+| Guernsey                          | GG |
+| Guinea                            | GN |
+| Guinea-Bissau                     | GW |
+| Guyana                            | GY |
+| Haiti                             | HT |
+| Heard and McDonald Islands        | HM |
+| Honduras                          | HN |
+| Hong Kong                         | HK |
+| Hungary                           | HU |
+| Iceland                           | IS |
+| India                             | IN |
+| Indonesia                         | ID |
+| Iran  (Islamic Republic of)       | IR |
+| Iraq                              | IQ |
+| Ireland                           | IE |
+| Isle of Man                       | IM |
+| Israel                            | IL |
+| Italy                             | IT |
+| Jamaica                           | JM |
+| Japan                             | JP |
+| Jersey                            | JE |
+| Jordan                            | JO |
+| Kazakhstan                        | KZ |
+| Kenya                             | KE |
+| Kiribati                          | KI |
+| Korea, Democratic People’s Republic | KP |
+| Korea, Republic of                | KR |
+| Kuwait                            | KW |
+| Kyrgyzstan                        | KG |
+| Lao People’s Democratic Republic  | LA |
+| Latvia                            | LV |
+| Lebanon                           | LB |
+| Lesotho                           | LS |
+| Liberia                           | LR |
+| Libyan Arab Jamahiriya            | LY |
+| Liechtenstein                     | LI |
+| Lithuania                         | LT |
+| Luxembourg                        | LU |
+| Macau                             | MO |
+| Macedonia                         | MK |
+| Madagascar                        | MG |
+| Malawi                            | MW |
+| Malaysia                          | MY |
+| Maldives                          | MV |
+| Mali                              | ML |
+| Malta                             | MT |
+| Marshall Islands                  | MH |
+| Martinique                        | MQ |
+| Mauritania                        | MR |
+| Mauritius                         | MU |
+| Mayotte                           | YT |
+| Mexico                            | MX |
+| Micronesia, Federated States of   | FM |
+| Moldova, Republic of              | MD |
+| Monaco                            | MC |
+| Mongolia                          | MN |
+| Montenegro                        | ME |
+| Montserrat                        | MS |
+| Morocco                           | MA |
+| Mozambique                        | MZ |
+| Myanmar                           | MM |
+| Namibia                           | NA |
+| Nauru                             | NR |
+| Nepal                             | NP |
+| New Caledonia                     | NC |
+| New Zealand                       | NZ |
+| Nicaragua                         | NI |
+| Niger                             | NE |
+| Nigeria                           | NG |
+| Niue                              | NU |
+| Norfolk Island                    | NF |
+| Northern Mariana Islands          | MP |
+| Norway                            | NO |
+| Oman                              | OM |
+| Pakistan                          | PK |
+| Palau                             | PW |
+| Palestinian Territory, Occupied   | PS |
+| Panama                            | PA |
+| Papua New Guinea                  | PG |
+| Paraguay                          | PY |
+| Peru                              | PE |
+| Philippines                       | PH |
+| Pitcairn                          | PN |
+| Poland                            | PL |
+| Portugal                          | PT |
+| Puerto Rico                       | PR |
+| Qatar                             | QA |
+| Reunion                           | RE |
+| Romania                           | RO |
+| Russian Federation                | RU |
+| Rwanda                            | RW |
+| Saint Barthélemy                  | BL |
+| Saint Helena                      | SH |
+| Saint Kitts and Nevis             | KN |
+| Saint Lucia                       | LC |
+| Saint Martin                      | MF |
+| Saint Vincent and the Grenadines  | VC |
+| Samoa                             | WS |
+| San Marino                        | SM |
+| Sao Tome and Principe             | ST |
+| Saudi Arabia                      | SA |
+| Senegal                           | SN |
+| Serbia                            | RS |
+| Seychelles                        | SC |
+| Sierra Leone                      | SL |
+| Singapore                         | SG |
+| Sint Maarten                      | SX |
+| Slovakia (Slovak Republic)        | SK |
+| Slovenia                          | SI |
+| Solomon Islands                   | SB |
+| Somalia                           | SO |
+| South Africa                      | ZA |
+| South Georgia and the South Sandwich Islands | GS |
+| South Sudan                       | SS |
+| Spain                             | ES |
+| Sri Lanka                         | LK |
+| St. Pierre and Miquelon           | PM |
+| Sudan                             | SD |
+| Suriname                          | SR |
+| Svalbard and Jan Mayen Islands    | SJ |
+| Swaziland                         | SZ |
+| Sweden                            | SE |
+| Switzerland                       | CH |
+| Syrian Arab Republic              | SY |
+| Taiwan                            | TW |
+| Tajikistan                        | TJ |
+| Tanzania, United Republic of      | TZ |
+| Thailand                          | TH |
+| The Netherlands                   | NL |
+| Timor-Leste                       | TL |
+| Togo                              | TG |
+| Tokelau                           | TK |
+| Tonga                             | TO |
+| Trinidad and Tobago               | TT |
+| Tunisia                           | TN |
+| Turkey                            | TR |
+| Turkmenistan                      | TM |
+| Turks and Caicos Islands          | TC |
+| Tuvalu                            | TV |
+| Uganda                            | UG |
+| Ukraine                           | UA |
+| United Arab Emirates              | AE |
+| United Kingdom                    | GB |
+| United States                     | US |
+| United States Minor Outlying Islands | UM |
+| Uruguay                           | UY |
+| Uzbekistan                        | UZ |
+| Vanuatu                           | VU |
+| Vatican City State (Holy See)     | VA |
+| Venezuela                         | VE |
+| Vietnam                           | VN |
+| Virgin Islands (British)          | VG |
+| Virgin Islands (U.S.)             | VI |
+| Wallis and Futuna Islands         | WF |
+| Western Sahara                    | EH |
+| Yemen                             | YE |
+| Zambia                            | ZM |
+| Zimbabwe                          | ZW |
 
 # Common Objects
 
-<a name="paymenthandleobject" title="Payment Handle Object"></a>
-## Payment Handle
+<a name="accorddobject" title="AccordD Object"></a>
+## accordD
 |Element            |Type                       |Description                        |
 |---                |---                        |---       |
-|id                 |string<br/>`length<=32`    |This is the ID returned in the response. This ID can be used to retrieve the Payment Handle.|
+|financingType      |enum                       |This is the type of financing offered.<ul><li>DEFERRED_PAYMENT &ndash; Deferred payment financing</li><li>EQUAL_PAYMENT &ndash; Equal payment financing</li></ul>|
 |plan               |string<br/>`length<=3`     |This is the plan number for this financing transaction.|
 |gracePeriod        |number<br/>`max=99`        |This is the grace period, in months, associated with deferred payment transactions.|
 |term               |number<br/>`max=99`        |This is the number of payments, in months, for equal payment transactions.|
+
+```apib
+    {
+    "accordD":{
+        "financingType":"DEFERRED_PAYMENT",
+        "plan":"123",
+        "gracePeriod":"12"
+    }
+    }
+```
+
+<a name="acquirerdataobject" title="Acquirer Data Object"></a>
+## acquirerData
+
+ * What is length of last element?
+
+This is additional information about the card acquirer required when you are performing an Original Credit request. This object is required **only when** you are using Credorax (CRX) as your acquirer for Original Credits. Contact your account manager for details.
+
+|Element            |Type                       |Description                        |
+|---                |---                        |---       |
+|authId             |string<br/>`length<=36`    |This is the ID returned in the response to a previous successful Authorization or Settlement request.|
+|code               |string</br>`length<=10`    |This is the code for your card acquirer.|
+|externalSubMerchantId |string                  |This is the external merchant ID of the acquirer data.|
+
+```apib
+    {
+    "acquirerData":{
+        "authId":"f06bccd6-de90-4b73-b10f-30266763bc60",
+        "code":"CRX"
+    }
+    }
+```
+
+<a name="authenticationobject" title="Authentications Object"></a>
+## authentication
+
+|Element                |Type                           |Description|
+|---                    |---                            |---       |
+|id                     |string<br/>`length<=36`        |This is the ID returned in the response. |
+|eci                    |number                         |This is the E-Commerce Indicator (ECI). This value will be returned only on payer authentication transactions, or for enrollments where the issuer is non-participating and the card scheme supports it. This value must be appended to the authorization request, where it enables the interchange benefits granted to merchants processing payer Authentication transactions.<br/>**Visa**<br/><ul><li>5 &ndash; Identifies a successfully authenticated transaction.</li><li>6 &ndash; Identifies an attempts authenticated transaction.</li><li>7 &ndash; Identifies a non-authenticated transaction.</li></ul><br/>**Mastercard**<br/><br/><ul><li>1 &ndash; Identifies a non-authenticated transaction.</li><li>2 &ndash; Identifies a successfully authenticated transaction.</li></ul>|
+|cavv                   |string<br/>`length<=80`        |This is the Cardholder Authentication Verification Value, indicating that the transaction has been authenticated. This value should be appended to the authorization request signifying that the transaction has been successfully authenticated.|
+|xid                    |string<br/>`length<=40`        |This is the transaction identifier returned by the card issuer.|
+|status                 |enum                           |This is the status of the Enrollment Lookup request. Possible values are:<br/><ul><li>COMPLETED - The transaction has been completed.</li><li>FAILED - The authentication request failed. Check the error code for details.</li></ul>|
+|merchantRefNum         |string<br/>`length<=255`       |This is the merchant reference number created by the merchant and submitted as part of the request. It must be unique for each request.|
+|threeDEnrollment       |enum                           |This indicates whether or not the cardholder is enrolled in 3D Secure. Possible values are:<br/><ul><li>Y &ndash; Cardholder authentication available</li><li>N &ndash; Cardholder not enrolled in authentication</li><li>U &ndash; Cardholder authentication unavailable</li></ul>|
+|threeDResult           |enum                           |This indicates the outcome of the Authentication.<br/><ul><li>Y &ndash; The cardholder successfully authenticated with their card issuer.</li><li>A &ndash; The cardholder authentication was attempted.</li><li>N &ndash; The cardholder failed to successfully authenticate with their card issuer.</li><li>U &ndash; Authentication with the card issuer was unavailable.</li><li>E &ndash; An error occurred during authentication.</li></ul><br/>See [3D Secure Results](https://developer.paysafe.com/en/rest-apis/3ds/test-and-go-live/3d-secure-results/) for more information on these Authentication outcome values.|
+|signatureStatus        |enum                           |This is the 3D Secure signature verification result value.<br/><ul><li>Y &ndash; All transaction and signature checks satisfied.</li><li>N &ndash; At least one transaction or signature check failed.</li></ul>|
+|error                  |[complex](#errorobject)        |       |
+
+
+<a name="billingdetailsobject" title="Billing Details Object"></a>
+## billingDetails
+|Element            |Type                       |Description                        |
+|---                |---                        |---       |
+|street             |string<br/>`length<=50`    |This is the first line of the customer's street address.|
+|street2            |string<br/>`length<=50`    |This is the second line of the customer's street address, if required (e.g., apartment number).|
+|city               |string<br/>`length<=40`    |This is the city where the address is located.|
+|state              |string<br/>`length<=40`    |This is the state/province/region in which the customer lives.<br/>For Canada see [Province Codes](#provincecodes). For the United States see [State Codes](#statecodes). Other countries have no restrictions.|
+|zip                |string<br/>`length<=10`    |This is the zip, postal, or post code of the customer's address.|
+|country            |string<br/>`length=2`      |This is the country where the address is located. See [Country Codes](#countrycodes).|
+
+
+<a name="cardobject" title="card Object"></a>
+## card
+
+* Other APIs use "card" and not "cardType"
+* Max for holderName?
+* What does status apply to? What are possible values?
+* Max for nickName?
+
+When providing card information, merchants can provide either card details or a payment token for a customer already created in the system.
+
+|Element            |Type                       |Description                        |
+|---                |---                        |---                                |
+|paymentToken       |string <br/>`length<=80`   |If the payment token is provided, no other card information is necessary. |
+|cvv                |string<br/>`length=3-4`    |This is the 3- or 4-digit security code that appears on the card following the card number.|
+
+**OR**
+
+|Element            |Type                       |Description                        |
+|---                |---                        |---                                |
+|cardNum            |string <br/>`length=8-20`  |This is the card number used for the request. |
+|lastDigits         |string<br/>`length=4`      |This is the last four digits of the card used for the request, returned in the response.|
+|cardExpiry         |[cardExpiry](#cardexpiryobject)|This is the card's expiry date.|
+|cvv                |string<br/>`length=3-4`    |This is the 3- or 4-digit security code that appears on the card following the card number.|
+|holderName         |string                     |This is the name of the card holder. |
+|status             |enum                       |       |
+|nickName           |string<br/>`length<=`      |This is the nickname the merchant has for the card holder. |
+|cardType           |enum                       |This is the type of card used for the request, returned in the response. Possible values are:<br/><ul><li>AM &ndash; American Express</li><li>DI &ndash; Discover</li><li>JC &ndash; JCB</li><li>MC &ndash; Mastercard</li><li>MD &ndash; Maestro</li><li>SO &ndash; Solo</li><li>VI &ndash; Visa</li><li>VD &ndash; Visa Debit</li><li>VE &ndash; Visa Electron</li></ul>
+|cardBin            |string<br/>`length=6`      |This is the card BIN (typically the first 6 digits).|
+
+```apib
+    {
+    "card": {
+        "cardNum": "4111111111111111",
+        "cardExpiry": {
+            "month": 2,
+            "year": 2019
+        }
+    }
+    }
+```
+
+
+<a name="cardexpiryobject" title="cardExpiry Object"></a>
+## cardExpiry
+
+|Element                 |Type                   |Description|
+|---                     |---                    |---|
+|month                   |number<br/>`length=2`  |This is the card expiry month. |
+|year                    |number<br/>`length=4`  |This is the card expiry year.|
+
+```apib
+    {
+    "cardExpiry":{
+        "month": "12",
+        "year": "2020"
+    }
+    }
+```
+
+<a name="dateofbirthobject" title="Date of Birth Object"></a>
+## dateOfBirth
+|Element            |Type                           |Description    |
+|---                |---                            |---            |
+|year               |number<br/>`length=4 min=1900` |This is the year of birth.|
+|month              |number<br/>`length=2 max=12`   |This is the month of birth.|
+|day                |number<br/>`length=2 max=31`   |This is the day of birth.|
+
+```apib
+            { 
+               "dateOfBirth": {
+                  "year": 1980,
+                  "month": 12,
+                  "day": 25
+                }
+            }
+```
+
+<a name="gatewayresponseobject" title= "Gateway Response Object"></a>
+## gatewayResponse
+
+This is a read-only raw response returned by an acquirer. 
+
+| Element            | Type   | Description                                                                                         |
+|--------------------|--------|-----------------------------------------------------------------------------------------------------|
+| code               | String | This is acquirer identification code, such as DJN, CRX, etc.                                        |
+| responseCode       | String | This is the raw response returned by the acquirer.                                                  |
+| avsCode            | String | This is the raw AVS code returned by the acquirer.                                                  |
+| balanceResponse    | String | This is the balance remaining on a gift card, if a gift card was used for the original transaction. |
+| mid                | String | This is the acquirer MID that was sent to the clearing house.                                       |
+| terminalId         | String | This is the merchant's terminal ID.                                                                 |
+| batchNumber        | String | This is the batch number.                                                                           |
+| seqNumber          | String | This is the merchant's sequence number.                                                             |
+| effectiveDate      | String | This is the date of the bank deposit associated with the transaction.                               |
+| financingType      | String | This is the type of financing offered.                                                              |
+| plan               | String | This is the plan number for this financing transaction.                                             |
+| gracePeriod        | String | This is the grace period, in months, associated with deferred payment transactions.                 |
+| term               | String | This is the number of payments, in months, for equal payment transactions.                          |
+| responseId         | String | This is the response ID assigned by Credorax.                                                       |
+| requestId          | String | This is the request ID assigned by Paysafe.                                                         |
+| description        | String | This is a description of the response.                                                              |
+| authCode           | String | This is the authorization code.                                                                     |
+| txnDateTime        | String | This is the transaction date and time.                                                              |
+| referenceNbr       | String | This is the Bank net transaction ID/Merch Tran Ref                                                  |
+| responseReasonCode | String | This is the raw response reason code returned by Credorax.                                          |
+| cvv2Result         | String | This is the raw cvv2 result code.                                                                   |
+
+<a name="level2level3object" title="level2level3 Object"></a>
+## level2level3
+
+Level 2 and Level 3 (L2/L3) credit card processing refers to certain B2B card transactions for which the merchant might be eligible for lower credit card interchange rates. The lower rates may be available for 
+merchants who provide more detailed information when processing card-not-present transactions. In order to be eligible for L2/L3 transactions:
+ * Your merchant account must be properly configured by Paysafe.
+ * The BIN of the credit card used for the transaction must be eligible – typically, these are government-issued credit cards.
+
+
+|Element                |Type                               | Description|
+|---                    |---                                |---            |
+| exemptLocalTax        |boolean                            | This indicates whether or not local tax is exempted for the request. If set to true, then the localTaxAmount parameter will be ignored.<br/>**Note:** This value defaults to *false*. |
+| localTaxAmount        |integer<br/>`length<=99999999999`  | This is the local sales tax applied to the purchase.|
+| nationalTaxAmount     |number<br/>`length<=99999999999`   | This is the national tax included in the transaction amount. |
+| freightAmount         |number<br/>`length<=99999999999`   | This is the freight or shipping portion of the total transaction amount. |
+| dutyAmount            |number<br/>`length<=99999999999`   | This is the duty associated with the import of the purchased goods. |
+| destinationZip        |number<br/>`length<=10`            | This is the postal/zip code of the address to which the purchased goods will be delivered. This field can be identical to the shipFromZip if the customer is present and takes immediate possession of the goods. |
+| destinationCountry    |number<br/>`length=2`              | This is the country to which the goods are being shipped. See [Country Codes](#countrycodes). |
+| shipFromZip           |number<br/>`length<=10`            | This is the postal/zip code of the address from which the purchased goods are being shipped. |
+| lineItems             |[lineItems](#lineitemsobject)      | This is more detailed information about the items that are being purchased.| 
+
+```apib
+    {
+    "level2Level3": {
+        "localTaxAmount": 15000,
+        "nationalTaxAmount": 0,
+        "freightAmount": 0,
+        "dutyAmount": 0,
+        "destinationZip": "90210",
+        "destinationCountry": "US",
+        "shipFromZip": "90210",
+        "lineItems": [
+            {
+                "description": "Disney Cruise Line - Adult",
+                "productCode": "DCL-A",
+                "quantity": 2,
+                "unitAmount": 120000,
+                "taxRate": 5,
+                "taxAmount": 12000,
+                "totalAmount": 252000
+            },
+            {
+                "description": "Disney Cruise Line - Kids",
+                "productCode": "DCL-K",
+                "quantity": 1,
+                "unitAmount": 60000,
+                "taxRate": 5,
+                "taxAmount": 3000,
+                "totalAmount": 63000
+            }
+        ]
+    }
+    }
+```
+
+<a name="lineitemsobject" title="lineItems Object"></a>
+##lineItems
+
+|Element                |Type                               | Description|
+|---                    |---                                |---            |
+|description            |string<br/>`length<=50`            |This is a description of the item(s) being purchased.|
+|productCode            |string<br/>`length<=12`            |This is a merchant-defined description code of the item being purchased.|
+|quantity               |number<br/>`length<=99999999999`<br/>`max 4 decimals` |This is the quantity of the item.|
+|unitAmount             |number<br/>`length<=99999999999`   |This is the unit price of the item being purchased, in minor units. The currency will be based on the account setting.|
+|taxRate                |number<br/>`length<=100`<br/>`max 2 decimals`    |This is the tax rate used to calculate the tax amount. For example, if the tax rate is 10.5%, this value should be 10.5.|
+|taxAmount              |number<br/>`length<=99999999999`   |This is the amount of any value-added taxes that can be associated with the purchased item, in minor units. The currency will be based on the account setting. **Note:** Our system will not validate the accuracy of this value. The merchant's application must calculate this value correctly.|
+|totalAmount            |number<br/>`length<=99999999999`   |This is the total amount of the line item, typically calculated as price multiplied by quantity, in minor units. The currency will be based on the account setting. **Note:** Our system will not validate the accuracy of this value. The merchant's application must calculate this value correctly.|
+
+```apib
+    {
+    "lineItems": {
+        "description": "Disney Cruise Line",
+        "productCode": "DCL",
+        "quantity": 4,
+        "unitAmount": 120000,
+        "taxRate": 5,
+        "taxAmount": 24000,
+        "totalAmount": 504000
+    }
+    }
+```
+
+<a name="merchantdescriptorobject" title="merchantDescriptor Object"></a>
+## merchantDescriptor
+|Element            |Type                       |Description                        |
+|---                |---                        |---                                |
+|dynamicDescriptor  |string <br/>`length<=20`   |This is a merchant descriptor that will be displayed on a customer’s card statement.|
+|phone              |string <br/>`length<=13`   |This is the merchant’s phone number, which will be appended to the merchant descriptor on a customer’s card statement.|
+
+```apib
+    {
+    "merchantDescriptor":{
+        "dynamicDescriptor":"OnlineStore",
+        "phone":"12345678"
+  }
+  }
+```
+
+<a name="originalcreditsobject" title="originalcredits Object"></a>
+## originalcredits
+ * dupCheck not supported? 
+ * no txnTime returned?
+ * Other elements missing when compared with original credits object from Card Payments API.
+
+|Element            |Type                                   |Description                        |
+|---                |---                                    |---                                |
+|id                 |string <br/>`length<=36`               |This is the ID returned in the response. This ID can be used for future associated requests.|
+|amount             |number<br/>`max=99999999999`           |This is the amount of the request, in minor units. For example, to process US $10.99, this value should be 1099. To process 1000 Japanese yen, this value should be 1000. To process 10.139 Tunisian dinar, this value should be 10139.<br/>**Note:** If the merchant account is set up for a currency that has 3 decimal units, our system will half round up the least significant digit.|
+|merchantRefNum     |string <br/>`length<=255`              |This is the merchant reference number created by the merchant and submitted as part of the request. It must be unique for each request.|
+|paymentHandleToken |string                                 |This is the payment token generated by Paysafe that will be used by merchants for original credit requests.|
+|currencyCode       |string<br/>`length=3`                  |This is the currency of the merchant account, e.g., USD or CAD, returned in the request response. See [Currency Codes](#currencycodes)|
+|card               |[card](#cardobject)                    |These are the details of the card used.|
+|billingDetails     |[billingDetails](#billingdetailsobject)|These are the billing details for the request.|
+|customerIp         |string<br/>`length<=39`                |This is the customer's IP address.|
+|description        |string<br/>`length<=255`               |This is a description of the transaction, provided by the merchant.|
+
+```apib
+{
+  "merchantRefNum":"merchant ABC-444",
+  "amount":10098,
+  "paymentHandleToken": "SC9mbfZSITB5OwDJ",
+  "currencyCode": "GBP",
+  "customerIp":"204.91.0.12",
+  "description":"Winning payment from Loto"
+}    
+```
+
+<a name="partialauthobject" title="partialAuth Object"></a>
+## partialAuth
+|Element            |Type                       |Description                        |
+|---                |---                        |---                                |
+
+
+<a name="paymenthandleobject" title="Payment Handle Object"></a>
+## Payment Handle
+* For the row beneath paymentHandleToken (where I now have a link to the card object) I need to add links to the objects for Skrill, Neteller, paysafecash, and paysafecard. Not sure where they are.
+
+
+|Element                |Type                       |Description                        |
+|---                    |---                        |---       |
+|id                     |string<br/>`length<=32`    |This is the ID returned in the response. This ID can be used to retrieve the Payment Handle.|
+|paymentHandleTokenFrom |string<br/>`length<=36`    |This is the existing payment handle ID, from which the payment instrument and profile details are retrieved. |
+|merchantRefNum         |string<br/>`length<=100`   |This is the merchant reference number created by the merchant and submitted as part of the request. It must be unique for each request. |
+|consumerOperation      |enum                       |This is the action the customer wants to  take with the payment instrument. Possible values are:<br/><ul><li>ADD &ndash; the customer wants to save the payment instrument to the profile.</li><li>EDIT &ndash; The customer wants to edit the payment instrument that is attached to the profile.</li><li>DELETE &ndash; The customer wants to delete the payment instrument from the profile.</li></ul>|
+|singleUseProfileToken  |string                     |This is the single-use token of the profile on which the consumer operation is to be done.<br/>**Note:** This field is mandatory if *consumerOperation* is included.|
+|transactionType        |enum                       |This specifies the transaction type for which the payment handle is created. Possible values are: <ul><li>PAYMENT</li><li> STANDALONE_CREDIT</li><li>ORIGINAL_CREDIT</li><li>VERIFICATION</li></ul>|
+|status                 |enum                       |This is the status of the request. Possible values are:<ul><li>RECEIVED &ndash; Paysafe has received the request and is waiting for the downstream processor’s response.</li><li>INITIATED &ndash; The request was initiated with the downstream provider.</li><li>PAYABLE &ndash; The merchant can use the payment handle for payment requests.</li><li>PROCESSING &ndash; The payment handle was authorized by customer, awaiting PSP response.</li><li>FAILED &ndash; The transaction failed due to either an error or being declined.</li><li>CANCELLED &ndash; The authorization request has been fully reversed.</li><li>EXPIRED &ndash; The payment handle expired because the merchant did not proceed with the payment transaction.</li><li>COMPLETED &ndash; The payment request was initiated successfully using the payment handle.</li></ul>      |
+|usage                  |enum                       |This specifies how the payment handle will be used for payments. Possible values are:<ul><li>SINGLE_USE &ndash; The payment handle can be used for one transaction only and expires if not used.</li><li>MULTI_USE &ndash; The payment handle can be used multiple times.</li></ul>|
+|paymentType            |enum                       |This is the payment type associated with this payment handle. Possible values are:<ul><li>CARD</li><li>SKRILL</li><li>NETELLER</li><li>PAYSAFECASH</li><li>PAYSAFECARD</li></ul>|
+|action                 |enum                       |This specifies the next step of the user journey once they proceed to the payment. Possible values are:<ul><li>NONE &ndash; No action is required, e.g., for a standard credit card payment.</li><li>REDIRECT &ndash; The user must be redirected in order to complete a payment, e.g., when an alternate payment method like NETELLER is used.</li><li>AUTHENTICATE &ndash; The user must be redirected to authenticate ownership of the payment account.</li></ul>|
+|executionMode          |enum                       |This specifies the action of the merchant server in order to complete the payment. Possible values are:<ul><li>SYNCHRONOUS &ndash; The status of the payment request will be returned synchronously to the merchant, e.g., a credit card request.</li><li>ASYNCHRONOUS &ndash; The payment request is not completed immediately and the merchant must rely on webhooks to retrieve the status of the payment request.</li></ul>|
+|amount                 |number<br/>`max=99999999999` |This is the amount of the request, in minor units.<br/>Note: This field is mandatory if *transactionType* is included. |
+|currencyCode           |string<br/>`length=3`      |This is the currency of the merchant account, e.g., USD or CAD. See [Currency Codes](#currencycodes)|
+|paymentHandleToken     |string                     |This is the payment token generated by Paysafe that will be used by merchants for payments requests.|
+|card \|                | [card](#cardobject) \|         |These are details of the payment instrument used in the request. |
+|billingDetails         |[billingDetails](#billingdetailsobject)         |These are billing details for the request.|
+|profile                |[profile](#profileobject)  |This is the customer's profile. |
+|merchantDescriptor     |[merchantDescriptor](#merchantdescriptorobject) |This is the merchant descriptor that will be displayed on the customer's card or bank statement.<br/>**Note:** Not all processing gateways support this parameter. Contact your account manager for more information.    |
+|returnLinks            |[returnLinks](#returnlinksobject)         |These are links to which to redirect the customer, where applicable. |
+|customerIp             |string<br/>`length<=39`    |This is the customer's IP address. |
+|timeToLiveSeconds      |number                     |This is the period of time the single-use token is valid before expiration, in seconds, returned in the response.|
+
+<a name="paymentsobject" title="Payments Object"></a>
+## Payments
+
+ * What happens when merchantDescriptor from paymentHandle conflicts with merchantDescriptor provided here?
+ * acquirerData looks like it's only relevant for Original Credits (so shouldn't be here)
+
+|Element            |Type                                   |Description                        |
+|---                |---                                    |---                                |
+|id                 |string <br/>`length<=36`               |This is the ID returned in the response. This ID can be used for future associated requests.|
+|merchantRefNum     |string <br/>`length<=255`              |This is the merchant reference number created by the merchant and submitted as part of the request. It must be unique for each request.|
+|amount             |number<br/>`max=99999999999`           |This is the amount of the request, in minor units. For example, to process US $10.99, this value should be 1099. To process 1000 Japanese yen, this value should be 1000. To process 10.139 Tunisian dinar, this value should be 10139.|
+|dupCheck           |boolean                                |This validates that this request is not a duplicate. A request is considered a duplicate if the *merchantRefNum* has already been used in a previous request within the past 90 days.<br/>**Note:** This value defaults to *true*.|
+|settleWithAuth     |boolean                                |This indicates whether the request is an Authorization only (no Settlement), or a Purchase (Authorization and Settlement).<br/><ul><li>false &ndash; The request is not settled</li><li>true &ndash; The request is settled</li></ul><br/>**Note:** Defaults to *true*.|
+|preAuth            |boolean                                |This indicates whether the Authorization request should be sent as a Pre-Authorization.<br/>**Note:** You should use the *preAuth* element in cases where you are not sure that you can fully settle the Authorization within 4 days. Contact your account manager for more information.|
+|partialAuth        |[partialAuth](#partialauthobject)      |This is an authorization that is approved for an amount lower than the requested amount. The reminder of the amount could be paid by other means.|
+|paymentHandleToken |string<br/>`length<=36`                |This is the payment handle token that represents the payment instrument to be used in the payment request. |
+|paymentHandle      |[paymentHandle](#paymenthandleobject)  |These are details about the payment handle from which the token is derived. |
+|authCode           |string<br/>`length<=50`                |This is the Authorization code assigned by the issuing bank and returned in the response.|
+|availableToSettle  |number                                 |This is the amount of of the Authorization remaining to settle, in minor units.|
+|childAccountNum    |string<br/>`length<=10`                |This is the child merchant account number. It is returned only if the transaction was processed via a master account.|
+|customerIp         |string<br/>`length<=39`                |This is the customer's IP address.|
+|description        |string<br/>`length<=255`               |This is a description of the transaction, provided by the merchant.|
+|txnTime            |UTC formatted date                     |This is the date and time the request was processed. For example:<br/>2019-01-26T10:32:28Z|
+|status             |enum                                   |This is the status of the transaction request. Possible values are:<ul><li>RECEIVED &ndash; Our system has received the request and is waiting for the downstream processor’s response.</li><li>COMPLETED &ndash; The transaction has been completed.</li><li>HELD &ndash; The transaction has been placed on hold due to risk considerations.</li><li>FAILED &ndash; The transaction failed, due to either an error or being declined.</li><li>CANCELLED &ndash; The request has been fully voided (reversed).</li><li>PENDING &ndash; The request is pending.</li></ul>|
+|currencyCode       |string<br/>`length=3`                  |This is the currency of the merchant account, e.g., USD or CAD, returned in the request response. See [Currency Codes](#currencycodes)|
+|level2level3       |[level2level3](#level2level3object)    |This allows merchants who are enabled to provide additional L2/L3 transaction data.<br/>**Note:** Not all processing gateways support this parameter. Contact your account manager for more information.|
+|gatewayResponse    |[gatewayResponse](#gatewayresponseobject) | This is the read-only raw response returned by an acquirer. It is returned only if your account is configured accordingly.|
+|accordD            |[accordD](#accorddobject)              |These are parameters for financing plans supported for certain merchant configurations.<br/>Include this element **only when** instructed to do so by your account manager.|
+|recipient          |[recipient](#recipientobject)          |In certain cases, this allows additional data to be included with a payment request. |
+|riskReasonCode     |array                                  |An array of integers is returned, displaying the detailed Risk reason codes if your transaction was declined. It is returned only if your account is configured accordingly.|
+|splitpay           |[splitpay](#splitpayobject)            |This enables you to use the Split Payouts functionality when authorizing with a Settlement.|
+|storedCredentialDetails |[storedCredentialDetails](#storedcredentialobject) | This object is used to identify requests that use stored credentials that the merchant has on file for the consumer, in order to improve authorization rates and reduce fraud. |
+|merchantDescriptor |[merchantDescriptor](#merchantdescriptorobject) |This is the merchant descriptor that will be displayed on the customer's card statement.<br/>**Note:** Not all processing gateways support this parameter. Contact your account manager for more information.|
+|settlements        |array                                  |This is a read-only list of all settlements. This will be returned only if *settleWithAuth* = *true* in the request. |
+|acquirerData       |[acquirerData](#acquirerdataobject)    |This is additional information about the card acquirer required when you are performing an Original Credit request. This object is required **only when** you are using Credorax (CRX) as your acquirer for Original Credits. Contact your account manager for details.|
+|error              |[error](#errorobject)                  |       |
+|statusReason       |string                                 |This is reason for the status. This is present in the case where *status* is ERROR, FAILURE, or HELD. |
+|authentication     |[authentication](#authenticationobject)|These are 3D Secure details.|
+
+
+<a name="profileobject" title="Profile Object"></a>
+## profile
+
+* What are possible values for locale?
+* Field lengths in Confluence still need to be specified so I can use them here. 
+
+|Element            |Type                               |Description    |
+|---                |---                                |---            |
+|id                 |string <br/>`length<=36`           |This is the ID returned in the response.|
+|status             |enum                               |This is the status of the customer profile. Possible values are:<br/><ul><li>ACTIVE &ndash; The temporary profile ID can be used to retrieve the saved payment instrument.</li></ul> |
+|merchantCustomerId |string <br/>`length<=100`          |This is a customer ID that the merchant provides with the request for their own internal customer identification.|
+|locale             |enum                               |This indicates the customer's locale. Possible values are:<ul><li>???</li></ul>|
+|firstName          |string <br/>`length<=80`           |This is the customer’s first name. |
+|lastName           |string <br/>`length<=80`           |This is the customer’s last name. |
+|email              |string<br/>`length<=255`           |This is the customer's email address.|
+|phone              |string<br/>`length<=40`            |This is the customer's phone number.|
+|dateOfBirth        |[dateOfBirth](#dateofbirthobject)  |These are the addresses associated with saved payment instruments for the customer. |
+
+```apib
+            {
+              "merchantCustomerId":"mycustomer1",
+              "locale" : "en_US",
+              "firstName" : "John",
+              "lastName" : "Smith",
+              "email" : "john.smith@somedomain.com",
+              "phone" : "713-444-5555"
+             }
+```
+
+<a name="refundsobject" title="refunds Object"></a>
+## refunds
+|Element            |Type                                   |Description                        |
+|---                |---                                    |---                                |
+|id                 |string <br/>`length<=36`               |This is the ID returned in the response. This ID can be used for future associated requests.|
+|merchantRefNum     |string <br/>`length<=255`              |This is the merchant reference number created by the merchant and submitted as part of the request. It must be unique for each request.|
+|amount             |number<br>`max=99999999999`            |This is the amount of the request, in minor units. For example, to process US $10.99, this value should be 1099. To process 1000 Japanese yen, this value should be 1000. To process 10.139 Tunisian dinar, this value should be 10139.<br/>**Note:** If the merchant account is set up for a currency that has 3 decimal units, our system will half round up the least significant digit. Therefore, a transaction of 10.139 Tunisian dinar would be processed as 10.14.|
+|dupCheck           |boolean                                |This validates that this request is not a duplicate. A request is considered a duplicate if the *merchantRefNum* has already been used in a previous request within the past 90 days.<br/>**Note:** This value defaults to *true*.|
+|childAccountNum    |string<br/>`length<=10`                |This is the child merchant account number. It is returned only if the transaction was processed via a master account.|
+|txnTime            |UTC formatted date                     |This is the date and time the request was processed. For example:<br/>2014-01-26T10:32:28Z|
+|status             |enum                                   |This is the status of the transaction request. Possible values are:<ul><li>RECEIVED &ndash; Our system has received the request and is waiting for the downstream processor’s response.</li><li>COMPLETED &ndash; The transaction has been completed.</li><li>PENDING &ndash; Our system has received the request but it has not yet been batched.</li><li>FAILED &ndash; The transaction failed, due to either an error or being declined.</li><li>CANCELLED &ndash; The request has been fully voided (reversed).</li></ul>|
+|error              |[error](#errorobject)                  |       |
+|splitpay           |[splitpay](#splitpayobject)            |This enables you to use the Split Payouts functionality when processing a refund.|
+|riskReasonCode     |array                                  |An array of integers is returned, displaying the detailed Risk reason codes if your transaction was declined. It is returned only if your account is configured accordingly.|
+|gatewayResponse    |[gatewayResponse](#gatewayresponseobject) | This is the read-only raw response returned by an acquirer. It is returned only if your account is configured accordingly.|
+
+```apib
+{
+    "merchantRefNum":"refund_id:1231",
+    "amount":10098
+}
+```
+
+<a name="recipientobject" title="recipient Object"></a>
+## recipient 
+
+The recipient is deemed to be the person or party who has the contractual relationship with the merchant/financial institution. This may be different from the cardholder, e.g., in the case of a parent topping up a child's savings account. Therefore, the fields should not be collected on the same page as cardholder information, but instead be passed in the background from the merchant’s records.
+
+**Note:** You can include *recipient* elements in your [authorization request](#authrequest) **only if** your Merchant Category Code is **6012** and your registered trading address is in the United Kingdom. All fields are optional. However, scheme fines may apply if data is consistently not supplied and chargebacks persist. If you have any questions, contact your account manager.
+If you are using a payment token for an Authorization request and there is already recipient data for the consumer profile associated with the payment token, then if you include the *recipient* object in the Authorization, this data will override the recipient data already in the profile.
+
+If you [look up an authorization request](#getauth)  that used the *visaAdditionalAuthData* parameter (now deprecated), the response will contain the relevant data in both the *recipient* and the *visaAdditionalAuthData* objects.
+
+|Element                    |Type                       |Description                        |
+|---                        |---                        |---                                |
+|dateOfBirth                |[dateOfBirth](#dateofbirthobject) |This is the recipient's date of birth. |
+|zip                        |string<br/>`length<=10`    |This is the recipient's postcode.<br/>**Note:** The last 3 characters are not sent to the banking network.|
+|lastName                   |string<br/>`length<=255`   |This is the recipient's last name.<br/>**Note:** Only the first 6 characters are sent to the banking network.|
+|accountNumber              |string<br/>`length<=25`    |This is the recipient's account number, e.g., a loan agreement number or customer ID. In the case where the recipient account is a prepaid card, the card number may be sent in full.<br/>**Note:** Only the first 6 and last 4 characters are sent to the banking network and will be masked accordingly within the back office and any other reports, to comply with PCI regulations.|
+
+```apib
+    {
+    "recipient": {
+        "dateOfBirth": {
+            "day": 29,
+            "month": 1,
+            "year": 2001
+        },
+        "zip": "CB24 9AD",
+        "lastName": "Smith",
+        "accountNumber": "ABC1234567890"
+    }
+    }
+```
+
+<a name="returnlinksobject" title="returnLinks Object"></a>
+## returnLinks
+
+|Element    |Type          |Description|
+|---        |---           |---|
+|rel        |string        |This is the link type that allows different endpoints to be targeted depending on the end state of the transaction.|
+|href       |string        |This is the URI of the resource.|
+
+```apib
+    {
+    "links": [
+        {
+        "rel": "self",
+        "href": "https://api.test.paysafe.com/cardpayments/v1/accounts/99000/settlements/00ec4b4f-f601-4430-8fb6-f90271cf9291"
+        }
+        ]
+        }
+```
+
+<a name="settlementsobject" title="settlements Object"></a>
+## settlements
+|Element            |Type                                   |Description                        |
+|---                |---                                    |---                                |
+|id                 |string <br/>`length<=36`               |This is the ID returned in the response. This ID can be used for future associated requests.|
+|merchantRefNum     |string <br/>`length<=255`              |This is the merchant reference number created by the merchant and submitted as part of the request. It must be unique for each request.|
+|amount             |number<br/>`max=99999999999`           |This is the amount of the request, in minor units.For example, to process US $10.99, this value should be 1099. To process 1000 Japanese yen, this value should be 1000. To process 10.139 Tunisian dinar, this value should be 10139.<br/>**Note:** If the merchant account is set up for a currency that has 3 decimal units, our system will half round up the least significant digit. Therefore, a transaction of 10.139 Tunisian dinar would be processed as 10.14.|
+|dupCheck           |boolean                                |This validates that this request is not a duplicate. A request is considered a duplicate if the *merchantRefNum* has already been used in a previous request within the past 90 days.<br/>**Note:** This value defaults to *true*.|
+|availableToRefund  |number<br/>`max=99999999999`           |This is the amount of this Settlement that is available to Refund, in minor units. For example, US $10.99 would be 1099.|
+|childAccountNum    |string<br/>`length<=10`                |This is the child merchant account number. It is returned only if the transaction was processed via a master account.|
+|txnTime            |UTC formatted date                     |This is the date and time the request was processed. For example:<br/>2014-01-26T10:32:28Z|
+|status             |enum                                   |This is the status of the transaction request. Possible values are:<ul><li>RECEIVED &ndash; Our system has received the request and is waiting for the downstream processor’s response.</li><li>PENDING &ndash; Our system has received the request but it has not yet been batched.</li><li>PROCESSING &ndash; The Settlement batch has started.</li><li>COMPLETED &ndash; The transaction has been completed.</li><li>FAILED &ndash; The transaction failed, due to either an error or being declined.</li><li>CANCELLED &ndash; The transaction request has been cancelled.</li></ul>|
+|error              |[error](#errorobject)                  |       |
+|splitpay           |[splitpay](#splitpayobject)            |This enables you to use the Split Payouts functionality when settleing an Authorization.|
+|riskReasonCode     |array                                  |An array of integers is returned, displaying the detailed Risk reason codes if your transaction was declined. It is returned only if your account is configured accordingly.|
+|gatewayResponse    |[gatewayResponse](#gatewayresponseobject) | This is the read-only raw response returned by an acquirer. It is returned only if your account is configured accordingly.|
+
+
+```apib
+{
+    "merchantRefNum":"merchantRef_2014_04_11_05",
+    "amount":100
+}
+```
+
+<a name="splitpayobject" title="splitpay Object"></a>
+## splitpay
+
+|Element            |Type    |Required |Description |
+|---                |---     |---      |---        |
+|linkedAccount      |string  |Yes      |This is the ID of the linked account.
+|amount             |number  |         |This is the amount to transfer to the linked account in minor currency units. The total amount to all linked accounts cannot exceed the transaction total. Either this or percent must be specified.|
+|percent            |number  |         |This is the percentage of the total transaction amount to transfer to the linked account, to two decimal places. The total percentage to all linked accounts cannot exceed 100%. Either this or amount must be specified.|
+
+```apib
+  {
+  "splitpay": [
+    {
+    "linkedAccount": "123124124",
+    "percent": 5
+    },
+    {
+    "linkedAccount": "767862873",
+    "amount": 500
+    }]
+  }
+```
+
+<a name="storedcredentialobject" title="storedCredential Object"></a>
+## storedCredential
+
+The *storedCredential* object is used to identify [authorization requests](#authrequest) that use stored credentials for a consumer, in order to improve authorization rates and reduce fraud. Stored credentials can be used in two cases: 
+ - Using a payment token &ndash; An authorization request that uses a *paymentToken* from the [Customer Vault API](https://developer.paysafe.com/en/vault/api/)
+ - Using a card number &ndash; An authorization request that uses a credit card number stored by the merchant 
+
+**Notes:** 
+ - If you use a *paymentToken* in the authorization request but do not include the *storedCredential* object, Paysafe will provide default information taken from Customer Vault data.
+ - You cannot include both the *storedCredential* object and the *recurring* parameter in the same authorization request. Paysafe recommends using the *storedCredential* object.
+ - The *cvv* parameter of the [card object](#cardobject) is required when the *occurrence* parameter is set to *INITIAL*. However, *cvv* is not required when the *occurrence* parameter is set to *SUBSEQUENT*.
+ - The *storedCredential* object cannot be used for Apple Pay or Google Pay transactions.
+
+|Element                 |Type                   |Description|
+|---                     |---                    |---|
+|type                    |enum                   |This specifies the type of request being made. Possible values are: <ul><li>ADHOC &ndash; Ad hoc consumer-initiated request</li><li>TOPUP &ndash; Unscheduled merchant-iniitated request when a consumer balance is below a set limit </li><li>RECURRING &ndash; Scheduled, merchant-initiated recurring request</li></ul><br/>**Note:** This value defaults to *ADHOC*.|
+|occurrence              |enum                   |This specifies whether this stored credential request is initial or recurring. Possible values are: <ul><li>INITIAL &ndash; Used when this is the first time the consumer uses this credit card</li><li>SUBSEQUENT &ndash; Used when the consumer uses this credit card for subsquent requests </li></ul><br/>**Note:** This value defaults to *INITIAL*.|
+
+```apib
+{
+    "storedCredential": {
+        "type": "RECURRING",
+        "occurrence": "SUBSEQUENT"
+    }
+}
+```
+
+<a name="voidauthsobject" title="Void Authorizations Object"></a>
+## Void Authorizations
+
+ * No *dupCheck* for this request?
+ * I have copied over the status values from an existing API. Are these applicable here as well?
+
+|Element            |Type                                   |Description                        |
+|---                |---                                    |---                                |
+|id                 |string <br/>`length<=36`               |This is the ID returned in the response. This ID can be used for future associated requests.|
+|merchantRefNum     |string <br/>`length<=255`              |This is the merchant reference number created by the merchant and submitted as part of the request. It must be unique for each request.|
+|amount             |number<br/>`max=99999999999`           |This is the amount of the request, in minor units. For example, to process US $10.99, this value should be 1099. To process 1000 Japanese yen, this value should be 1000. To process 10.139 Tunisian dinar, this value should be 10139.|
+|txnTime            |UTC formatted date                     |This is the date and time the request was processed. For example:<br/>2019-01-26T10:32:28Z|
+|status             |enum                                   |This is the status of the transaction request. Possible values are:<ul><li>RECEIVED &ndash; Our system has received the request and is waiting for the downstream processor’s response.</li><li>COMPLETED &ndash; The transaction has been completed.</li><li>HELD &ndash; The transaction has been placed on hold due to risk considerations.</li><li>FAILED &ndash; The transaction failed, due to either an error or being declined.</li><li>CANCELLED &ndash; The request has been fully voided (reversed).</li><li>PENDING &ndash; The request is pending.</li></ul>|
+
 
 # Group Payment Methods
 
