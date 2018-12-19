@@ -5,6 +5,18 @@ HOST: https://api.test.paysafe.com/paymenthub/
 
 # QUESTIONS
  * The CANCELLED status for payment handle talks about an auth request being reversed. Is this correct?
+ * Can you include both *consumerOperation* and *transactionType*? Doc says you must include at least one of them, but not that they are mutually exclusive.
+ * In Confluence, the paymentType has PAYSAFECASH and PAYSAFECARD, but the Apiary document has PAYSAFE_CASH and PAYSAFE_CARD, so wondering which is right.
+ * track1 and track2 are included in the Apiary example, but not in the *card* object in Confluence.
+ * Apiary has *card* element but Confluence card object has *cardType* element.
+ * Related, can someone verify that the list of card types is accurate?
+ * savePaymentInstrument is mentioned in the profile but not documented anywhere that I can see in Confluence or in the Apiary document.
+ * The elements in *profile* are different when you compare the Confluence object and the object defined in the Apiary document.
+ * The behaviour when including profile ID is not clear in the Apiary document provided (e.g., will profile fields provided overwrite existing profile fields?).
+ * Where do all the values for the *profile* elements come from? I see that *profile* is part of the *paymentHandle* object but it's not clear how/when to use it.
+ * billingDetails object in Apiary contains *phone*, but it does not in Confluence object.
+ * Length of *timeToLiveSeconds* element?
+ * Where does *metadata* object appear in API?
 
 # Release Notes
 
@@ -633,7 +645,7 @@ This is additional information about the card acquirer required when you are per
 
 |Element            |Type                       |Description                        |
 |---                |---                        |---       |
-|authId             |string<br/>`length<=36`    |This is the ID returned in the response to a previous successful Authorization or Settlement request.|
+|authId             |string<br/>`length<=36`    |This is the ID returned in the response to a previous successful payment request.|
 |code               |string</br>`length<=10`    |This is the code for your card acquirer.|
 |externalSubMerchantId |string                  |This is the external merchant ID of the acquirer data.|
 
@@ -665,8 +677,12 @@ This is additional information about the card acquirer required when you are per
 
 <a name="billingdetailsobject" title="Billing Details Object"></a>
 ## billingDetails
+ * Max for *nickName*?
+
 |Element            |Type                       |Description                        |
 |---                |---                        |---       |
+|id                 |string<br/>`length<=36`    |This is the ID of the billing address, returned in the response. |
+|nickName           |string<br/>`length<=??`    |This is the nickname the merchant has for the billing address. |
 |street             |string<br/>`length<=50`    |This is the first line of the customer's street address.|
 |street2            |string<br/>`length<=50`    |This is the second line of the customer's street address, if required (e.g., apartment number).|
 |city               |string<br/>`length<=40`    |This is the city where the address is located.|
@@ -879,6 +895,14 @@ merchants who provide more detailed information when processing card-not-present
   }
 ```
 
+<a name="metadataobject" title="metadata Object"></a>
+## metadata
+
+|Element            |Type                       |Description                        |
+|---                |---                        |---                                |
+|key                |string <br/>`length<=50`   |This is a description of the data being added to the order.|
+|value              |string <br/>`length<=100`  |This is the value for the key/value pair.|
+
 <a name="originalcreditsobject" title="originalcredits Object"></a>
 ## originalcredits
  * dupCheck not supported? 
@@ -910,8 +934,13 @@ merchants who provide more detailed information when processing card-not-present
 
 <a name="partialauthobject" title="partialAuth Object"></a>
 ## partialAuth
+ * Is *amountDue* definition below accurate? 
+
 |Element            |Type                       |Description                        |
 |---                |---                        |---                                |
+|requested          |boolean                    |This specifies whether or not a partial authorization was requested. |
+|amountDue          |number                     |This is the amount of the full authorization that is not covered by the payment request. |
+|originalAmount     |number                     |This is the actual amount of the full authorization. |
 
 
 <a name="paymenthandleobject" title="Payment Handle Object"></a>
@@ -927,7 +956,7 @@ merchants who provide more detailed information when processing card-not-present
 |consumerOperation      |enum                       |This is the action the customer wants to  take with the payment instrument. Possible values are:<br/><ul><li>ADD &ndash; the customer wants to save the payment instrument to the profile.</li><li>EDIT &ndash; The customer wants to edit the payment instrument that is attached to the profile.</li><li>DELETE &ndash; The customer wants to delete the payment instrument from the profile.</li></ul>|
 |singleUseProfileToken  |string                     |This is the single-use token of the profile on which the consumer operation is to be done.<br/>**Note:** This field is mandatory if *consumerOperation* is included.|
 |transactionType        |enum                       |This specifies the transaction type for which the payment handle is created. Possible values are: <ul><li>PAYMENT</li><li> STANDALONE_CREDIT</li><li>ORIGINAL_CREDIT</li><li>VERIFICATION</li></ul>|
-|status                 |enum                       |This is the status of the request. Possible values are:<ul><li>RECEIVED &ndash; Paysafe has received the request and is waiting for the downstream processor’s response.</li><li>INITIATED &ndash; The request was initiated with the downstream provider.</li><li>PAYABLE &ndash; The merchant can use the payment handle for payment requests.</li><li>PROCESSING &ndash; The payment handle was authorized by customer, awaiting PSP response.</li><li>FAILED &ndash; The transaction failed due to either an error or being declined.</li><li>CANCELLED &ndash; The authorization request has been fully reversed.</li><li>EXPIRED &ndash; The payment handle expired because the merchant did not proceed with the payment transaction.</li><li>COMPLETED &ndash; The payment request was initiated successfully using the payment handle.</li></ul>      |
+|status                 |enum                       |This is the status of the request. Possible values are:<ul><li>RECEIVED &ndash; Paysafe has received the request and is waiting for the downstream processor’s response.</li><li>INITIATED &ndash; The request was initiated with the downstream provider.</li><li>PAYABLE &ndash; The merchant can use the payment handle for a payment request.</li><li>PROCESSING &ndash; The payment handle was authorized by customer, awaiting PSP response.</li><li>FAILED &ndash; The transaction failed due to either an error or being declined.</li><li>CANCELLED &ndash; The authorization request has been fully reversed.</li><li>EXPIRED &ndash; The payment handle expired because the merchant did not proceed with the payment transaction.</li><li>COMPLETED &ndash; The payment request was initiated successfully using the payment handle.</li></ul>      |
 |usage                  |enum                       |This specifies how the payment handle will be used for payments. Possible values are:<ul><li>SINGLE_USE &ndash; The payment handle can be used for one transaction only and expires if not used.</li><li>MULTI_USE &ndash; The payment handle can be used multiple times.</li></ul>|
 |paymentType            |enum                       |This is the payment type associated with this payment handle. Possible values are:<ul><li>CARD</li><li>SKRILL</li><li>NETELLER</li><li>PAYSAFECASH</li><li>PAYSAFECARD</li></ul>|
 |action                 |enum                       |This specifies the next step of the user journey once they proceed to the payment. Possible values are:<ul><li>NONE &ndash; No action is required, e.g., for a standard credit card payment.</li><li>REDIRECT &ndash; The user must be redirected in order to complete a payment, e.g., when an alternate payment method like NETELLER is used.</li><li>AUTHENTICATE &ndash; The user must be redirected to authenticate ownership of the payment account.</li></ul>|
@@ -1012,31 +1041,10 @@ merchants who provide more detailed information when processing card-not-present
              }
 ```
 
-<a name="refundsobject" title="refunds Object"></a>
-## refunds
-|Element            |Type                                   |Description                        |
-|---                |---                                    |---                                |
-|id                 |string <br/>`length<=36`               |This is the ID returned in the response. This ID can be used for future associated requests.|
-|merchantRefNum     |string <br/>`length<=255`              |This is the merchant reference number created by the merchant and submitted as part of the request. It must be unique for each request.|
-|amount             |number<br>`max=99999999999`            |This is the amount of the request, in minor units. For example, to process US $10.99, this value should be 1099. To process 1000 Japanese yen, this value should be 1000. To process 10.139 Tunisian dinar, this value should be 10139.<br/>**Note:** If the merchant account is set up for a currency that has 3 decimal units, our system will half round up the least significant digit. Therefore, a transaction of 10.139 Tunisian dinar would be processed as 10.14.|
-|dupCheck           |boolean                                |This validates that this request is not a duplicate. A request is considered a duplicate if the *merchantRefNum* has already been used in a previous request within the past 90 days.<br/>**Note:** This value defaults to *true*.|
-|childAccountNum    |string<br/>`length<=10`                |This is the child merchant account number. It is returned only if the transaction was processed via a master account.|
-|txnTime            |UTC formatted date                     |This is the date and time the request was processed. For example:<br/>2014-01-26T10:32:28Z|
-|status             |enum                                   |This is the status of the transaction request. Possible values are:<ul><li>RECEIVED &ndash; Our system has received the request and is waiting for the downstream processor’s response.</li><li>COMPLETED &ndash; The transaction has been completed.</li><li>PENDING &ndash; Our system has received the request but it has not yet been batched.</li><li>FAILED &ndash; The transaction failed, due to either an error or being declined.</li><li>CANCELLED &ndash; The request has been fully voided (reversed).</li></ul>|
-|error              |[error](#errorobject)                  |       |
-|splitpay           |[splitpay](#splitpayobject)            |This enables you to use the Split Payouts functionality when processing a refund.|
-|riskReasonCode     |array                                  |An array of integers is returned, displaying the detailed Risk reason codes if your transaction was declined. It is returned only if your account is configured accordingly.|
-|gatewayResponse    |[gatewayResponse](#gatewayresponseobject) | This is the read-only raw response returned by an acquirer. It is returned only if your account is configured accordingly.|
-
-```apib
-{
-    "merchantRefNum":"refund_id:1231",
-    "amount":10098
-}
-```
-
 <a name="recipientobject" title="recipient Object"></a>
 ## recipient 
+
+* I included extra information about the *recipient* object from the Card Payments API. Please advise if it no longer holds.
 
 The recipient is deemed to be the person or party who has the contractual relationship with the merchant/financial institution. This may be different from the cardholder, e.g., in the case of a parent topping up a child's savings account. Therefore, the fields should not be collected on the same page as cardholder information, but instead be passed in the background from the merchant’s records.
 
@@ -1065,6 +1073,29 @@ If you [look up an authorization request](#getauth)  that used the *visaAddition
         "accountNumber": "ABC1234567890"
     }
     }
+```
+
+<a name="refundsobject" title="refunds Object"></a>
+## refunds
+|Element            |Type                                   |Description                        |
+|---                |---                                    |---                                |
+|id                 |string <br/>`length<=36`               |This is the ID returned in the response. This ID can be used for future associated requests.|
+|merchantRefNum     |string <br/>`length<=255`              |This is the merchant reference number created by the merchant and submitted as part of the request. It must be unique for each request.|
+|amount             |number<br>`max=99999999999`            |This is the amount of the request, in minor units. For example, to process US $10.99, this value should be 1099. To process 1000 Japanese yen, this value should be 1000. To process 10.139 Tunisian dinar, this value should be 10139.<br/>**Note:** If the merchant account is set up for a currency that has 3 decimal units, our system will half round up the least significant digit. Therefore, a transaction of 10.139 Tunisian dinar would be processed as 10.14.|
+|dupCheck           |boolean                                |This validates that this request is not a duplicate. A request is considered a duplicate if the *merchantRefNum* has already been used in a previous request within the past 90 days.<br/>**Note:** This value defaults to *true*.|
+|childAccountNum    |string<br/>`length<=10`                |This is the child merchant account number. It is returned only if the transaction was processed via a master account.|
+|txnTime            |UTC formatted date                     |This is the date and time the request was processed. For example:<br/>2014-01-26T10:32:28Z|
+|status             |enum                                   |This is the status of the transaction request. Possible values are:<ul><li>RECEIVED &ndash; Our system has received the request and is waiting for the downstream processor’s response.</li><li>COMPLETED &ndash; The transaction has been completed.</li><li>PENDING &ndash; Our system has received the request but it has not yet been batched.</li><li>FAILED &ndash; The transaction failed, due to either an error or being declined.</li><li>CANCELLED &ndash; The request has been fully voided (reversed).</li></ul>|
+|error              |[error](#errorobject)                  |       |
+|splitpay           |[splitpay](#splitpayobject)            |This enables you to use the Split Payouts functionality when processing a refund.|
+|riskReasonCode     |array                                  |An array of integers is returned, displaying the detailed Risk reason codes if your transaction was declined. It is returned only if your account is configured accordingly.|
+|gatewayResponse    |[gatewayResponse](#gatewayresponseobject) | This is the read-only raw response returned by an acquirer. It is returned only if your account is configured accordingly.|
+
+```apib
+{
+    "merchantRefNum":"refund_id:1231",
+    "amount":10098
+}
 ```
 
 <a name="returnlinksobject" title="returnLinks Object"></a>
@@ -1134,8 +1165,38 @@ If you [look up an authorization request](#getauth)  that used the *visaAddition
   }
 ```
 
+<a name="standalonecreditsobject" title="standalonecredits Object"></a>
+## standalonecredits
+ * dupCheck not supported? 
+ * no txnTime returned?
+ * Other elements missing when compared with original credits object from Card Payments API.
+
+|Element            |Type                                   |Description                        |
+|---                |---                                    |---                                |
+|id                 |string <br/>`length<=36`               |This is the ID returned in the response. This ID can be used for future associated requests.|
+|amount             |number<br/>`max=99999999999`           |This is the amount of the request, in minor units. For example, to process US $10.99, this value should be 1099. To process 1000 Japanese yen, this value should be 1000. To process 10.139 Tunisian dinar, this value should be 10139.<br/>**Note:** If the merchant account is set up for a currency that has 3 decimal units, our system will half round up the least significant digit.|
+|merchantRefNum     |string <br/>`length<=255`              |This is the merchant reference number created by the merchant and submitted as part of the request. It must be unique for each request.|
+|paymentHandleToken |string                                 |This is the payment token generated by Paysafe that will be used by merchants for original credit requests.|
+|currencyCode       |string<br/>`length=3`                  |This is the currency of the merchant account, e.g., USD or CAD, returned in the request response. See [Currency Codes](#currencycodes)|
+|card               |[card](#cardobject)                    |These are the details of the card used.|
+|billingDetails     |[billingDetails](#billingdetailsobject)|These are the billing details for the request.|
+|customerIp         |string<br/>`length<=39`                |This is the customer's IP address.|
+|description        |string<br/>`length<=255`               |This is a description of the transaction, provided by the merchant.|
+
+```apib
+{
+  "merchantRefNum":"merchant ABC-444",
+  "amount":10098,
+  "paymentHandleToken": "SC9mbfZSITB5OwDJ",
+  "currencyCode": "GBP",
+  "customerIp":"204.91.0.12",
+  "description":"Winning payment from Loto"
+}    
+```
+
 <a name="storedcredentialobject" title="storedCredential Object"></a>
 ## storedCredential
+* I included information for the *storedCredential* object from the Card Payments API. Please advise if it no longer holds. 
 
 The *storedCredential* object is used to identify [authorization requests](#authrequest) that use stored credentials for a consumer, in order to improve authorization rates and reduce fraud. Stored credentials can be used in two cases: 
  - Using a payment token &ndash; An authorization request that uses a *paymentToken* from the [Customer Vault API](https://developer.paysafe.com/en/vault/api/)
@@ -1260,21 +1321,22 @@ This API will provide all the available payment methods for the Merchant. Mercha
 
 ## Payment Handle [/v1/paymenthandles]
 
-PaymentHandle is a contract of a Payment, which contains customer's payment instrument and other details like amount, payment method, customer profile etc. This accepts a variety of payment methods with a single API. 
+PaymentHandle is a contract of a Payment, which contains customer's payment instrument and other details like amount, payment method, customer profile, etc. This accepts a variety of payment methods with a single API. 
 <br>
-Payment Handle has its own states. Payment can be initiated on this Payment Handle only if the status is PAYABLE.
+> **Note:** A payment handle can be used in a [payment request](#paymentrequests) only if it has the status of **PAYABLE**. 
 
 ### Create Payment Handle [POST]
 
 Creates a new Payment Handle object.
+
++ Attributes 
+    + Include PaymentHandleRequest
 
 + Request Card payment handle creation without 3DS (application/json)
 
     + Headers
 
             Authorization: "Basic YOUR-BASE64-ENCODED-API-KEY"
-            
-    + Attributes (PaymentHandleRequest)
     
     + Body
 
@@ -1725,6 +1787,7 @@ Fetch an existing payment handle object, using the merchant genereated unique id
 # Group Payments
 
 ## Payments [/v1/payments]
+<a name="paymentrequests" title="Payments"></a>
 
 Payments is used to authorize an amount. The authorized amount must be settled in a subsequent settlement transaction.
 For Purchase requests. i.e., requests which authorizes and settles in the same request, set the settleWithAuth  parameter to true.
@@ -2729,22 +2792,129 @@ Note: This API will be accessible with public API key.
 
 # Data Structures
 
-## level2Level3Request (object)
-+ level2Level3.exemptLocalTax (boolean)
-+ level2Level3.localTaxAmount (number) : `length <=99999999999`  - This is the local sales tax applied to the purchase. 
-+ level2Level3.nationalTaxAmount  : `length <=99999999999` - This is the national tax included in the transaction amount.
-+ level2Level3.freightAmount (number) : `length <=99999999999` - This is the freight or shipping portion of the total transaction amount.
-+ level2Level3.dutyAmount (number) : `length <=99999999999` - This is the duty associated with the import of the purchased goods.
-+ level2Level3.destinationZip : `length <=10` - This is the postal/zip code of the address to which the purchased goods will be delivered. This field can be identical to the shipFromZip if the customer is present and takes immediate possession of the goods.
-+ level2Level3.destinationCountry : `Size = 2` - This is the country to which the goods are being shipped. See Country Codes.
-+ level2Level3.shipFromZip : `length <=10` - This is the postal/zip code of the address from which the purchased goods are being shipped
-+ level2Level3.lineItems (array) - This is more detailed information about the items that are being purchased.
-    + lineItems.description : `length <=50` - This is a description of the item(s) being purchased.
-    + lineItems.productCode : `length <=12` - This is a merchant-defined description code of the item being purchased.
-    + lineItems.quantity  : `length =99999999999` - This is the quantity of the item.
-    + lineItems.unitAmount : 'length = 100' - This is the tax rate used to calculate the tax amount. For example, if the tax rate is 10.5%, this value should be 10.5.
-    + lineItems.taxAmount : `length =99999999999` - This is the amount of any value-added taxes that can be associated with the purchased item, in minor units. The currency will be based on the account setting.Our system will not validate the accuracy of this value. The merchant's application must calculate this value correctly.
-    + lineItems.totalAmount : `length =99999999999` - This is the total amount of the line item, typically calculated as price multiplied by quantity, in minor units. The currency will be based on the account setting. Our system will not validate the accuracy of this value. The merchant's application must calculate this value correctly.
+## accordDRequest (object)
++ accordD.finanacingType(enum) - This is the type of financing offered.
+    + DEFERRED_PAYMENT – Deferred payment financing
+    + EQUAL_PAYMENT – Equal payment financing
++ accordD.plan : `length <=3` - This is the plan number for this financing transaction.
++ accordD.gracePeriod : `length <=99` - This is the grace period, in months, associated with deferred payment transactions.
++ accordD.term : `length <=99` -This is the number of payments, in months, for equal payment transactions.
+
+## acquirerDataAttributes (object)
++ acquirerData.code - This is the code of the acquirer data. Possible values are:
+        + CRX (Credorax)
++ acquirerData.authId - This is the auth idof the acquirer data.
++ acquirerData.externalSubMerchantId - This is the external merchant id of the acquirer data.
+
+## authenticationAttributes (object)
++ authentication.id -This is the id of authentication.
++ authentication.eci -This is the eci of authentication.
++ authentication.cavv -This is the cavv of authentication.
++ authentication.xid -This is the xid of authentication.
++ authentication.status -This is the status of authentication.
++ authentication.merchantRefNum -This is the merchantRefNumof authentication.
++ authentication.threeDEnrollment -This is the threeDEnrollmentof authentication.
++ authentication.threeDResult -This is the threeDResultof authentication.
++ authentication.signatureStatus -This is the signatureStatus of authentication.
++ authentication.error (object) -This is the error details of authentication.
+    + code -This is the error code.
+    + message -This is the description of the error.
+    + fieldErrors (object) -This is a list of fields that have issues.
+    + field -Field name.
+    + error -Error associated with the field name.
+
+## Billing Details
++ billingDetails (object) - These are the billing details for the request.
+    + street:`100 Queen` (string)  - This is the first line of the street address in the billing address.
+        _length<=50_
+    + street2:`Unit 201` (string) - This is the second line of the street address in the billing address, if required (e.g., apartment number).
+        _length<=50_
+    + city:`Toronto` (string) - This is the city in the billing address.
+        _length<=40_
+    + zip:`MSH 2N2` (string) - This is the postal/zip code in the billing address.
+        _length<=10_
+    + country:`CA` (string) - This is the country where the address is located. See [Country Codes](#countrycodes).
+        _length=2_
+    + state:`ON` (string) - This is the state or province of the billing address. For Canada see [Province Codes](#provincecodes). For the United States see [State Codes](#statecodes). Other countries have no restrictions.
+        _length<=40_
+    + phone:`444-9999` (string) - This is the customer's telephone number.
+        _length<=40_
+
+## `Card`
+
++ One of
+
+    + card (object, required) - This is the payment token that represents the [card](#cardobject) used for the request. Only one **card** object can be included in the request.
+
+        + Properties
+
+            + paymentToken:`LTEyMzYzMjQ3ODg` (string, required) - This is the payment token representing the card.
+                _length<=80_
+            + cvv:`123` (string, optional) - This is the 3- or 4-digit security code that appears on the card following the card number.
+                _length=3-4_
+
+    + card (object, required) - These are the details of the [card](#cardobject) used for the request. Only one **card** object can be included in the request.
+
+        + Properties
+
+            + cardNum:`4111111111111111` (string, required) - This is the card number used for the request.
+                _length=8-20_
+                
+            + cardExpiry (object, required) - This is the card's [expiry date](#cardexpiryobject).
+                + month:12 (number, required) - This is the card expiry month.
+                    _length=2_
+                + year:2020 (number, required) - This is the card expiry year.
+                    _length=4_
+            + cvv:`123` (string) - This is the 3- or 4-digit security code that appears on the card following the card number.
+                _length=3-4_
+            + holdername:`Jane Smith` (string) - This is the name of the card holder.
+            + type (enum) - This is type of card used for the request.
+                - AM – American Express
+                - DC – Diners Club
+                - DI – Discover
+                - JC – JCB
+                - MC – Mastercard
+                - MD – Maestro
+                - SF – Swiff
+                - SO – Solo
+                - VI – Visa
+                - VD – Visa Debit
+                - VE – Visa Electron
+            + lastDigits:`1111` (string) - These are the last four digits of the card used for the request.
+                _Read Only, length=4_
+            + status:`STATUS` (enum) - This is the status of the card.
+                + Members
+                    + STATUSES?
+            + nickName:`Jane's Card` (string) - This is the nickname the merchant has for the card holder.
+                _length<=???_
+            + cardBin:`411111` (string) - This is the card BIN (typically the first 6 digits).
+                _Read Only, length=6_
+            + track1 (string, optional) - This is Track 1 information read from the card's magnetic stripe.
+            + track2 (string, optional) - This is Track 2 information read from the card's magnetic stripe.
+
+## `Date of Birth`
++ dateOfBirth (object, required) - This is the customer's date of birth. 
+
+    + Properties
+        + day:29 (number, required) - This is the day of birth.
+            _length=2_
+        + month:12 (number, required) - This is the month of birth.
+            _length=2_
+        + year:2020 (number, required) - This is the year of birth.
+            _length=4_
+
+## errorAttributes (object)
++ error.code -This is the error code.
++ error.internalCode -This is the internal error code.
++ error.message -This is the description of the error.
++ error.riskReasonCode -if applicable The corresponding reason code from the risk system
++ error.details(array) -if applicable This is a collection of detailed description.
++ error.fieldErrors(array) - if applicable This is a list of fields that have issues.
+    + field -Field name.
+    + error -Error associated with the field name.
++ error.links (array) - if applicable This is a list of links to the related resource
+    + rel - Description or relation of the link. Eg: default, self, first, prev, next, last
+    + href - The actual URL of the link.
 
 ## gatewayRequest (object)
 + authCode : `length <= 50` - This is the Authorization code assigned by the issuing bank and returned in the response.
@@ -2782,185 +2952,138 @@ Note: This API will be accessible with public API key.
 + responseReasonCode -This is the raw response reason code returned by Credorax.
 + cvv2Result -This is the raw cvv2 result code.
 
-## accordDRequest (object)
-+ accordD.finanacingType(enum) - This is the type of financing offered.
-    + DEFERRED_PAYMENT – Deferred payment financing
-    + EQUAL_PAYMENT – Equal payment financing
-+ accordD.plan : `length <=3` - This is the plan number for this financing transaction.
-+ accordD.gracePeriod : `length <=99` - This is the grace period, in months, associated with deferred payment transactions.
-+ accordD.term : `length <=99` -This is the number of payments, in months, for equal payment transactions.
+## level2Level3Request (object)
++ level2Level3.exemptLocalTax (boolean)
++ level2Level3.localTaxAmount (number) : `length <=99999999999`  - This is the local sales tax applied to the purchase. 
++ level2Level3.nationalTaxAmount  : `length <=99999999999` - This is the national tax included in the transaction amount.
++ level2Level3.freightAmount (number) : `length <=99999999999` - This is the freight or shipping portion of the total transaction amount.
++ level2Level3.dutyAmount (number) : `length <=99999999999` - This is the duty associated with the import of the purchased goods.
++ level2Level3.destinationZip : `length <=10` - This is the postal/zip code of the address to which the purchased goods will be delivered. This field can be identical to the shipFromZip if the customer is present and takes immediate possession of the goods.
++ level2Level3.destinationCountry : `Size = 2` - This is the country to which the goods are being shipped. See Country Codes.
++ level2Level3.shipFromZip : `length <=10` - This is the postal/zip code of the address from which the purchased goods are being shipped
++ level2Level3.lineItems (array) - This is more detailed information about the items that are being purchased.
+    + lineItems.description : `length <=50` - This is a description of the item(s) being purchased.
+    + lineItems.productCode : `length <=12` - This is a merchant-defined description code of the item being purchased.
+    + lineItems.quantity  : `length =99999999999` - This is the quantity of the item.
+    + lineItems.unitAmount : 'length = 100' - This is the tax rate used to calculate the tax amount. For example, if the tax rate is 10.5%, this value should be 10.5.
+    + lineItems.taxAmount : `length =99999999999` - This is the amount of any value-added taxes that can be associated with the purchased item, in minor units. The currency will be based on the account setting.Our system will not validate the accuracy of this value. The merchant's application must calculate this value correctly.
+    + lineItems.totalAmount : `length =99999999999` - This is the total amount of the line item, typically calculated as price multiplied by quantity, in minor units. The currency will be based on the account setting. Our system will not validate the accuracy of this value. The merchant's application must calculate this value correctly.
 
-## recipientAttributes (object)
-+ recipient.dateOfBirth (object) - This is the date of birth of the recipient.
-    + dateOfBirth.day(number) - This is the day of the dateOfBirth.
-    + dateOfBirth.month(number) - This is the month of the dateOfBirth.
-    + dateOfBirth.year(number) - This is the year of the dateOfBirth.
-+ recipient.zip - This is the ZIP Code of the recipient.
-+ recipient.lastName - This is the last name of the recipient.
-+ recipient.accountNumber - This is the account number of the recipient.
-
-## splitpayAttributes (object)
-+ linkedAccount -This is the ID of the linked account.
-+ amount (number) -This is the amount to transfer to the linked account in minor currency units.
-+ percent(number) -This is the percentage of the total transaction amount to transfer to that account.
-
-## storedCredentialDetailsAttributes (object)
-+ type (enum) - This specifies the type of request being made. Possible values are: 
-    + ADHOC – Ad hoc consumer-initiated request.
-    + TOPUP – Unscheduled merchant iniitated request when a consumer balance is below a set limit.
-    + RECURRING –  Scheduled merchant initiated recurring request.
-+ occurrence (enum) - This specifies whether this stored credential request is initial or recurring. Possible values are: 
-    + INITIAL – Used when this is the first time the consumer uses this credit card.
-    + SUBSEQUENT – Used when the consumer uses this credit card for subsquent requests.
-
-## merchantDescriptorAttributes (object)
-+ merchantDescriptor.dynamicDescriptor: `length = 20` - This is a merchant descriptor that will be displayed on a customer’s card statement.
-+ merchantDescriptor.phone: `length = 13` - This is the merchant’s phone number, which will be appended to the merchant descriptor on a customer’s card statement.
-
-## acquirerDataAttributes (object)
-+ acquirerData.code - This is the code of the acquirer data. Possible values are:
-        + CRX (Credorax)
-+ acquirerData.authId - This is the auth idof the acquirer data.
-+ acquirerData.externalSubMerchantId - This is the external merchant id of the acquirer data.
-
-## errorAttributes (object)
-+ error.code -This is the error code.
-+ error.internalCode -This is the internal error code.
-+ error.message -This is the description of the error.
-+ error.riskReasonCode -if applicable The corresponding reason code from the risk system
-+ error.details(array) -if applicable This is a collection of detailed description.
-+ error.fieldErrors(array) - if applicable This is a list of fields that have issues.
-    + field -Field name.
-    + error -Error associated with the field name.
-+ error.links (array) - if applicable This is a list of links to the related resource
-    + rel - Description or relation of the link. Eg: default, self, first, prev, next, last
-    + href - The actual URL of the link.
+## Merchant Descriptor
++ merchantDescriptor (object)
+    + dynamicDescriptor:`OnlineStore` (string) - This is a merchant descriptor that will be displayed on a customer’s statement.
+        _length<=20_
+    + phone:`999-8888` (string) - This is the merchant’s phone number, which will be appended to the merchant descriptor on a customer’s statement.
+        _length<=13_
 
 ## metadataAttributes (object)
 + key : `length = 50` -This is a description of the data being added to the order.
 + value : `length = 100` - This is the value for the key/value pair.
 
-## authenticationAttributes (object)
-+ authentication.id -This is the id of authentication.
-+ authentication.eci -This is the eci of authentication.
-+ authentication.cavv -This is the cavv of authentication.
-+ authentication.xid -This is the xid of authentication.
-+ authentication.status -This is the status of authentication.
-+ authentication.merchantRefNum -This is the merchantRefNumof authentication.
-+ authentication.threeDEnrollment -This is the threeDEnrollmentof authentication.
-+ authentication.threeDResult -This is the threeDResultof authentication.
-+ authentication.signatureStatus -This is the signatureStatus of authentication.
-+ authentication.error (object) -This is the error details of authentication.
-    + code -This is the error code.
-    + message -This is the description of the error.
-    + fieldErrors (object) -This is a list of fields that have issues.
-    + field -Field name.
-    + error -Error associated with the field name.
-
-## statusAttributes (enum)
-+ RECEIVED - Our system has received the request and is waiting for the downstream processor’s response.
-+ INITIATED - The transaction was initiated with the downstream provider.
-+ PAYABLE - The merchant can proceed with payments post request.
-+ PROCESSING - Payment Handle was authorized by customer, awaiting PSP response.
-+ FAILED - The transaction failed, due to either an error or being declined. 
-+ CANCELLED - The authorization request has been fully reversed.
-+ EXPIRED - The payment handle got expired due to merchant not proceeding with transaction payments post.
-+ COMPLETED - Payments call was initiated successfully using the payment Handle.
-
-## consumerOperationAttributes(enum)
-+ ADD - Consumer wants to save the payment instrument to the profile.
-+ EDIT - Consumer wants to edit the payment instrument which is attached to the profile.
-+ DELETE - Consumer wants to delete the saved payment instrument from his profile.
-
-## transactionTypeAttributes(enum)
-+ PAYMENT - Payment Handle is created to continue the Payment.
-+ STANDALONE_CREDIT - Payment Handle is created to continue the standalone credit.
-+ ORIGINAL_CREDIT - Payment Handle is created to continue the original credit.
-+ VERIFICATION - Payment Handle is created to continue the verification request.
+## OriginalCreditResponse (object)
++ id: 25f6dadf-176a-415f-95c9-6ff39ff697ba - Read Only, length<=36    This is the ID returned in the response. This ID can be used for future associated requests, e,g., Refunds.
++ merchantRefNum: P1234 (required) - length<=255 This is the merchant reference number created by the merchant and submitted as part of the request.
++ amount: 100 (required) - max=99999999999 This is the amount of the request, in minor units.
++ card (object) - These are the details of the card used for the request.Only one card object can be included in the request.
+    + paymentToken (required) - Max = 80 This is the payment token representing the card.
++ card (object) - These are the details of the card used for the request.Only one card object can be included in the request.   
+    + cardNum (): 4111111111111111 (required) - length=8-20 This is the card number used for the request.
+        + cardExpiry (required) - This is the card's expiry date.
+        + month:12 (number, required) - This is the card expiry month. length=2
+        + year:2020 (number, required) - This is the card expiry year. length=4
+    + cvv - This is the 3- or 4-digit security code that appears on the card following the card number.
+    + track1 - This is Track 1 information read from the card's magnetic stripe.
+    + track2 - This is Track 2 information read from the card's magnetic stripe.`
++ dupCheck: true (boolean) - This validates that this request is not a duplicate. A request is considered a duplicate if the merchantRefNum has already been used in a previous request within the past 90 days.
++ description: Purchase Credit - This is a description of the transaction, provided by the merchant. length<=255
++ customerIp: 204.91.0.12 -This is the customer's IP address.length<=39
++ accountId: 123456789 (optional) -This is the merchant account number.
++ profile - These are some details about the customer.
+ - firstName: test -  This is the customer’s first name. length<=80
+ - lastname: user -  This is the customer's last name. length<=80
+ - email: john.smith@email.com -  This is the customer's email address. length<=255
++ billingAddress - These are the billing details for the request.
+ - street: 100 queen - length<=50 This is the first line of the street address in the billing address.
+ - street2: unit 201 - length<=50 This is the second line of the street address in the billing address, if required (e.g., apartment number).
+ - city: Toronto - This is the city in the billing address. length<=40
+ - zip: MSH 2N2 - This is the postal/zip code in the billing address. length<=10
+ - country: CA - Size = 2
+ - state: ON - Use the 2-character state or province codes for Canada or the United States. length<=40
+ - phone - This is the customer's telephone number. length<=40
 
 ## PaymentHandleRequest (object)
 
-+ id: `length <=36`(required) - This is the ID returned in the response. This ID can be used for future associated requests, e,g., Payments.
-+ paymentHandleTokenFrom: `length <= 36` - This is the existing payment handle id, from which payment instrument and profile details has to be fetched.
-+ merchantRefNum: `length <= 100` - This is the merchant reference number created by the merchant and submitted as part of the request. It must be unique for each request.
-+ consumerOperation(consumerOperationAttributes) -Either consumerOperation or transactionType is Mandatory. This is the consumer operation on the payment instrument.
-+ singleUseProfileToken - This is the single use profile token of the profile on which consumer operation (ADD/EDIT/DELETE) need to be done.
-+ transactionType(transactionTypeAttributes) - This specifies for which transaction type Payment Handle is created.
-+ status(statusAttributes) - This is the status of the transaction request.
-+ usage (enum) - Payment handle usage - whether single of multi use
-    + SINGLE_USE - The payment handle can be used only once for transaction, it gets expired after due time.
-    + MULTI_USE - The payment handle can be used multiple times like recurring/subscription payments.
-+ paymentType (enum)(required) - The related payment Type/Channel/Method associated with this handle
-    + CARD
-    + SKRILL
-    + NETELLER
-    + PAYSAFE_CASH
-    + PAYSAFE_CARD
-+ action (enum) - The associated action that needs to be done by merchant for this handle
-    + NONE
-    + REDIRECT
-    + AUTHENTICATE
-+ executionMode (enum) - The type of execution of the payment
-    + ASYNCHRONOUS - For some payment types the actual payment will differently be completed after some hours or days, where customer has to complete it offline. In this case Merchant has to rely on Webhooks, which will get the Payment success/fail event.
-    + SYNCHRONOUS - In case the status of the Payment call will be returned to Merchant Synchronously. Example : Cards (with 3DS and without 3DS), Skrill, Neteller, Paysafe Card. In these cases Is it OK for Merchant to poll the PROCESSING/PENDING Payments in a regular intervals.
-+ amount: 100 - Max =99999999999 This is the amount of the request, in minor units.
-+ currencyCode: CAD - Max = 3 This is the currency of the merchant account, e.g., USD or CAD, returned in the request response.
-+ paymentHandleToken - The handle token generated by our system which will be used by merchants for payments post later.
-+ card (object) - These are the details of the card used for the request.
-    + paymentToken - Max = 80 If the payment token is provided, no other card information is necessary.
-    + cardNum - Min = 8,Max = 20 This is the card number used for the request.
-    + type (enum) - This is type of card used for the request.
-        - AM – American Express
-        - DC – Diners Club
-        - DI – Discover
-        - JC – JCB
-        - MC – MasterCard
-        - MD – Maestro
-        - SF – Swiff
-        - SO – Solo
-        - VI – Visa
-        - VD – Visa Debit
-        - VE – Visa Electron
-    + lastDigits - Size=4 This is the last four digits of the card used for the request.
-    + cardExpiry - This is the card's expiry date.
-        + month - length=2 This is the card expiry month.
-        + year - length=4 This is the card expiry year.
-    + cvv - Min = 3,Max = 4 This is the 3- or 4-digit security code that appears on the card following the card number.
-    + track1 - This is Track 1 information read from the card's magnetic stripe.
-    + track2 - This is Track 2 information read from the card's magnetic stripe.
-+ profile - Customer information is mandatory if savePaymentInstrument is set to true
- - id: Gt56fR6 - Id is enough, and if id is not present, customer details like firstName, lastName, email ... has to be provided,if id is specified, the additional details provided will be overwritten to existing customer profile?
- - status - The status of customer in the system, returned in the response.
- - merchantCustomerId - length = 255 This is the reference number for the customer created by the merchant and submitted as part of the request. It must be unique for each customer.
- - firstName: test - length<=80 This is the customer’s first name.
- - lastname: user - length<=80 This is the customer's last name.
- - locale - Customer's locale preference
- - dateOfBirth: year,month,day(array)
- - email: john.smith@email.com - length<=255 This is the customer's email address.
- - phone:12345678
- - mobile - mobile
- - gender - gender
- - nationality - indian
-+ billingDetails - These are the billing details for the request.
- - street: 100 queen - length<=50 This is the first line of the street address in the billing address.
- - street2: unit 201 - length<=50 This is the second line of the street address in the billing address, if required (e.g., apartment number).
- - city: Toronto - length<=40 This is the city in the billing address.
- - zip: MSH 2N2 - length<=10 This is the postal/zip code in the billing address.
- - country: CA - Size = 2
- - state: ON - length<=40 Use the 2-character state or province codes for Canada or the United States.
- - phone - length<=40 This is the customer's telephone number.
-+ merchantDescriptor - This is the merchant descriptor that will be displayed on the customer's card statement.
-    + dynamicDescriptor: Online Store - This is a merchant descriptor that will be displayed on a customer’s card statement. Length = 20
-    + phone: 12345678 - This is the merchant’s phone number, which will be appended to the merchant descriptor on a customer’s card statement. Length = 13
++ id:`26359efd-7cfb-4014-a13d-1724e3ff17fa` (string) - This is the ID returned in the response. This ID can be used for future associated requests, e.g., to look up the payment handle. 
+    _Read Only, length<=36_
++ paymentHandleTokenFrom:`7576835c-0396-11e9-8eb2-f2801f1b9fd1` (string) - This is an existing payment handle token, from which payment instrument and profile details can be retrieved.
+    _length<=36_
++ merchantRefNum:`merchantRefNum-101` (string, required) - This is the merchant reference number created by the merchant and submitted as part of the request. It must be unique for each request.
+    _length<=100_
++ One of
+    + consumerOperation:`ADD` (enum) - This is the consumer operation on the payment instrument. You **must** include either *consumerOperation* or *transactionType*.
+        + Members
+            + ADD - Consumer wants to save the payment instrument to the profile.
+            + EDIT - Consumer wants to edit the payment instrument that is attached to the profile.
+            + DELETE - Consumer wants to delete the payment instrument from the profile. 
+    + transactionType:`PAYMENT` (enum) - This specifies the transaction type for which the payment handle is created. You **must** include either *transactionType* or *consumerOperation*.
+        + Members
+            + PAYMENT - Payment Handle is created to continue the Payment.
+            + STANDALONE_CREDIT - Payment Handle is created to continue the standalone credit.
+            + ORIGINAL_CREDIT - Payment Handle is created to continue the original credit.
+            + VERIFICATION - Payment Handle is created to continue the verification request.
++ singleUseProfileToken:`6c4ca5d2-039a-11e9-8eb2-f2801f1b9fd1` (string) - This is the single use profile token of the profile on which the consumer operation (ADD/EDIT/DELETE) is to be done. **Note:** This field is required if *consumerOperation* is provided.
+    _length<=36_
++ status:`PAYABLE` (enum) - This is the status of the transaction request.
+    _Read Only_
+    + Members
+        + RECEIVED - Paysafe has received the request and is waiting for the downstream processor’s response.
+        + INITIATED - The transaction was initiated with the downstream provider.
+        + PAYABLE - The merchant can use the payment handle for a payment request.
+        + PROCESSING - The payment handle was authorized by customer, awaiting PSP response.
+        + FAILED - The transaction failed due to either an error or being declined. 
+        + CANCELLED - The authorization request has been fully reversed.
+        + EXPIRED - The payment handle expired because the merchant did not proceed with the payment transaction. 
+        + COMPLETED - The payment request was initiated successfully using the payment handle.
++ usage:`SINGLE_USE` (enum) - This specifies how the payment handle will be used for payments.
+    + Members
+        + SINGLE_USE - The payment handle can be used for one transaction only and expires if not used.
+        + MULTI_USE - The payment handle can be used multiple times.
++ paymentType:`CARD` (enum, required) - This is the payment type associated with this payment handle.
+    + Members
+        + CARD
+        + SKRILL
+        + NETELLER
+        + PAYSAFE_CASH
+        + PAYSAFE_CARD
++ action:`NONE` (enum) - This specifies the next step of the user journey once they proceed to the payment.
+    + Members
+        + NONE
+        + REDIRECT
+        + AUTHENTICATE
++ executionMode:`SYNCHRONOUS` (enum) - This specifies the action of the merchant server in order to complete the payment.
+    + Members
+        + ASYNCHRONOUS - The payment request is not completed immediately and the merchant must rely on webhooks to retrieve the status of the payment request.
+        + SYNCHRONOUS - The status of the payment request will be returned synchronously to the merchant, e.g., a credit card request.
++ amount:`1000` (string) - This is the amount of the request, in minor units. **Note:** This field is mandatory if *transactionType* is included.
+    _Max =99999999999_
++ currencyCode:`CAD` (string) - This is the [currency of the merchant account](#currencycodes), e.g., USD or CAD, returned in the request response.
+    _Read Only, max=3_
++ paymentHandleToken:`842778a0-03a2-11e9-8eb2-f2801f1b9fd1` (string) - This is the payment token generated by Paysafe that will be used by merchants for payments requests.
+    _Read Only, length<=36_
++ Include Card
++ Include Profile
++ Include Billing Details
++ Include Merchant Descriptor
 + returnLinks (object) - Specifies all links
     + rel(enum) -This is the link type, allowing different endpoints to be targeted depending on the end state of the transaction. The link relation describes how this link relates to the previous call. 
         + self - This will get details of the current call.
         + payment_redirect - Merchant needs to redirect this consumer to this url to complete payment
     + href - The actual URL
     + method - The http method
-+ customerIp - length<=39 This is the customer's IP address.
-+ timeToLiveSeconds: 1212121212 (number) - This is the period of time the single-use token is valid before expiration, in seconds, returned in the response.(Long)
-
++ customerIp:`111.111.111.111` (string) - This is the customer's IP address.
+    _length<=39_
++ timeToLiveSeconds:`1212121212` (number) - This is the period of time, in seconds, the single-use token is valid before expiration. 
+    _Read Only, length<=?????_
 
 ## PaymentsRequest (object)
 
@@ -2997,8 +3120,7 @@ Note: This API will be accessible with public API key.
 + storedCredential(storedCredentialDetailsAttributes) - The storedCredential object is used to identify authorization requests that use stored credentials for a consumer, in order to improve authorization rates and reduce fraud. Stored credentials can be used in two cases:
 Using a payment token – An authorization request that uses a paymentToken from the Customer Vault API.           
 Using a card number – An authorization request that uses a credit card number stored by the merchant
-+ merchantDescriptor(merchantDescriptorAttributes) - This is the merchant descriptor that will be displayed on the customer's card statement.
-        Not all processing gateways support this parameter. Contact your account manager for more information.
++ Include Merchant Descriptor
 + settlements (array) - This is the list of all settlements. This will be returned only if settleWithAuth=true in the request.
 + acquirerData(acquirerDataAttributes) - This is additional information about the card acquirer required when you are performing an original credit request.
         This object is required only when you are using Credorax (CRX) as your acquirer for Original Credits. Contact your account manager for details.
@@ -3008,37 +3130,44 @@ Using a card number – An authorization request that uses a credit card number 
 + statusReason - This is reason for the status. This is present in case of ERROR, FAILURE, HELD status.
 + authentication(authenticationAttributes) - This is the 3DS authentication details.
 
+## Profile
 
-## OriginalCreditResponse (object)
-+ id: 25f6dadf-176a-415f-95c9-6ff39ff697ba - Read Only, length<=36    This is the ID returned in the response. This ID can be used for future associated requests, e,g., Refunds.
-+ merchantRefNum: P1234 (required) - length<=255 This is the merchant reference number created by the merchant and submitted as part of the request.
-+ amount: 100 (required) - max=99999999999 This is the amount of the request, in minor units.
-+ card (object) - These are the details of the card used for the request.Only one card object can be included in the request.
-    + paymentToken (required) - Max = 80 This is the payment token representing the card.
-+ card (object) - These are the details of the card used for the request.Only one card object can be included in the request.   
-    + cardNum (): 4111111111111111 (required) - length=8-20 This is the card number used for the request.
-        + cardExpiry (required) - This is the card's expiry date.
-        + month:12 (number, required) - This is the card expiry month. length=2
-        + year:2020 (number, required) - This is the card expiry year. length=4
-    + cvv - This is the 3- or 4-digit security code that appears on the card following the card number.
-    + track1 - This is Track 1 information read from the card's magnetic stripe.
-    + track2 - This is Track 2 information read from the card's magnetic stripe.`
-+ dupCheck: true (boolean) - This validates that this request is not a duplicate. A request is considered a duplicate if the merchantRefNum has already been used in a previous request within the past 90 days.
-+ description: Purchase Credit - This is a description of the transaction, provided by the merchant. length<=255
-+ customerIp: 204.91.0.12 -This is the customer's IP address.length<=39
-+ accountId: 123456789 (optional) -This is the merchant account number.
-+ profile - These are some details about the customer.
- - firstName: test -  This is the customer’s first name. length<=80
- - lastname: user -  This is the customer's last name. length<=80
- - email: john.smith@email.com -  This is the customer's email address. length<=255
-+ billingAddress - These are the billing details for the request.
- - street: 100 queen - length<=50 This is the first line of the street address in the billing address.
- - street2: unit 201 - length<=50 This is the second line of the street address in the billing address, if required (e.g., apartment number).
- - city: Toronto - This is the city in the billing address. length<=40
- - zip: MSH 2N2 - This is the postal/zip code in the billing address. length<=10
- - country: CA - Size = 2
- - state: ON - Use the 2-character state or province codes for Canada or the United States. length<=40
- - phone - This is the customer's telephone number. length<=40
++ `profile` (object) 
+    + id:`de39b080-03aa-11e9-8eb2-f2801f1b9fd1` (string) -  This is the ID returned in the response. **Note:** If you do not include the profile ID, you must provide other customer details like firstName, lastName, and email. If the ID is included, then any additional profile elements provided will be overwritten to existing customer profile? 
+        _length<=36_
+    + status:`ACTIVE` (enum) - This is the status of the customer profile, returned in the response.
+        + Members
+            + ACTIVE
+    + merchantCustomerId:`custid123` (string) - This is the reference number for the customer created by the merchant and submitted as part of the request. It must be unique for each customer.
+        _length<=255_
+    + firstName:`Jane` (string) - This is the customer’s first name.
+        _length<=80_
+    + lastname:`Smyth` (string) - This is the customer's last name.
+        _length<=80_
+    + locale:`ca_en` (enum) - This indicates the customer's locale.
+        + Members
+            + ???
+    + Include Date of Birth
+    + email:`jane.smyth@email.com` (string) - This is the customer's email address.
+        _length<=255_
+    + phone:`12345678` (string) - This is the customer's phone number.
+        _length<=40_
+    + mobile:`4446666` (string) - This is the customer's mobile phone number. 
+        _length<=40_
+    + gender:`M` (enum) - This is the customer’s gender.
+        - F
+        - M
+    + nationality:`Indian` (string) - This is the customer’s nationality.
+        _length<=30_
+
+## recipientAttributes (object)
++ recipient.dateOfBirth (object) - This is the date of birth of the recipient.
+    + dateOfBirth.day(number) - This is the day of the dateOfBirth.
+    + dateOfBirth.month(number) - This is the month of the dateOfBirth.
+    + dateOfBirth.year(number) - This is the year of the dateOfBirth.
++ recipient.zip - This is the ZIP Code of the recipient.
++ recipient.lastName - This is the last name of the recipient.
++ recipient.accountNumber - This is the account number of the recipient.
 
 ## RefundResponse (object)
 + id: 25f6dadf-176a-415f-95c9-6ff39ff697ba - Read Only, length<=36    This is the ID returned in the response. This ID can be used for future associated requests, e,g., Refunds.
@@ -3054,7 +3183,6 @@ Using a card number – An authorization request that uses a credit card number 
 + riskReasonCode (array) - An array of integers is returned, displaying the detailed risk reason codes if your transaction was declined. It is returned only if your account is configured accordingly.        
 + gatewayResponse(gatewayRequest) - This is the raw response returned by an acquirer. It is returned only if your account is configured accordingly.
 
-
 ## SettlementResponse (object)
 + id: 25f6dadf-176a-415f-95c9-6ff39ff697ba - Read Only, length<=36    This is the ID returned in the response. This ID can be used for future associated requests, e,g., Refunds.
 + merchantRefNum: P1234 (required) - length<=255 This is the merchant reference number created by the merchant and submitted as part of the request.
@@ -3068,6 +3196,30 @@ Using a card number – An authorization request that uses a credit card number 
         An array containing the linked accounts and the amount shared with each. You must include either amount or percent. However, you cannot include both values.
 + riskReasonCode (array) - An array of integers is returned, displaying the detailed risk reason codes if your transaction was declined. It is returned only if your account is configured accordingly.        
 + gatewayResponse(gatewayRequest) - This is the raw response returned by an acquirer. It is returned only if your account is configured accordingly.
+
+## splitpayAttributes (object)
++ linkedAccount -This is the ID of the linked account.
++ amount (number) -This is the amount to transfer to the linked account in minor currency units.
++ percent(number) -This is the percentage of the total transaction amount to transfer to that account.
+
+## statusAttributes (enum)
++ RECEIVED - Our system has received the request and is waiting for the downstream processor’s response.
++ INITIATED - The transaction was initiated with the downstream provider.
++ PAYABLE - The merchant can proceed with payments post request.
++ PROCESSING - Payment Handle was authorized by customer, awaiting PSP response.
++ FAILED - The transaction failed, due to either an error or being declined. 
++ CANCELLED - The authorization request has been fully reversed.
++ EXPIRED - The payment handle got expired due to merchant not proceeding with transaction payments post.
++ COMPLETED - Payments call was initiated successfully using the payment Handle.
+
+## storedCredentialDetailsAttributes (object)
++ type (enum) - This specifies the type of request being made. Possible values are: 
+    + ADHOC – Ad hoc consumer-initiated request.
+    + TOPUP – Unscheduled merchant iniitated request when a consumer balance is below a set limit.
+    + RECURRING –  Scheduled merchant initiated recurring request.
++ occurrence (enum) - This specifies whether this stored credential request is initial or recurring. Possible values are: 
+    + INITIAL – Used when this is the first time the consumer uses this credit card.
+    + SUBSEQUENT – Used when the consumer uses this credit card for subsquent requests.
 
 ## voidAuthResponse (object)
 + id: 25f6dadf-176a-415f-95c9-6ff39ff697ba - Read Only, length<=36    This is the ID returned in the response. This ID can be used for future associated requests, e,g., Refunds.
