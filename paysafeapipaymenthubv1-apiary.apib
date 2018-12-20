@@ -17,6 +17,15 @@ HOST: https://api.test.paysafe.com/paymenthub/
  * billingDetails object in Apiary contains *phone*, but it does not in Confluence object.
  * Length of *timeToLiveSeconds* element?
  * Where does *metadata* object appear in API?
+ * In Apiary payment handle examples, the first example (create payment handle witout 3DS) and the second example (create payment handle with 3DS enabled) have exactly the same parameters. What makes them different?
+ * In the examples below, when you look up a payment handle using the *merchantRefNum* parameter, there is no *paymentToken* included in the response (whereas it is included when you look it up using the *id*). Is this accurate?
+ * Max for merchantRefNum for payment handles is 100, while it is set to 255 for payments. Is this accurate?
+ * What is length of externalSubMerchantId element?
+ * Merchant 3DS config done in Merchant Portal by merchant.
+ * Does *partialAuth* default to *false*?
+ * Is *paymentHandleToken* not required for a payment request?
+ * The *paymentHandle* object is listed in the table of parameters for the payment request object. Is this returned in some responses (it's not in the Confluence or Apiary examples)? Is the whole object returned? And when?
+ * Is there any validation if the IP address provided in the Payment Handle does not match the IP address provided in the Payment request?
 
 # Release Notes
 
@@ -638,8 +647,6 @@ The following payment methods are supported
 
 <a name="acquirerdataobject" title="Acquirer Data Object"></a>
 ## acquirerData
-
- * What is length of last element?
 
 This is additional information about the card acquirer required when you are performing an Original Credit request. This object is required **only when** you are using Credorax (CRX) as your acquirer for Original Credits. Contact your account manager for details.
 
@@ -1332,7 +1339,7 @@ Creates a new Payment Handle object.
 + Attributes 
     + Include PaymentHandleRequest
 
-+ Request Card payment handle creation without 3DS (application/json)
++ Request Create Payment Handle for Card without 3D Secure Enabled (application/json)
 
     + Headers
 
@@ -1428,7 +1435,7 @@ Creates a new Payment Handle object.
               "transactionType": "PAYMENT"
             }
 
-+ Request CARD Payment Handle with 3DS enabled (application/json)
++ Request Create Payment Handle for Card with 3D Secure Enabled (application/json)
 
     + Headers
 
@@ -1529,7 +1536,7 @@ Creates a new Payment Handle object.
               "transactionType": "PAYMENT"
             }
 
-+ Request Create payment handle for STANDALONE_CREDIT or ORIGINAL_CREDIT using non-3ds or 3ds cards (application/json)
++ Request Create Payment Handle for Card for Standalone Credit (application/json)
 
     + Headers
 
@@ -1601,7 +1608,7 @@ Creates a new Payment Handle object.
               "transactionType": "STANDALONE_CREDIT"
             }
             
-+ Request Create payment handle of transaction type VERIFICATION without amount (application/json)
++ Request Create Payment Handle for Card for Verification (application/json)
 
     + Headers
 
@@ -1671,11 +1678,11 @@ Creates a new Payment Handle object.
 
 ### Get Payment Handle [GET /v1/paymenthandles/{paymenthandle_id}]
 
-Fetch an existing payment handle object, using the unique payment handle ID returned during payment handle creation request.
+This is how you look up a payment handle, using the unique payment handle ID returned in the response to the initial payment handle creation request.
 
 + Parameter
 
- + paymenthandle_id : `26359efd-7cfb-4014-a13d-1724e3ff17fa` - This is the ID returned in the response to the Payment handle request.
+ + paymenthandle_id : `26359efd-7cfb-4014-a13d-1724e3ff17fa` - This is the payment handle ID returned in the response to the payment handle creation request.
 
 + Response 200 (application/json)
 
@@ -1733,7 +1740,7 @@ Fetch an existing payment handle object, using the merchant genereated unique id
 
 + Parameter
 
-    + merchant_ref_num : `13995817730005389` - This is the ID returned in the response to the Payment handle request.
+    + merchant_ref_num : `13995817730005389` - This is the *merchantRefNum* used in the original payment handle creation request.
 
 + Response 200 (application/json)
 
@@ -1799,13 +1806,14 @@ For Purchase requests. i.e., requests which authorizes and settles in the same r
 - A purchase/sale request, which authorizes and settles the payment in a single request by setting the settleWithAuth parameter to true
 
 
-+ Request Card Payment with Payment Handle (application/json)
++ Attributes 
+    + Include PaymentsRequest
+
++ Request Submit a Card Payment with a Payment Handle (application/json)
 
     + Headers
 
             Authorization: "Basic YOUR-BASE64-ENCODED-API-KEY"
-            
-    + Attributes (PaymentsRequest)
     
     + Body
 
@@ -2952,22 +2960,43 @@ Note: This API will be accessible with public API key.
 + responseReasonCode -This is the raw response reason code returned by Credorax.
 + cvv2Result -This is the raw cvv2 result code.
 
-## level2Level3Request (object)
-+ level2Level3.exemptLocalTax (boolean)
-+ level2Level3.localTaxAmount (number) : `length <=99999999999`  - This is the local sales tax applied to the purchase. 
-+ level2Level3.nationalTaxAmount  : `length <=99999999999` - This is the national tax included in the transaction amount.
-+ level2Level3.freightAmount (number) : `length <=99999999999` - This is the freight or shipping portion of the total transaction amount.
-+ level2Level3.dutyAmount (number) : `length <=99999999999` - This is the duty associated with the import of the purchased goods.
-+ level2Level3.destinationZip : `length <=10` - This is the postal/zip code of the address to which the purchased goods will be delivered. This field can be identical to the shipFromZip if the customer is present and takes immediate possession of the goods.
-+ level2Level3.destinationCountry : `Size = 2` - This is the country to which the goods are being shipped. See Country Codes.
-+ level2Level3.shipFromZip : `length <=10` - This is the postal/zip code of the address from which the purchased goods are being shipped
-+ level2Level3.lineItems (array) - This is more detailed information about the items that are being purchased.
-    + lineItems.description : `length <=50` - This is a description of the item(s) being purchased.
-    + lineItems.productCode : `length <=12` - This is a merchant-defined description code of the item being purchased.
-    + lineItems.quantity  : `length =99999999999` - This is the quantity of the item.
-    + lineItems.unitAmount : 'length = 100' - This is the tax rate used to calculate the tax amount. For example, if the tax rate is 10.5%, this value should be 10.5.
-    + lineItems.taxAmount : `length =99999999999` - This is the amount of any value-added taxes that can be associated with the purchased item, in minor units. The currency will be based on the account setting.Our system will not validate the accuracy of this value. The merchant's application must calculate this value correctly.
-    + lineItems.totalAmount : `length =99999999999` - This is the total amount of the line item, typically calculated as price multiplied by quantity, in minor units. The currency will be based on the account setting. Our system will not validate the accuracy of this value. The merchant's application must calculate this value correctly.
+## Level2Level3
+
++ `level2Level3` (object, optional) - This allows merchants who are enabled to provide additional [L2/L3 transaction data](#level2level3object). Not all processing gateways support this parameter. Contact your account manager for more information.
+    + exemptLocalTax:true (boolean, optional) - This indicates whether or not local tax is exempted for the request. 
+    + localTaxAmount:1500 (number, optional) - This is the local sales tax applied to the purchase.
+        _length<=99999999999_
+    + nationalTaxAmount:0 (number, optional) - This is the national tax included in the transaction amount.
+        _length<=99999999999_
+    + freightAmount:0 (number, optional) - This is the freight or shipping portion of the total transaction amount.
+        _length<=99999999999_
+    + dutyAmount:0 (number, optional) - This is the duty associated with the import of the purchased goods.
+        _length<=99999999999_
+    + destinationZip:90210 (string, optional) - This is the postal/zip code of the address to which the purchased goods will be delivered.
+        _length<=10_
+    + destinationCountry:US (string, optional) - This is the country to which the goods are being shipped.
+        _length=2_
+    + shipFromZip:90211 (string, optional) - This is the postal/zip code of the address from which the purchased goods are being shipped.
+        _length<=10_
+    + Include Line Items
+            
+## Line Items
+
++ `lineItems` (object, optional) - This is more [detailed information](#lineitemsobject) about the items that are being purchased.
+    + description:Disney Cruise Line (string, optional) - This is a description of the item(s) being purchased.
+        _length<=50_
+    + productCode:DCL (string, optional) - This is a merchant-defined description code of the item being purchased.
+        _length<=12_
+    + quantity:4 (number, optional) - This is the quantity of the item.
+        _length<=99999999999_, _max 4 decimals_
+    + unitAmount:120000 (number, optional) - This is the unit price of the item being purchased, in minor units. The currency will be based on the account setting.
+        _length<=99999999999_
+    + taxRate:5 (number, optional) - This is the tax rate used to calculate the tax amount.
+        _length<=100_, _max 2 decimals_
+    + taxAmount:24000 (number, optional) - This is the amount of any value-added taxes that can be associated with the purchased item, in minor units.
+        _length<=99999999999_
+    + totalAmount:504000 (number, optional) - This is the total amount of the line item, typically calculated as price multiplied by quantity, in minor units.
+        _length<=99999999999_
 
 ## Merchant Descriptor
 + merchantDescriptor (object)
@@ -3010,6 +3039,13 @@ Note: This API will be accessible with public API key.
  - country: CA - Size = 2
  - state: ON - Use the 2-character state or province codes for Canada or the United States. length<=40
  - phone - This is the customer's telephone number. length<=40
+
+## Partial Auth
++ partialAuth (object)
+    + `requested`:`true` (boolean) - This specifies whether or not a partial authorization was requested.
+        + Default: false
+    + `amountDue`:`1000` (number) - This is the amount of the full authorization that is not covered by the payment request.
+    + `originalAmount`:`2000` (number) - This is the actual amount of the full authorization.
 
 ## PaymentHandleRequest (object)
 
@@ -3085,38 +3121,125 @@ Note: This API will be accessible with public API key.
 + timeToLiveSeconds:`1212121212` (number) - This is the period of time, in seconds, the single-use token is valid before expiration. 
     _Read Only, length<=?????_
 
+## PaymentHandleRequest Object
++ paymentHandleRequest (object)
+    + id:`26359efd-7cfb-4014-a13d-1724e3ff17fa` (string) - This is the ID returned in the response. This ID can be used for future associated requests, e.g., to look up the payment handle. 
+        _Read Only, length<=36_
+    + paymentHandleTokenFrom:`7576835c-0396-11e9-8eb2-f2801f1b9fd1` (string) - This is an existing payment handle token, from which payment instrument and profile details can be retrieved.
+        _length<=36_
+    + merchantRefNum:`merchantRefNum-101` (string, required) - This is the merchant reference number created by the merchant and submitted as part of the request. It must be unique for each request.
+        _length<=100_
+    + One of
+        + consumerOperation:`ADD` (enum) - This is the consumer operation on the payment instrument. You **must** include either *consumerOperation* or *transactionType*.
+            + Members
+                + ADD - Consumer wants to save the payment instrument to the profile.
+                + EDIT - Consumer wants to edit the payment instrument that is attached to the profile.
+                + DELETE - Consumer wants to delete the payment instrument from the profile. 
+        + transactionType:`PAYMENT` (enum) - This specifies the transaction type for which the payment handle is created. You **must** include either *transactionType* or *consumerOperation*.
+            + Members
+                + PAYMENT - Payment Handle is created to continue the Payment.
+                + STANDALONE_CREDIT - Payment Handle is created to continue the standalone credit.
+                + ORIGINAL_CREDIT - Payment Handle is created to continue the original credit.
+                + VERIFICATION - Payment Handle is created to continue the verification request.
+    + singleUseProfileToken:`6c4ca5d2-039a-11e9-8eb2-f2801f1b9fd1` (string) - This is the single use profile token of the profile on which the consumer operation (ADD/EDIT/DELETE) is to be done. **Note:** This field is required if *consumerOperation* is provided.
+        _length<=36_
+    + status:`PAYABLE` (enum) - This is the status of the transaction request.
+        _Read Only_
+        + Members
+            + RECEIVED - Paysafe has received the request and is waiting for the downstream processor’s response.
+            + INITIATED - The transaction was initiated with the downstream provider.
+            + PAYABLE - The merchant can use the payment handle for a payment request.
+            + PROCESSING - The payment handle was authorized by customer, awaiting PSP response.
+            + FAILED - The transaction failed due to either an error or being declined. 
+            + CANCELLED - The authorization request has been fully reversed.
+            + EXPIRED - The payment handle expired because the merchant did not proceed with the payment transaction. 
+            + COMPLETED - The payment request was initiated successfully using the payment handle.
+    + usage:`SINGLE_USE` (enum) - This specifies how the payment handle will be used for payments.
+        + Members
+            + SINGLE_USE - The payment handle can be used for one transaction only and expires if not used.
+            + MULTI_USE - The payment handle can be used multiple times.
+    + paymentType:`CARD` (enum, required) - This is the payment type associated with this payment handle.
+        + Members
+            + CARD
+            + SKRILL
+            + NETELLER
+            + PAYSAFE_CASH
+            + PAYSAFE_CARD
+    + action:`NONE` (enum) - This specifies the next step of the user journey once they proceed to the payment.
+        + Members
+            + NONE
+            + REDIRECT
+            + AUTHENTICATE
+    + executionMode:`SYNCHRONOUS` (enum) - This specifies the action of the merchant server in order to complete the payment.
+        + Members
+            + ASYNCHRONOUS - The payment request is not completed immediately and the merchant must rely on webhooks to retrieve the status of the payment request.
+            + SYNCHRONOUS - The status of the payment request will be returned synchronously to the merchant, e.g., a credit card request.
+    + amount:`1000` (string) - This is the amount of the request, in minor units. **Note:** This field is mandatory if *transactionType* is included.
+        _Max =99999999999_
+    + currencyCode:`CAD` (string) - This is the [currency of the merchant account](#currencycodes), e.g., USD or CAD, returned in the request response.
+        _Read Only, max=3_
+    + paymentHandleToken:`842778a0-03a2-11e9-8eb2-f2801f1b9fd1` (string) - This is the payment token generated by Paysafe that will be used by merchants for payments requests.
+        _Read Only, length<=36_
+    + Include Card
+    + Include Profile
+    + Include Billing Details
+    + Include Merchant Descriptor
+    + returnLinks (object) - Specifies all links
+        + rel(enum) -This is the link type, allowing different endpoints to be targeted depending on the end state of the transaction. The link relation describes how this link relates to the previous call. 
+            + self - This will get details of the current call.
+            + payment_redirect - Merchant needs to redirect this consumer to this url to complete payment
+        + href - The actual URL
+        + method - The http method
+    + customerIp:`111.111.111.111` (string) - This is the customer's IP address.
+        _length<=39_
+    + timeToLiveSeconds:`1212121212` (number) - This is the period of time, in seconds, the single-use token is valid before expiration. 
+        _Read Only, length<=?????_
+
 ## PaymentsRequest (object)
 
-+  id: `length <=36` read only - This is the ID returned in the response. This ID can be used for future associated requests, e,g., Settlements.
-+ merchantRefNum: `length <= 255`(required) - This is the merchant reference number created by the merchant and submitted as part of the request. It must be unique for each request.
-+ amount: 100 - Max =99999999999(required)  This is the amount of the request, in minor units.
-+ dupCheck: true (boolean) - This validates that this request is not a duplicate. A request is considered a duplicate if the merchantRefNum has already been used in a previous request within the past 90 days.
-+ settleWithAuth: true (boolean) - This indicates whether the request is an Authorization only (no Settlement), or a Purchase (Authorization and Settlement).
-        - false - the request is not settled
-        - true  - the request is settled
-+ preAuth: false  (boolean) - This indicates whether the Authorization request should be sent as a Pre-Authorization.
-        - You should use the preAuth element in cases where you are not sure that you can fully settle the Authorization within 4 days. Contact your account manager for more information.
-+ partialAuth (object)  -This is the authorization that is approved for an amount lower than the requested amount. The reminder of the amount could be paid by other means.     
-    + partialAuth.requested (boolean) -This specifies whether partial auth is requested or not.
-    + partialAuth.amountDue (number) -This is the amount for which auth is not provided.
-    + partialAuth.orginalAmount (number) -This is the actual amount for which authorization is asked.
-+ paymentHandleToken (string) - This is the payment handle token.
-+ paymentHandle (PaymentHandleRequest) - This is the Payment Handle details.
-+ availableToSettle (number) -This is the amount of of the Authorization remaining to settle, in minor units.
-+ childAccountNum : `length <= 10` -This is the child merchant account number. It is returned only if the transaction was processed via a master account.
-+ customerIp - `length<=39` -This is the customer's IP address.
-+ description: `length<=255` -This is a description of the transaction, provided by the merchant.
-+ status (statusAttributes) - This is the status of the transaction request.
-+ currencyCode: CAD - Max = 3 This is the currency of the merchant account, e.g., USD or CAD, returned in the request response.
-+ level2Level3(level2Level3Request) - This allows merchants who are enabled to provide additional L2/L3 transaction data.
-        Not all processing gateways support this parameter. Contact your account manager for more information.
++ `id`:`3aeb9c63-6386-46a3-9f8e-f452e722228a` (string) - This is the ID returned in the response. This ID can be used for future associated requests, e.g., looking up the payment. 
+    _Read Only, length<=36_
++ `merchantRefNum`:`merchantRefNum-101` (string, required) - This is the merchant reference number created by the merchant and submitted as part of the request. It must be unique for each request.
+    _length<=255_
++ `amount`:`1000` (number, required) - This is the amount of the request, in minor units.
+    _max=99999999999_
++ `dupCheck`:`false` (boolean) - This validates that this request is not a duplicate. A request is considered a duplicate if the *merchantRefNum* has already been used in a previous request within the past 90 days.
+    + Default: true
++ `settleWithAuth`:`true` (boolean) - This indicates whether the request is an Authorization only (no Settlement) or a Purchase (Authorization and Settlement).
+    + Default: true
++ `preAuth`:`false`  (boolean) - This indicates whether the Authorization request should be sent as a Pre-Authorization. You should use the *preAuth* element in cases where you are not sure that you can fully settle the Authorization within 4 days. Contact your account manager for more information.
++ Include Partial Auth
++ `paymentHandleToken`:`842778a0-03a2-11e9-8eb2-f2801f1b9fd1` (string) - This is the payment token generated by Paysafe that will be used for the payment request.
+    _length<=36_
++ Include PaymentHandleRequest Object
++ `availableToSettle`:`0` (number) -This is the amount of of the Authorization remaining to settle, in minor units.
+    _Read Only_
++ `childAccountNum`:`3216549877` (string) - This is the child merchant account number. It is returned only if the transaction was processed via a master account.
+    _length<=10_
++ `customerIp`:`111.111.111.111` (string) - This is the customer's IP address.
+    _length<=39_
++ `description`:`Consumer Purchase` (string) - This is a description of the transaction, provided by the merchant.
+    _length<=255_
++ `status`:`PAYABLE` (enum) - This is the status of the transaction request.
+    _Read Only_
+    + Members
+        + RECEIVED - Paysafe has received the request and is waiting for the downstream processor’s response.
+        + INITIATED - The transaction was initiated with the downstream provider.
+        + PAYABLE - The merchant can use the payment handle for a payment request.
+        + PROCESSING - The payment handle was authorized by customer, awaiting PSP response.
+        + FAILED - The transaction failed due to either an error or being declined. 
+        + CANCELLED - The authorization request has been fully reversed.
+        + EXPIRED - The payment handle expired because the merchant did not proceed with the payment transaction. 
+        + COMPLETED - The payment request was initiated successfully using the payment handle.
++ `currencyCode`:`CAD` (string) - This is the [currency of the merchant account](#currencycodes), e.g., USD or CAD, returned in the request response.
+    _Read Only, max=3_
++ Include Level2Level3
 + gatewayResponse(gatewayRequest) - This is the raw response returned by an acquirer. It is returned only if your account is configured accordingly.
 + accorD(accordDRequest) - These are parameters for financing plans supported for certain merchant configurations.
         Include this element only when instructed to do so by NETBANX.
 + recipient(recipientAttributes) - This is recipient information.
 + riskReasonCode (array) - An array of integers is returned, displaying the detailed risk reason codes if your transaction was declined. It is returned only if your account is configured accordingly.
-+ splitPay (splitpayAttributes) - NOTE: For splitpay transactions only.
-        An array containing the linked accounts and the amount shared with each. You must include either amount or percent. However, you cannot include both values.
++ Include Splitpay
 + storedCredential(storedCredentialDetailsAttributes) - The storedCredential object is used to identify authorization requests that use stored credentials for a consumer, in order to improve authorization rates and reduce fraud. Stored credentials can be used in two cases:
 Using a payment token – An authorization request that uses a paymentToken from the Customer Vault API.           
 Using a card number – An authorization request that uses a credit card number stored by the merchant
@@ -3178,8 +3301,7 @@ Using a card number – An authorization request that uses a credit card number 
 + txnTime : `date` - This is the date and time the transaction was processed.For example, 2018-11-27T09:12:11Z
 + status (statusAttributes) - This is the status of the transaction request.
 + error(errorAttributes) - Details of the error.
-+ splitPay (splitpayAttributes) - NOTE: For splitpay transactions only.
-        An array containing the linked accounts and the amount shared with each. You must include either amount or percent. However, you cannot include both values.
++ Include Splitpay
 + riskReasonCode (array) - An array of integers is returned, displaying the detailed risk reason codes if your transaction was declined. It is returned only if your account is configured accordingly.        
 + gatewayResponse(gatewayRequest) - This is the raw response returned by an acquirer. It is returned only if your account is configured accordingly.
 
@@ -3192,15 +3314,18 @@ Using a card number – An authorization request that uses a credit card number 
 + childAccountNum : `length <= 10` -This is the child merchant account number. It is returned only when the transaction is processed via a master account.
 + status (statusAttributes) - This is the status of the transaction request.
 + error(errorAttributes) - Details of the error.
-+ splitPay (splitpayAttributes) - NOTE: For splitpay transactions only.
-        An array containing the linked accounts and the amount shared with each. You must include either amount or percent. However, you cannot include both values.
++ Include Splitpay
 + riskReasonCode (array) - An array of integers is returned, displaying the detailed risk reason codes if your transaction was declined. It is returned only if your account is configured accordingly.        
 + gatewayResponse(gatewayRequest) - This is the raw response returned by an acquirer. It is returned only if your account is configured accordingly.
 
-## splitpayAttributes (object)
-+ linkedAccount -This is the ID of the linked account.
-+ amount (number) -This is the amount to transfer to the linked account in minor currency units.
-+ percent(number) -This is the percentage of the total transaction amount to transfer to that account.
+## Splitpay
++ splitpay (array, optional) - For Splitpay transactions only, an array containing the linked accounts and the amount shared with each. You must include either *amount* or *percent*. However, you cannot include both values.
+    + (object)
+        + Properties
+            + linkedAccount:`123124124` (string, required) - This is the ID of the linked account. This account must already be linked to the merchant account.
+            + One of
+                + amount:`505` (number, optional) - This is the amount to transfer to the linked account in minor currency units.
+                + percent:`5` (number, optional) - This is the percentage of the total transaction amount to transfer to that account.
 
 ## statusAttributes (enum)
 + RECEIVED - Our system has received the request and is waiting for the downstream processor’s response.
