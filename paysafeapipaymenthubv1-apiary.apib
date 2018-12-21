@@ -2800,13 +2800,19 @@ Note: This API will be accessible with public API key.
 
 # Data Structures
 
-## accordDRequest (object)
-+ accordD.finanacingType(enum) - This is the type of financing offered.
-    + DEFERRED_PAYMENT – Deferred payment financing
-    + EQUAL_PAYMENT – Equal payment financing
-+ accordD.plan : `length <=3` - This is the plan number for this financing transaction.
-+ accordD.gracePeriod : `length <=99` - This is the grace period, in months, associated with deferred payment transactions.
-+ accordD.term : `length <=99` -This is the number of payments, in months, for equal payment transactions.
+## accordD
++ accordD (object)
+    + Properties
+        + `financingType`:`DEFERRED_PAYMENT` (enum) - This is the type of financing offered.
+            + Members
+                + DEFERRED_PAYMENT - Deferred payment financing
+                + EQUAL_PAYMENT - Equal payment financing
+        + `plan`:`124` (string) - This is the plan number for this financing transaction.
+            _length<=3_
+        + `gracePeriod`:`12` (number) - This is the grace period, in months, associated with deferred payment transactions.
+            _max=99_
+        + `term`:`12` (number) - This is the number of payments, in months, for equal payment transactions.
+            _max=99_
 
 ## acquirerDataAttributes (object)
 + acquirerData.code - This is the code of the acquirer data. Possible values are:
@@ -2924,41 +2930,53 @@ Note: This API will be accessible with public API key.
     + rel - Description or relation of the link. Eg: default, self, first, prev, next, last
     + href - The actual URL of the link.
 
-## gatewayRequest (object)
-+ authCode : `length <= 50` - This is the Authorization code assigned by the issuing bank and returned in the response.
-+ avsResponse (enum) - This is the AVS response from the card issuer.
-    + MATCH
-    + MATCH_ADDRESS_ONLY
-    + MATCH_ZIP_ONLY
-    + NO_MATCH
-    + NOT_PROCESSED
-    + UNKNOWN
-+ cvvVerification (enum) - This is the response to the cvv submitted with the transaction request.
-    + MATCH
-    + NO_MATCH
-    + NOT_PROCESSED
-    + UNKNOWN
-+ code -This is acquirer identification code, such as DJN, CRX, etc.
-+ responseCode -This is the raw response returned by the acquirer.
-+ avsCode -This is the raw AVS code returned by the acquirer.
-+ balanceResponse -This is the balance remaining on a gift card, if a gift card was used for the original transaction.
-+ mid -This is the acquirer MID that was sent to the clearing house.
-+ terminalId -This is the merchant's terminal ID.
-+ batchNumber -This is the batch number.
-+ seqNumber -This is the merchant's sequence number.
-+ effectiveDate -This is the date of the bank deposit associated with the transaction. 
-+ financingType -This is the type of financing offered.
-+ plan -This is the plan number for this financing transaction.
-+ gracePeriod -This is the grace period, in months, associated with deferred payment transactions.
-+ term - This is the number of payments, in months, for equal payment transactions.
-+ responseId -This is the response ID assigned by Credorax.
-+ requestId -This is the request ID assigned by NETBANX.
-+ description -This is a description of the response.
-+ authCode -This is the authorization code.
-+ txnDateTime -This is the transaction date and time.
-+ referenceNbr -Bank net transaction Id/Merch Tran Ref
-+ responseReasonCode -This is the raw response reason code returned by Credorax.
-+ cvv2Result -This is the raw cvv2 result code.
+## Gateway Response
++ gatewayResponse (object) - This is the raw response returned by an acquirer. It is returned only if your account is configured accordingly.
+    _Read Only_
+
+    + Properties
+        + code (string) - This is acquirer identification code, such as DJN, CRX, etc.
+            _Read Only_
+        + responseCode (string) - This is the raw response returned by the acquirer.
+            _Read Only_
+        + avsCode (string) - This is the raw AVS code returned by the acquirer.
+            _Read Only_
+        + balanceResponse (string) - This is the balance remaining on a gift card, if a gift card was used for the original transaction.
+            _Read Only_
+        + mid (string) - This is the acquirer MID that was sent to the clearing house.
+            _Read Only_
+        + terminalId (string) - This is the merchant's terminal ID.
+            _Read Only_
+        + batchNumber (string) - This is the batch number.
+            _Read Only_
+        + seqNumber (string) - This is the merchant's sequence number.
+            _Read Only_
+        + effectiveDate (string) - This is the date of the bank deposit associated with the transaction.
+            _Read Only_
+        + financingType (string) - This is the type of financing offered.
+            _Read Only_
+        + plan (string) - This is the plan number for this financing transaction.
+            _Read Only_
+        + gracePeriod (string) - This is the grace period, in months, associated with deferred payment transactions.
+            _Read Only_
+        + term (string) - This is the number of payments, in months, for equal payment transactions.
+            _Read Only_
+        + responseId (string) - This is the response ID assigned by Credorax.
+            _Read Only_
+        + requestId (string) - This is the request ID assigned by Paysafe.
+            _Read Only_
+        + description (string) - This is a description of the response.
+            _Read Only_
+        + authCode (string) - This is the authorization code.
+            _Read Only_
+        + txnDateTime (string) - This is the transaction date and time.
+            _Read Only_
+        + referenceNbr (string) - This is the bank net transaction Id/Merch Tran Ref
+            _Read Only_
+        + responseReasonCode (string) - This is the raw response reason code returned by Credorax.
+            _Read Only_
+        + cvv2Result (string) - This is the raw cvv2 result code.
+            _Read Only_
 
 ## Level2Level3
 
@@ -3234,9 +3252,8 @@ Note: This API will be accessible with public API key.
 + `currencyCode`:`CAD` (string) - This is the [currency of the merchant account](#currencycodes), e.g., USD or CAD, returned in the request response.
     _Read Only, max=3_
 + Include Level2Level3
-+ gatewayResponse(gatewayRequest) - This is the raw response returned by an acquirer. It is returned only if your account is configured accordingly.
-+ accorD(accordDRequest) - These are parameters for financing plans supported for certain merchant configurations.
-        Include this element only when instructed to do so by NETBANX.
++ Include Gateway Response
++ Include accordD
 + recipient(recipientAttributes) - This is recipient information.
 + riskReasonCode (array) - An array of integers is returned, displaying the detailed risk reason codes if your transaction was declined. It is returned only if your account is configured accordingly.
 + Include Splitpay
@@ -3303,7 +3320,7 @@ Using a card number – An authorization request that uses a credit card number 
 + error(errorAttributes) - Details of the error.
 + Include Splitpay
 + riskReasonCode (array) - An array of integers is returned, displaying the detailed risk reason codes if your transaction was declined. It is returned only if your account is configured accordingly.        
-+ gatewayResponse(gatewayRequest) - This is the raw response returned by an acquirer. It is returned only if your account is configured accordingly.
++ Include Gateway Response
 
 ## SettlementResponse (object)
 + id: 25f6dadf-176a-415f-95c9-6ff39ff697ba - Read Only, length<=36    This is the ID returned in the response. This ID can be used for future associated requests, e,g., Refunds.
@@ -3316,7 +3333,7 @@ Using a card number – An authorization request that uses a credit card number 
 + error(errorAttributes) - Details of the error.
 + Include Splitpay
 + riskReasonCode (array) - An array of integers is returned, displaying the detailed risk reason codes if your transaction was declined. It is returned only if your account is configured accordingly.        
-+ gatewayResponse(gatewayRequest) - This is the raw response returned by an acquirer. It is returned only if your account is configured accordingly.
++ Include Gateway Response
 
 ## Splitpay
 + splitpay (array, optional) - For Splitpay transactions only, an array containing the linked accounts and the amount shared with each. You must include either *amount* or *percent*. However, you cannot include both values.
