@@ -8,7 +8,7 @@ HOST: https://api.test.paysafe.com/paymenthub/
  * Can you include both *consumerOperation* and *transactionType*? Doc says you must include at least one of them, but not that they are mutually exclusive.
  * In Confluence, the paymentType has PAYSAFECASH and PAYSAFECARD, but the Apiary document has PAYSAFE_CASH and PAYSAFE_CARD, so wondering which is right.
  * track1 and track2 are included in the Apiary example, but not in the *card* object in Confluence.
- * Apiary has *card* element but Confluence card object has *cardType* element.
+ * Apiary has *card* element but Confluence card object has *cardType* element. Other APIs do not use *cardType*. 
  * Related, can someone verify that the list of card types is accurate?
  * savePaymentInstrument is mentioned in the profile but not documented anywhere that I can see in Confluence or in the Apiary document.
  * The elements in *profile* are different when you compare the Confluence object and the object defined in the Apiary document.
@@ -26,6 +26,8 @@ HOST: https://api.test.paysafe.com/paymenthub/
  * Is *paymentHandleToken* not required for a payment request?
  * The *paymentHandle* object is listed in the table of parameters for the payment request object. Is this returned in some responses (it's not in the Confluence or Apiary examples)? Is the whole object returned? And when?
  * Is there any validation if the IP address provided in the Payment Handle does not match the IP address provided in the Payment request?
+ * I included information for the *storedCredential* object from the Card Payments API. Please advise if it no longer holds. Note that in our current APIs this is called "storedCredential" and not "storedCredentialDetails".
+ * Length of *externalSubMerchantId* is not in Confluence.
 
 # Release Notes
 
@@ -775,6 +777,12 @@ When providing card information, merchants can provide either card details or a 
             }
 ```
 
+<a name="errorobject" title= "Error Object"></a>
+## error
+
+| Element            | Type   | Description                                                                                         |
+|--------------------|--------|-----------------------------------------------------------------------------------------------------|
+
 <a name="gatewayresponseobject" title= "Gateway Response Object"></a>
 ## gatewayResponse
 
@@ -1203,7 +1211,6 @@ If you [look up an authorization request](#getauth)  that used the *visaAddition
 
 <a name="storedcredentialobject" title="storedCredential Object"></a>
 ## storedCredential
-* I included information for the *storedCredential* object from the Card Payments API. Please advise if it no longer holds. 
 
 The *storedCredential* object is used to identify [authorization requests](#authrequest) that use stored credentials for a consumer, in order to improve authorization rates and reduce fraud. Stored credentials can be used in two cases: 
  - Using a payment token &ndash; An authorization request that uses a *paymentToken* from the [Customer Vault API](https://developer.paysafe.com/en/vault/api/)
@@ -2814,28 +2821,56 @@ Note: This API will be accessible with public API key.
         + `term`:`12` (number) - This is the number of payments, in months, for equal payment transactions.
             _max=99_
 
-## acquirerDataAttributes (object)
-+ acquirerData.code - This is the code of the acquirer data. Possible values are:
-        + CRX (Credorax)
-+ acquirerData.authId - This is the auth idof the acquirer data.
-+ acquirerData.externalSubMerchantId - This is the external merchant id of the acquirer data.
+## `Acquirer Data`
 
-## authenticationAttributes (object)
-+ authentication.id -This is the id of authentication.
-+ authentication.eci -This is the eci of authentication.
-+ authentication.cavv -This is the cavv of authentication.
-+ authentication.xid -This is the xid of authentication.
-+ authentication.status -This is the status of authentication.
-+ authentication.merchantRefNum -This is the merchantRefNumof authentication.
-+ authentication.threeDEnrollment -This is the threeDEnrollmentof authentication.
-+ authentication.threeDResult -This is the threeDResultof authentication.
-+ authentication.signatureStatus -This is the signatureStatus of authentication.
-+ authentication.error (object) -This is the error details of authentication.
-    + code -This is the error code.
-    + message -This is the description of the error.
-    + fieldErrors (object) -This is a list of fields that have issues.
-    + field -Field name.
-    + error -Error associated with the field name.
++ `acquirerData` (object) - This is additional information about your card acquirer, required **only when** you are using Credorax (CRX) as your acquirer. Contact your account manager for more information.
+
+    _Read Only_
+    
+    + Properties
+    - `authId`:`f06bccd6-de90-4b73-b10f-30266763bc60` (string) - This is the ID returned in the response to a previous successful Authorization or Settlement request.
+        _length<=36_
+    - `code`:`CRX` (enum) - This is the code for your card acquirer.
+        _length<=10_
+    - `externalSubMerchantId`:`ID123` (string) - This is the external merchant ID of the acquirer data.
+
+## Authentications Object
++ authentication (object) - These are the 3D Secure authentication details.
+    + `id`:`5d4db3bc-34c9-417f-a051-0d992ad9284e` (string) - This is the ID of authentication, returned in the response.
+        _Read Only, length<=36_
+    + `eci`:`5` (number) - This is the e-commerce indicator.
+    + `cavv`:`AAABBhkXYgAAAAACBxdiENhf7A+=` (string) - This is the Cardholder Authentication Verification Value, indicating that the transaction has been authenticated.
+        _length<=80_
+    + `xid`:`aWg4N1ZZOE53TkFrazJuMmkyRDA=` (string) - This is the transaction identifier returned by the card issuer.
+        _length<=40_
+    + `status` -This is the status of authentication request.
+    + `merchantRefNum`:`merchantABC-123-authentications` (string) -This is the merchant reference number for the authentication request.
+        _length<=255_
+    + `threeDEnrollment`:`Y` (enum) - This indicates whether or not the cardholder is enrolled in 3D Secure.
+        + Members
+            + Y - Cardholder authentication available
+            + N - Cardholder not enrolled in authentication
+            + U - Cardholder authentication unavailable
+    + `threeDResult`:`Y` (enum) - This indicates the outcome of the Authentication.
+        + Members
+            + Y - The cardholder successfully authenticated with their card issuer.
+            + A - The cardholder authentication was attempted.
+            + N - The cardholder failed to successfully authenticate with their card issuer.
+            + U - Authentication with the card issuer was unavailable.
+            + E - An error occurred during authentication.
+    + `signatureStatus`:`Y` (enum) - This is the 3D Secure signature verification result value.
+        + Members
+            + Y - All transaction and signature checks satisfied.
+            + N - At least one transaction or signature check failed.
+    + Include Authentication Errors
+
+## Authentication Errors
++ error (object) -This is the error details of authentication.
+    + `code`:`5016` (string) - This is the error code.
+    + `message`:`Account not found.` (string) - This is the description of the error.
+    + `fieldErrors` (object) - This is a list of fields that have issues.
+    + `field`:`amount` (string) - Field name.
+    + `error`:`Contain invalid characters` (string)  - Error associated with the field name.
 
 ## Billing Details
 + billingDetails (object) - These are the billing details for the request.
@@ -3254,21 +3289,18 @@ Note: This API will be accessible with public API key.
 + Include Level2Level3
 + Include Gateway Response
 + Include accordD
-+ recipient(recipientAttributes) - This is recipient information.
-+ riskReasonCode (array) - An array of integers is returned, displaying the detailed risk reason codes if your transaction was declined. It is returned only if your account is configured accordingly.
++ Include Recipient
++ `riskReasonCode`:`1001` (array) - An array of integers is returned, displaying the detailed risk reason codes if your transaction was declined. It is returned only if your account is configured accordingly.
 + Include Splitpay
-+ storedCredential(storedCredentialDetailsAttributes) - The storedCredential object is used to identify authorization requests that use stored credentials for a consumer, in order to improve authorization rates and reduce fraud. Stored credentials can be used in two cases:
-Using a payment token – An authorization request that uses a paymentToken from the Customer Vault API.           
-Using a card number – An authorization request that uses a credit card number stored by the merchant
++ Include Stored Credential
 + Include Merchant Descriptor
-+ settlements (array) - This is the list of all settlements. This will be returned only if settleWithAuth=true in the request.
-+ acquirerData(acquirerDataAttributes) - This is additional information about the card acquirer required when you are performing an original credit request.
-        This object is required only when you are using Credorax (CRX) as your acquirer for Original Credits. Contact your account manager for details.
++ settlements (array) - This is the list of all settlements. This will be returned only if *settleWithAuth* = *true* in the request.
++ Include Acquirer Data
 + error(errorAttributes) - Details of the error.
 + metadata(metadataAttributes) - This allows the merchant to specify additional data (e.g., affiliate codes, session IDs, etc.) to be stored against the transaction and returned to in status calls, reports, etc.
         Up to 10 metadata key/value pairs are enabled per order. They do not need to be defined in advance and can be different on each transaction.
 + statusReason - This is reason for the status. This is present in case of ERROR, FAILURE, HELD status.
-+ authentication(authenticationAttributes) - This is the 3DS authentication details.
++ Include Authentications Object
 
 ## Profile
 
@@ -3300,14 +3332,15 @@ Using a card number – An authorization request that uses a credit card number 
     + nationality:`Indian` (string) - This is the customer’s nationality.
         _length<=30_
 
-## recipientAttributes (object)
-+ recipient.dateOfBirth (object) - This is the date of birth of the recipient.
-    + dateOfBirth.day(number) - This is the day of the dateOfBirth.
-    + dateOfBirth.month(number) - This is the month of the dateOfBirth.
-    + dateOfBirth.year(number) - This is the year of the dateOfBirth.
-+ recipient.zip - This is the ZIP Code of the recipient.
-+ recipient.lastName - This is the last name of the recipient.
-+ recipient.accountNumber - This is the account number of the recipient.
+## Recipient (object)
++ recipient (object) - The recipient is deemed to be the person or party who has the contractual relationship with the merchant/financial institution.
+    + dateOfBirth (object) - This is the date of birth of the recipient.
+        + day (number) - This is the day of the dateOfBirth.
+        + month (number) - This is the month of the dateOfBirth.
+        + year (number) - This is the year of the dateOfBirth.
+    + zip - This is the ZIP code of the recipient.
+    + lastName - This is the last name of the recipient.
+    + accountNumber - This is the account number of the recipient.
 
 ## RefundResponse (object)
 + id: 25f6dadf-176a-415f-95c9-6ff39ff697ba - Read Only, length<=36    This is the ID returned in the response. This ID can be used for future associated requests, e,g., Refunds.
@@ -3354,14 +3387,21 @@ Using a card number – An authorization request that uses a credit card number 
 + EXPIRED - The payment handle got expired due to merchant not proceeding with transaction payments post.
 + COMPLETED - Payments call was initiated successfully using the payment Handle.
 
-## storedCredentialDetailsAttributes (object)
-+ type (enum) - This specifies the type of request being made. Possible values are: 
-    + ADHOC – Ad hoc consumer-initiated request.
-    + TOPUP – Unscheduled merchant iniitated request when a consumer balance is below a set limit.
-    + RECURRING –  Scheduled merchant initiated recurring request.
-+ occurrence (enum) - This specifies whether this stored credential request is initial or recurring. Possible values are: 
-    + INITIAL – Used when this is the first time the consumer uses this credit card.
-    + SUBSEQUENT – Used when the consumer uses this credit card for subsquent requests.
+## `Stored Credential`
++ storedCredential (object) - This object is used to identify authorization requests that use stored credentials for a consumer's authorization request, in order to improve authorization rates and reduce fraud. Stored credentials can be used in two cases: using a payment token from the Customer Vault for an authorization, and using a card number stored by the merchant for an authorization.
+
+    + Properties
+        + type:`ADHOC` (enum) - This specifies the type of request being made. 
+            + ADHOC – Ad hoc consumer-initiated request.
+            + TOPUP – Unscheduled merchant iniitated request when a consumer balance is below a set limit.
+            + RECURRING –  Scheduled merchant initiated recurring request.
+            
+            + Default: ADHOC
+        + occurrence:`RECURRING` (enum) - This specifies whether the stored credential request is initial or recurring. 
+            + INITIAL – Used when this is the first time the consumer uses this credit card.
+            + SUBSEQUENT – Used when the consumer uses this credit card for subsquent requests.
+            
+            + Default: INITIAL
 
 ## voidAuthResponse (object)
 + id: 25f6dadf-176a-415f-95c9-6ff39ff697ba - Read Only, length<=36    This is the ID returned in the response. This ID can be used for future associated requests, e,g., Refunds.
