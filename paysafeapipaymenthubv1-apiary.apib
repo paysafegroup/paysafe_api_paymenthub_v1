@@ -15,6 +15,7 @@ HOST: https://api.test.paysafe.com/paymenthub/
  * I included information for the *storedCredential* object from the Card Payments API. Please advise if it no longer holds. Note that in our current APIs this is called "storedCredential" and not "storedCredentialDetails".
  * Length of *externalSubMerchantId* is not in Confluence. Kasi says this is part of Netbanx response but I can't find it.
  * Should the same *statusAttributes* object be used for payments, settlements, and refunds?
+ * For Original Credit, *currencyCode* is listed as mandatory in Confluence, but optional in Apiary. I think it's a read-only field in response - can you confirm?
 
 # Release Notes
 
@@ -1238,81 +1239,43 @@ The *storedCredential* object is used to identify [authorization requests](#auth
 
 # Group Payment Methods
 
-## Fetch Available Payment Methods [/v1/paymentmethods]
+## Look Up Available Payment Methods [/v1/paymentmethods]
 
-### Payment Methods [POST]
+### Look Up Payment Methods [GET /v1/paymentmethods?currencyCode={currencyCode}]
 
-This API will provide all the available payment methods for the Merchant. Merchant can have his own configuration defined at Paysafe side, which will be used to filter the payment methods based on amount and currency.
+Click on **Look Up Payment Methods** above to see how to look up the payment methods that are enabled for each of your merchant accounts, by currency.
 
-+ Request (application/json)
++ Parameters
+
+    + `currencyCode`:`USD`
+
++ Request Look Up Payment Methods (application/json)
 
     + Headers
 
             Authorization: "Basic YOUR-BASE64-ENCODED-API-KEY"
     
-    + Body
-
-            {
-                "currency" : "CAD",
-                "amount" : "200"
-            } 
-
 + Response 200 (application/json)
 
     + Body
 
             {
-                "currency" : "CAD",
-                "paymentMethods": [
-                {
-                  "name": "Card",
-                  "type": "scheme",
-                  "operationsSupported" : ["payment", "settlement", "refund"],
-                  "details": [
-                    {
-                      "key": "cardNumber",
-                      "type": "number"
+                "paymentMethods": [{
+                        "paymentMethod": "CARD",
+                        "currency": "USD",
+                        "accountId": 1009355920
                     },
                     {
-                      "key": "securityCode",
-                      "type": "number"
+                        "paymentMethod": "SKRILL",
+                        "currency": "USD",
+                        "accountId": 1009355921
                     },
                     {
-                      "key": "encryptedExpiryMonth",
-                      "type": "number"
-                    },
-                    {
-                      "key": "encryptedExpiryYear",
-                      "type": "number"
-                    },
-                    {
-                      "key": "holderName",
-                      "optional": "true",
-                      "type": "text"
+                        "paymentMethod": "NETELLER",
+                        "currency": "USD",
+                        "accountId": 1009355923
                     }
-                  ]
-                },
-                {
-                  "name" : "Skrill",
-                  "type" : "wallet",
-                  "operationsSupported" : ["payment", "settlement", "refund"]
-                },
-                {
-                  "name" : "Neteller",
-                  "type" : "wallet",
-                  "operationsSupported" : ["payment", "settlement", "refund"]
-                },
-                {
-                  "name" : "Paysafecash",
-                  "type" : "wallet",
-                  "operationsSupported" : ["payment", "settlement", "refund"]
-                },
-                {
-                  "name" : "Paysafecard",
-                  "type" : "wallet",
-                  "operationsSupported" : ["payment", "settlement", "refund"]
-                }
-              ]
+                ]
             }
             
 
@@ -1680,9 +1643,15 @@ Click on **Create Payment Handle** above to see four examples of how to create a
 
 Click on **Get Payment Handle** above to see how to look up a payment handle using the ID returned in the response to the original request.
 
-+ Parameter
++ Parameters
 
- + paymenthandle_id : `26359efd-7cfb-4014-a13d-1724e3ff17fa` - This is the payment handle ID returned in the response to the payment handle creation request.
+    + paymenthandle_id : `26359efd-7cfb-4014-a13d-1724e3ff17fa` - This is the payment handle ID returned in the response to the payment handle creation request.
+
++ Request Look Up Payment Handle (application/json)
+
+    + Headers
+
+            Authorization: "Basic YOUR-BASE64-ENCODED-API-KEY"
 
 + Response 200 (application/json)
 
@@ -1742,6 +1711,12 @@ Click on **Get Payment Handle Using Merchant Reference Number** above to see how
 
     + merchant_ref_num : `13995817730005389` - This is the *merchantRefNum* used in the original payment handle creation request.
 
++ Request Look Up Payment Handle Using Merchant Reference Number (application/json)
+
+    + Headers
+
+            Authorization: "Basic YOUR-BASE64-ENCODED-API-KEY"
+
 + Response 200 (application/json)
 
     + Body
@@ -1800,10 +1775,10 @@ Payments is used to authorize an amount. The authorized amount must be settled i
 For Purchase requests. i.e., requests which authorizes and settles in the same request, set the settleWithAuth  parameter to true.
 
 
-### Post Payment with Payment Handle Token [POST]
-<a name="paymentrequest" title="Post Payment with Payment Handle Token"></a>
+### Process Payment [POST]
+<a name="paymentrequest" title="Post Payment Using Payment Handle Token"></a>
 
-Click on **Post Payment with Payment Handle Token** above to see two examples of how to create a payment request using a payment token:
+Click on **Process Payment** above to see two examples of how to create a payment request using a payment handle token:
 
 * A payment request that will have to be settled later
 * A payment request that authorizes and settles the payment in a single request by setting the *settleWithAuth* parameter to *true*
@@ -1812,7 +1787,7 @@ Click on **Post Payment with Payment Handle Token** above to see two examples of
 + Attributes 
     + Include PaymentsRequest
 
-+ Request Submit a Card Payment (application/json)
++ Request Process a Card Payment Using a Payment Handle Token (application/json)
 
     + Headers
 
@@ -1859,7 +1834,7 @@ Click on **Post Payment with Payment Handle Token** above to see two examples of
               }
             }
 
-+ Request Submit a Card Payment Including Settlement (application/json)
++ Request Process a Card Payment Including Settlement (application/json)
 
     + Headers
 
@@ -1915,6 +1890,12 @@ Click on **Get Payments** above to see how to look up a payment using the ID ret
 
    + payment_id : `3aeb9c63-6386-46a3-9f8e-f452e722228a` - This is the ID returned in the response to the Payments request.
 
++ Request Look Up Payment (application/json)
+
+    + Headers
+
+            Authorization: "Basic YOUR-BASE64-ENCODED-API-KEY"
+
 + Response 200 (application/json)
 
     + Body
@@ -1951,6 +1932,12 @@ Click on **Get Payment Using Merchant Reference Number** above to see how to loo
 + Parameter
 
    + merchant_ref_num : `merchantRefNum-145` -This is the merchant reference number created by the merchant and submitted as part of the Payments request.
+
++ Request Look Up Payment Using Merchant Reference Number (application/json)
+
+    + Headers
+
+            Authorization: "Basic YOUR-BASE64-ENCODED-API-KEY"
 
 + Response 200 (application/json)
 
@@ -2063,16 +2050,16 @@ Click on **Process Settlement** above to see two examples of how to process a se
                 }]
             }
 
-### Cancel a Settlement [PUT /v1/settlements/{settlement_id}]
+### Cancel Settlement [PUT /v1/settlements/{settlement_id}]
 <a name="cancelsettlement" title="Cancel a Settlement"></a>
 
-Click on **Cancel a Settlement** above to see how to cancel a settlement. You must include the *status* parameter set to *CANCELLED*.
+Click on **Cancel Settlement** above to see how to cancel a settlement. You must include the *status* parameter set to *CANCELLED*.
 
 + Parameter
 
     + settlement_id : `d9bcfd85-8aa6-469d-80a3-e2ca196544da` - This is the ID returned in the response to the Settlement request. 
 
-+ Request (application/json)
++ Request Cancel a Settlement (application/json)
 
     + Headers
 
@@ -2104,6 +2091,12 @@ Click on **Get Settlements** above to see how to look up a settlement using the 
 
    + settlement_id : `ea49ab6c-cf9b-4efd-bde8-2fa3bb5ccd85` - This is the ID returned in the response to the Payments request.
 
++ Request Look Up Settlement (application/json)
+
+    + Headers
+
+            Authorization: "Basic YOUR-BASE64-ENCODED-API-KEY"
+
 + Response 200 (application/json)
 
     + Body
@@ -2117,7 +2110,7 @@ Click on **Get Settlements** above to see how to look up a settlement using the 
               "status": "PENDING"
             }
             
-### Get Settlements Using Merchant Reference number [GET /v1/settlements?merchantRefNum={merchant_ref_num}]
+### Get Settlements Using Merchant Reference Number [GET /v1/settlements?merchantRefNum={merchant_ref_num}]
 <a name="getsettlementmerchantrefnum" title="Look Up a Settlement Using a Merchant Reference Number"></a>
 
 Click on **Get Settlements Using Merchant Reference Number** above to see how to look up a settlement using the merchant reference number used in the original request.
@@ -2125,6 +2118,12 @@ Click on **Get Settlements Using Merchant Reference Number** above to see how to
 + Parameter
 
    + merchant_ref_num : `merchantRefNum-144` -This is the merchant reference number created by the merchant and submitted as part of the request.
+
++ Request Look Up Settlement Using Merchant Reference Number (application/json)
+
+    + Headers
+
+            Authorization: "Basic YOUR-BASE64-ENCODED-API-KEY"
 
 + Response 200 (application/json)
 
@@ -2151,7 +2150,7 @@ Click on **Get Settlements Using Merchant Reference Number** above to see how to
 
     + settlement_id : `d9bcfd85-8aa6-469d-80a3-e2ca196544da`
 
-### Post Refund [POST]
+### Process Refund [POST]
 <a name="refundrequest" title="Process Refund"></a>
 
 Click on **Process Refund** above to see two examples of how to process a refund request:
@@ -2222,16 +2221,16 @@ Click on **Process Refund** above to see two examples of how to process a refund
                 }]
             }
 
-### Cancel a Refund [PUT /v1/refunds/{refund_id}]
+### Cancel Refund [PUT /v1/refunds/{refund_id}]
 <a name="cancelrefund" title="Cancel a Refund"></a>
 
-Click on **Cancel a Refund** above to see how to cancel a Refund. You must include the *status* parameter set to *CANCELLED*.
+Click on **Cancel Refund** above to see how to cancel a Refund. You must include the *status* parameter set to *CANCELLED*.
 
 + Parameter
 
     + refund_id : `c7ef07b2-0069-4f58-b9e2-0f4cdbc6c725` - This is the ID returned in the response to the Refund request
     
-+ Request (application/json)
++ Request Cancel a Refund (application/json)
 
     + Headers
 
@@ -2262,6 +2261,12 @@ Click on **Get Refund** above to see how to look up a refund using the ID return
 
     + refund_id : `c7ef07b2-0069-4f58-b9e2-0f4cdbc6c725` - This is the ID returned in the response to the Refund request
 
++ Request Look Up Refund (application/json)
+
+    + Headers
+
+            Authorization: "Basic YOUR-BASE64-ENCODED-API-KEY"
+
 + Response 200 (application/json)
 
     + Body
@@ -2282,6 +2287,12 @@ Click on **Get Refunds Using Merchant Reference Number** above to see how to loo
 + Parameter
 
    + merchant_ref_num : `merchantRefNum-118` -This is the merchant reference number created by the merchant and submitted as part of the request.
+
++ Request Look Up Refund Using Merchant Reference Number (application/json)
+
+    + Headers
+
+            Authorization: "Basic YOUR-BASE64-ENCODED-API-KEY"
 
 + Response 200 (application/json)
 
@@ -2305,19 +2316,22 @@ Click on **Get Refunds Using Merchant Reference Number** above to see how to loo
 
 Standalone Credits allow merchants to issue credits to cardholders without requiring a previous Authorization/Settlement.
 
-### Post Standalone Credit [POST]
-
-- Credit with original Card information with Payment Handle Token
+**Note:** If your merchant category code (MCC) is listed as able to [process Original Credits](#originalcreditrequest), you must not use Standalone Credits.
 
 
-+ Request (application/json)
+### Process Standalone Credit [POST]
+<a name="standalonecreditrequest" title="Process Standalone Credit"></a>
+
+Click on **Process Standalone Credit** above to see how to process a Standalone Credit request. 
+
++ Attributes (OriginalCreditResponse)
+
++ Request Process a Standalone Credit Using a Payment Handle Token (application/json)
 
     + Headers
 
             Authorization: "Basic YOUR-BASE64-ENCODED-API-KEY"
             
-    + Attributes (OriginalCreditResponse)
-    
     + Body
 
             {
@@ -2358,15 +2372,16 @@ Standalone Credits allow merchants to issue credits to cardholders without requi
             }
             
 ### Cancel Standalone Credit [PUT /v1/standalonecredits/{standalone_credit_id}]
+<a name="cancelstandalonecredit" title="Cancel a Standalone Credit"></a>
 
-Click on Cancel a Standalone Credit above to see how to submit a Cancel Standalone Credit request.
+Click on **Cancel Standalone Credit** above to see how to cancel a Standalone Credit. You must include the *status* parameter set to *CANCELLED*.
 
 + Parameter
 
     + standalone_credit_id : `e075f2ae-dfc4-4f6d-8d89-61158367b6a6`
     
 
-+ Request (application/json)
++ Request Cancel a Standalone Credit (application/json)
 
     + Headers
 
@@ -2390,12 +2405,19 @@ Click on Cancel a Standalone Credit above to see how to submit a Cancel Standalo
             
 
 ### Get Standalone Credit [GET /v1/standalonecredits/{standalone_credit_id}]
+<a name="getstandalonecredit" title="Look Up a Standalone Credit"></a>
 
-Click on Get Standalone Credit above to see how to look up a Standalone Credit request using the ID returned in the response to the original request.
+Click on **Get Standalone Credit** above to see how to look up a Standalone Credit using the ID returned in the response to the original request.
 
 + Parameter
 
     + standalone_credit_id : `e075f2ae-dfc4-4f6d-8d89-61158367b6a6`
+
++ Request Look Up Standalone Credit (application/json)
+
+    + Headers
+
+            Authorization: "Basic YOUR-BASE64-ENCODED-API-KEY"
 
 + Response 200 (application/json)
 
@@ -2426,12 +2448,19 @@ Click on Get Standalone Credit above to see how to look up a Standalone Credit r
             }
             
 ### Get Standalone Credit Using Merchant Reference Number  [GET /v1/standalonecredits?merchantRefNum={merchantRefNum}]
+<a name="getstandalonecreditmerchantrefnum" title="Look Up a Standalone Credit Using a Merchant Reference Number"></a>
 
-Click on Get Standalone Credit Using Merchant Reference Number above to see how to look up a Standalone Credit using the merchant reference number used in the original request.
+Click on **Get Standalone Credit Using Merchant Reference Number** above to see how to look up a Standalone Credit using the merchant reference number used in the original request.
 
 + Parameter
 
    + merchantRefNum : "merchantRefNum-151"
+
++ Request Look Up Standalone Credit Using Merchant Reference Number (application/json)
+
+    + Headers
+
+            Authorization: "Basic YOUR-BASE64-ENCODED-API-KEY"
 
 + Response 200 (application/json)
 
@@ -2473,17 +2502,29 @@ Click on Get Standalone Credit Using Merchant Reference Number above to see how 
 
 Original Credits allow merchants with specific merchant category codes (MCCs) to issue winnings as credits to cardholders, without requiring a previous Authorization/Settlement.
 
-### Original Credit [POST]
+Merchants with the following MCCs can process Original Credits:
+ * 4829
+ * 6012
+ * 6051
+ * 6211
+ * 6540
+ * 7299
+ * 7994
+ * 7995
+ * 8999
 
-- An Original Credit request using a Payment Handle token.
+### Process Original Credit [POST]
+<a name="originalcreditrequest" title="Process Original Credit"></a>
 
-+ Request (application/json)
+Click on **Process Original Credit** above to see how to process an Original Credit request. 
+
++ Attributes (OriginalCreditResponse)
+
++ Request Process an Original Credit Using a Payment Handle Token (application/json)
 
     + Headers
 
             Authorization: "Basic YOUR-BASE64-ENCODED-API-KEY"
-    
-    + Attributes (OriginalCreditResponse)
     
     + Body
 
@@ -2524,15 +2565,16 @@ Original Credits allow merchants with specific merchant category codes (MCCs) to
               "description": "Winning payment from Loto 649"
             }
 
-### Cancel an Original Credit [PUT /v1/originalcredits/{original_credit_id}]
+### Cancel Original Credit [PUT /v1/originalcredits/{original_credit_id}]
+<a name="canceloriginalcredit" title="Cancel an Original Credit"></a>
 
-Click on Cancel an Original Credit above to see how to submit a Cancel Original Credit request.
+Click on **Cancel Original Credit** above to see how to cancel an Original Credit. You must include the *status* parameter set to *CANCELLED*.
 
 + Parameter
 
    + original_credit_id : `86dcb68d-cbd0-4878-8da7-ffc0e6554513` - This is the ID returned in the response to the Original Credit request. Example: 86dcb68d-cbd0-4878-8da7-ffc0e6554513.
 
-+ Request (application/json)
++ Request Cancel an Original Credit (application/json)
 
     + Headers
 
@@ -2556,13 +2598,20 @@ Click on Cancel an Original Credit above to see how to submit a Cancel Original 
             
 
 ### Get Original Credit [GET /v1/originalcredits/{original_credit_id}]
+<a name="getoriginalcredit" title="Look Up an Original Credit"></a>
 
-Click on Get Original Credit above to see how to look up an Original Credit request using the ID returned in the response to the original request.
+Click on **Get Original Credit** above to see how to look up an Original Credit using the ID returned in the response to the original request.
 
 + Parameter
 
    + original_credit_id : `86dcb68d-cbd0-4878-8da7-ffc0e6554513` - This is the ID returned in the response to the Original Credit request. Example: 86dcb68d-cbd0-4878-8da7-ffc0e6554513.
 
+
++ Request Look Up Original Credit (application/json)
+
+    + Headers
+
+            Authorization: "Basic YOUR-BASE64-ENCODED-API-KEY"
 
 + Response 200 (application/json)
 
@@ -2607,12 +2656,19 @@ Click on Get Original Credit above to see how to look up an Original Credit requ
             }
             
 ### Get Original Credit Using Merchant Reference Number [GET /v1/originalcredits?merchantRefNum={merchantRefNum}]
+<a name="getoriginalcreditmerchantrefnum" title="Look Up an Original Credit Using a Merchant Reference Number"></a>
 
-Click on Get Original Credit Using Merchant Reference Number above to see how to look up an Original Credit request using the merchant reference number used in the original request.
+Click on **Get Original Credit Using Merchant Reference Number** above to see how to look up an Original Credit using the merchant reference number used in the original request.
 
 + Parameter
 
    + merchantRefNum : merchantRefNum-151 - This is the merchant reference number created by the merchant and submitted as part of the request. 
+
++ Request Look Up Original Credit Using Merchant Reference Number (application/json)
+
+    + Headers
+
+            Authorization: "Basic YOUR-BASE64-ENCODED-API-KEY"
 
 + Response 200 (application/json)
   
@@ -3192,33 +3248,31 @@ Note: This API will be accessible with public API key.
             _length<=100_
 
 ## OriginalCreditResponse (object)
-+ id: 25f6dadf-176a-415f-95c9-6ff39ff697ba - Read Only, length<=36    This is the ID returned in the response. This ID can be used for future associated requests, e,g., Refunds.
-+ merchantRefNum: P1234 (required) - length<=255 This is the merchant reference number created by the merchant and submitted as part of the request.
-+ amount: 100 (required) - max=99999999999 This is the amount of the request, in minor units.
-+ card (object) - These are the details of the card used for the request.Only one card object can be included in the request.
-    + paymentToken (required) - Max = 80 This is the payment token representing the card.
-+ card (object) - These are the details of the card used for the request.Only one card object can be included in the request.   
-    + cardNum (): 4111111111111111 (required) - length=8-20 This is the card number used for the request.
-        + cardExpiry (required) - This is the card's expiry date.
-        + month:12 (number, required) - This is the card expiry month. length=2
-        + year:2020 (number, required) - This is the card expiry year. length=4
-    + cvv - This is the 3- or 4-digit security code that appears on the card following the card number.
-+ dupCheck: true (boolean) - This validates that this request is not a duplicate. A request is considered a duplicate if the merchantRefNum has already been used in a previous request within the past 90 days.
-+ description: Purchase Credit - This is a description of the transaction, provided by the merchant. length<=255
-+ customerIp: 204.91.0.12 -This is the customer's IP address.length<=39
-+ accountId: 123456789 (optional) -This is the merchant account number.
-+ profile - These are some details about the customer.
- - firstName: test -  This is the customer’s first name. length<=80
- - lastname: user -  This is the customer's last name. length<=80
- - email: john.smith@email.com -  This is the customer's email address. length<=255
-+ billingAddress - These are the billing details for the request.
- - street: 100 queen - length<=50 This is the first line of the street address in the billing address.
- - street2: unit 201 - length<=50 This is the second line of the street address in the billing address, if required (e.g., apartment number).
- - city: Toronto - This is the city in the billing address. length<=40
- - zip: MSH 2N2 - This is the postal/zip code in the billing address. length<=10
- - country: CA - Size = 2
- - state: ON - Use the 2-character state or province codes for Canada or the United States. length<=40
- - phone - This is the customer's telephone number. length<=40
++ `id`:`25f6dadf-176a-415f-95c9-6ff39ff697ba` (string) - This is the ID returned in the response. This ID can be used for future associated requests, e,g., lookups.
+    _Read Only, length<=36_
++ `merchantRefNum`:`merchantRefNum-101` (string, required) - This is the merchant reference number created by the merchant and submitted as part of the request. It must be unique for each request.
+    _length<=255_
++ `paymentHandleToken`:`842778a0-03a2-11e9-8eb2-f2801f1b9fd1` (string, required) - This is the payment token generated by Paysafe that will be used for the request.
+    _length<=36_
++ `amount`:`1000` (string, required) - This is the amount of the request, in minor units. 
+    _Max =99999999999_
++ `currencyCode`:`CAD` (string) - This is the [currency of the merchant account](#currencycodes), e.g., USD or CAD.
+    _Read Only, max=3_
++ `dupCheck`:`true` (boolean) - This validates that this request is not a duplicate. A request is considered a duplicate if the merchantRefNum has already been used in a previous request within the past 90 days.
+    + Default: true
++ status:`PENDING` (enum) - This is the status of the transaction request.
+    _Read Only_
+    + Members
+        + RECEIVED - Our system has received the request and is waiting for the downstream processor’s response.
+        + INITIATED - The request was initiated with the downstream provider.
+        + PENDING - The request is waiting for response from provider.
+        + FAILED - The request failed due to either an error or being declined. 
+        + EXPIRED - The request expired. 
+        + COMPLETED - The request was successfully completed. 
++ `description`:`Purchase Credit` (string) - This is a description of the transaction, provided by the merchant.
+    _length<=255_
++ `customerIp`:`204.91.0.12` (string) - This is the customer's IP address.
+    _length<=39_
 
 ## Partial Auth
 + partialAuth (object)
