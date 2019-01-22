@@ -17,6 +17,15 @@ HOST: https://api.test.paysafe.com/paymenthub/
  * The values for *transactionType* when creating a payment handle cover verification, payment, original credit and standalone credit. Does this cover possible requests for payment methods other than cards?
  * Why does payment handle request need an *amount* field? It's required for the subsequent payment request anyway.
  * When would *paymentHandleTokenFrom* be used?
+ * Added errors from their Apiary file. More should be coming for payment handles and customer vault. (https://app.apiary.io/paysafetest/editor).
+ * **NOTE** in the section *Using the Example API Calls* below, we need to update how they are going to get their API keys, since they will not be using the merchant back office to do this.
+ * Need contact email address for Testing section below.
+ * In section Applying for a Test Account, it looks like they retrieve their Test API key from the Portal. How do they get Production API key?
+
+
+
+
+
 
 # Release Notes
 
@@ -156,6 +165,7 @@ For additional details, please refer to [http://en.wikipedia.org/wiki/Basic_acce
 
 **BE SURE TO PROVIDE CLEAR INSTRUCTIONS HERE ON HOW THEY WILL GET THEIR API KEY FOR THIS API**
 
+<a name="urls" title="URLs"></a>
 # URLs
 
 ##  Test URL
@@ -1406,6 +1416,191 @@ The *storedCredential* object is used to identify [authorization requests](#auth
 |txnTime            |UTC formatted date                     |This is the date and time the request was processed. For example:<br/>2019-01-26T10:32:28Z|
 |status             |enum                                   |This is the status of the transaction request. Possible values are:<ul><li>RECEIVED &ndash; Our system has received the request and is waiting for the downstream processor’s response.</li><li>COMPLETED &ndash; The transaction has been completed.</li><li>HELD &ndash; The transaction has been placed on hold due to risk considerations.</li><li>FAILED &ndash; The transaction failed, due to either an error or being declined.</li><li>CANCELLED &ndash; The request has been fully voided (reversed).</li><li>PENDING &ndash; The request is pending.</li></ul>|
 
+
+# Testing Instructions
+
+## Overview
+The Paysafe Test environment can be used to test websites or applications without running transactions through the Production (live) processing platform. 
+Payment transactions (e.g., credit card payments) processed in the Test environment are not sent to the banking network, but through a simulator. 
+Depending on the information provided with the transaction request, the simulator returns either a successful (approved) or failed (declined) response.
+
+With the Paysafe Payments API you can test the following:
+- Verify support for all the operation types that you require.
+- Review all common errors as well as errors that may occur for each operation, and ensure your application can handle them.
+- Verify the lengths and format for all attributes you send.
+
+## Applying for a Test Account
+For access to Test Accounts and credentials, please contact your business relationship manager or reach out to {contact email address}
+
+Your Test account will provide you with access to a Test version of the Paysafe Merchant Portal, where you can view the status of your Test transactions. Once signed in to the Merchant Portal, go to **Developer Center>API Keys** to retrieve your Base64 encoded API Key.
+
+The default Test account can be used for processing Card, PaysafeCash, Paysafecard, Neteller, and Skrill payments with the processing currency (*currencyCode*) set to USD. 
+You can choose to enable any payment method/currency combination in your Production account by completing the onboarding application form, which you can get from your business relationship manager.
+
+> **Note:** All your payment methods will be set up to use the same API key.
+
+## Test and Production Accounts
+Test accounts enable you to process API transactions that mirror the functionality on the Production environment. 
+Once you are satisfied with your integration to the Test environment, you will need to repeat any configuration changes made to your Test account on your Production account.
+
+You will need to use [different API endpoints](#urls) and [authentication credentials](#apikey) to connect to the Paysafe Production environment.
+
+# Error Summary
+
+## Common Errors
+|HTTP Status Code|Error Code|Description|
+|---------|---------|---------------|
+|500|1000|An internal error occurred.|
+|502|1001|An error occurred with the external processing gateway.|
+|500|1002|An internal error occurred.|
+|500|1003|An internal error occurred.|
+|500|1007|An internal error occurred.|
+|500|1008|An internal error occurred.|
+|429|1200|The API call has been denied as it has exceeded the permissible call rate limit.|
+|401|5000|Your merchant account authentication failed. Either your store ID/password are invalid or the IP address from which you are sending the transaction has not been authorized.|
+|400|5001|The submitted currency code is invalid or your account does not support this currency.|
+|400|5003|You submitted an invalid amount with your request.|
+|400|5004|You submitted an invalid account type with your request.|
+|400|5005|You submitted an invalid operation type with your request.|
+|400|5010|The submitted country code is invalid.|
+|400|5016|The merchant account you provided cannot be found.|
+|400|5017|The merchant account you provided is disabled.|
+|402|5021|Your transaction request has been declined.|
+|400|5023|The request is not parseable.|
+|409|5031|The transaction you have submitted has already been processed.|
+|401|5040|Your merchant account is not configured for the transaction you attempted.|
+|400|5042|The merchant reference number is missing or invalid or it exceeds the maximum permissible length.|
+|400|5068|Either you submitted a request that is missing a mandatory field or the value of a field does not match the format expected.|
+|404|5269|The ID(s) specified in the URL do not correspond to the values in the system.|
+|403|5270|The credentials provided with the request do not have permission to access the requested data.|
+|406|5271|You requested a response in the 'Accept' header that is in an unsupported format.|
+|406|5272|The 'Content-Type' you specified in request header was submitted in an unsupported format.|
+|404|5273|Your client reached our application but we were unable to service your request due to an invalid URL.|
+|401|5275|The authentication credentials provided with the request have expired.|
+|401|5276|The authentication credentials provided with the request provided have been disabled.|
+|401|5277|The authentication credentials provided with the request have been locked due to multiple authentication failures.|
+|401|5278|The authentication credentials provided with the request were not accepted for an unknown reason.|
+|401|5279|The authentication credentials are invalid.|
+|401|5280|The required authentication credentials were not provided.|
+|405|5281|The request uses an action (e.g., GET, POST, or PUT) that is not supported by the resource.|
+|400|5501|The profile does not have an active credit card.|
+|400|5502|Either the payment token is invalid or the corresponding profile or bank account is not active.|
+
+## Payment Errors
+|HTTP Status Code|Error Code|Description|
+|---------|---------|---------------|
+|400|3002|You submitted an invalid card number or brand or combination of card number and brand with your request.|
+|400|3004|The zip/postal code must be provided for an AVS check request.|
+|400|3005|You submitted an incorrect CVV value with your request.|
+|400|3006|You submitted an expired credit card number with your request.|
+|402|3007|Your request has failed the AVS check. Note that the amount has still been reserved on the customer's card and will be released in 3–5 business days. Please ensure the billing address is accurate before retrying the transaction.|
+|400|3008|You submitted a card type for which the merchant account is not configured.|
+|402|3009|Your request has been declined by the issuing bank.|
+|402|3011|Your request has been declined by the issuing bank because the card used is a restricted card. Contact the cardholder's credit card company for further investigation.|
+|402|3012|Your request has been declined by the issuing bank because the credit card expiry date submitted is invalid.|
+|402|3013|Your request has been declined by the issuing bank due to problems with the credit card account.|
+|402|3014|Your request has been declined - the issuing bank has returned an unknown response. Contact the card holder's credit card company for further investigation.|
+|402|3015|The bank has requested that you process the transaction manually by calling the cardholder's credit card company.|
+|402|3016|The bank has requested that you retrieve the card from the cardholder – it may be a lost or stolen card.|
+|402|3017|You submitted an invalid credit card number with your request.|
+|402|3018|The bank has requested that you retry the transaction.|
+|402|3019|Your request has failed the CVV check. Please note that the amount may still have been reserved on the customer's card, in which case it will be released in 3–5 business days.|
+|402|3020|The bank has requested that you retry the transaction.|
+|404|3021|The confirmation number included in this request could not be found.|
+|402|3022|The card has been declined due to insufficient funds.|
+|402|3023|Your request has been declined by the issuing bank due to its proprietary card activity regulations.|
+|402|3024|Your request has been declined because the issuing bank does not permit the transaction for this card.|
+|400|3025|The external processing gateway has reported invalid data.|
+|400|3026|The external processing gateway has reported the account type is invalid.|
+|402|3027|The external processing gateway has reported a limit has been exceeded.|
+|502|3028|The external processing gateway has reported a system error.|
+|402|3029|The external processing gateway has rejected the transaction.|
+|402|3030|The external processing gateway has reported the transaction is unauthorized.|
+|400|3031|The confirmation number you submitted with your request references a transaction that is not on hold.|
+|402|3032|Your request has been declined by the issuing bank or external gateway because the card is probably in one of their negative databases.|
+|402|3035|Your request has been declined due to exceeded PIN attempts.|
+|402|3036|Your request has been declined due to an invalid issuer.|
+|402|3037|Your request has been declined because it is invalid.|
+|402|3038|Your request has been declined due to customer cancellation.|
+|402|3039|Your request has been declined due to an invalid authentication value.|
+|402|3040|Your request has been declined because the request type is not permitted on the card.|
+|402|3041|Your request has been declined due to a timeout.|
+|402|3042|Your request has been declined due to a cryptographic error.|
+|402|3044|You have submitted a duplicate request.|
+|402|3045|You submitted an invalid date format for this request.|
+|402|3046|The transaction was declined because the amount was set to zero.|
+|402|3047|The transaction was declined because the amount exceeds the floor limit.|
+|402|3048|The transaction was declined because the amount is less than the floor limit.|
+|402|3049|The bank has requested that you retrieve the card from the cardholder – the credit card has expired.|
+|402|3050|The bank has requested that you retrieve the card from the cardholder – fraudulent activity is suspected.|
+|402|3051|The bank has requested that you retrieve the card from the cardholder – contact the acquirer for more information.|
+|402|3052|The bank has requested that you retrieve the card from the cardholder – the credit card is restricted.|
+|402|3053|The bank has requested that you retrieve the card from the cardholder – please call the acquirer.|
+|402|3054|The transaction was declined due to suspected fraud.|
+|402|3055|This type of transaction is not supported.|
+|402|3056|The original transaction type does not match.|
+|402|3057|Please tell cardholder to call the issuer – do not retry transaction.|
+
+## Void Authorization Errors
+|HTTP Status Code|Error Code|Description|
+|---------|---------|---------------|
+|400|3500|The confirmation number included in this request could not be found.|
+|402|3501|The requested void (Authorization Reversal) amount exceeds the remaining Authorization amount.|
+|402|3502|You cannot process a void (Authorization Reversal) transaction against an Authorization that has been settled.|
+|402|3503|The void (Authorization Reversal) transaction is not supported for the card type used for the Authorization you are attempting to void.|
+|402|3504|The external processing gateway for which your merchant account is configured does not support partial voids (Authorization Reversals).|
+|500|3505|The void (Authorization Reversal) could not be completed.|
+|402|3506|The void (Authorization Reversal) amount exceeds the remaining amount of the Authorization.|
+
+## Settlement Errors
+|HTTP Status Code|Error Code|Description|
+|---------|---------|---------------|
+|400|3200|You have submitted an invalidly formatted Authorization ID for this Settlement.|
+|404|3201|The Authorization ID included in this Settlement request could not be found.|
+|402|3202|You have exceeded the maximum number of Settlements allowed.|
+|402|3203|The Authorization is either fully settled or cancelled.|
+|402|3204|The requested Settlement amount exceeds the remaining Authorization amount.|
+|402|3205|The Authorization you are attempting to settle has expired.|
+|402|3206|The external processing gateway has rejected the transaction.|
+|402|3207|Due to issuer policies, this type of transaction is not allowed.|
+
+## Refund Errors
+|HTTP Status Code|Error Code|Description|
+|---------|---------|---------------|
+|402|3402|The requested Refund amount exceeds the remaining Settlement amount.|
+|402|3403|You have already processed the maximum number of refunds allowed for this Settlement.|
+|402|3404|The Settlement has already been fully refunded.|
+|402|3405|The Settlement you are attempting to Refund has expired.|
+|402|3406|The Settlement you are attempting to Refund has not been batched yet. There are no settled funds available to Refund.|
+|400|3407|The Settlement referred to by the transaction response ID you provided cannot be found.|
+|400|3408|You have submitted an invalidly formatted response ID for the original Purchase or Settlement.|
+|402|3412|The Refund transaction you attempted was not permitted because your merchant account is in overdraft.|
+|402|3413|The requested Refund amount exceeds the permissible Visa credit ratio.|
+|400|3414|The Refund referred to by the transaction response ID you provided cannot be found.|
+|402|3415|You cannot cancel this transaction as it is no longer in a pending state.|
+|402|3416|The external processing gateway for which your merchant account is configured does not support partial Settlements.|
+|402|3417|There is already another request being processed on the transaction referenced for this request.|
+|402|3418|The external processing gateway for which your merchant account is configured does not support partial Credits.|
+|402|3419|This type of transaction cannot be refunded.|
+
+# Using the Example API Calls (Console Window)
+
+To configure and test the API examples, first click on one of the API calls in the API Reference section and then click **Switch to Console** in the right-hand pane. 
+Using the Console window you can update the headers, the request body, and parts of the API endpoint. For example, for many lookup requests you must update the endpoint to include your request ID (e.g., payment_id), which you do by selecting **URI Parameters** and then updating the respective *id* value. 
+
+![](https://github.com/paysafegroup/paysafe_api_paymenthub_v1/raw/master/images/ApiaryConsole.png)
+
+You must also update the Header to include your API Key by selecting **Headers** and then updating the **Authorization** value using the Base64 version of your API key. 
+![](https://github.com/paysafegroup/paysafe_api_paymenthub_v1/raw/master/images/API_authorization.png)
+
+To get your API key, ... 
+
+When you are ready to test your example, you can choose between the Production and Mock server environment:
+
+- Production server – This calls the resource on Paysafe's Test system.
+- Mock server – This environment simply returns the dummy values in the example response irrespective of the parameters you supply. You do not need to use your account ID or Test API key for this request.
+
+To call the API resource, click **Call Resource**. The response is displayed in the Console window.
 
 # Group Payment Methods
 
@@ -3486,7 +3681,7 @@ Note: This API will be accessible with public API key.
             + NETELLER
             + PAYSAFECASH
             + PAYSAFECARD
-    + currencyCode:`USD` (string) - This is the [currency of the merchant account](#currencycodes), e.g., USD or CAD, returned in the request response.
+    + currencyCode:`USD` (string) - This is the [currency of the merchant account](#currencycodes), e.g., USD or CAD.
         _Read Only, max=3_
     + `accountId`: `1009355920` (string) - This is the merchant account for which the payment method and currency are enabled.
         _Read Only, length<=10_
@@ -3537,7 +3732,7 @@ Note: This API will be accessible with public API key.
         + SYNCHRONOUS - The status of the Payment request will be returned synchronously to the merchant, e.g., a credit card request.
 + `amount`:`1000` (string) - This is the amount of the request, in minor units. **Note:** This field is mandatory if *transactionType* is included.
     _Max =99999999999_
-+ `currencyCode`:`CAD` (string) - This is the [currency of the merchant account](#currencycodes), e.g., USD or CAD, returned in the request response.
++ `currencyCode`:`CAD` (string) - This is the [currency of the merchant account](#currencycodes), e.g., USD or CAD.
     _Read Only, max=3_
 + `paymentHandleToken`:`842778a0-03a2-11e9-8eb2-f2801f1b9fd1` (string, required) - This is the payment token generated by Paysafe that will be used by merchants for Payment API requests.
     _Read Only, length<=36_
@@ -3607,7 +3802,7 @@ Note: This API will be accessible with public API key.
             + SYNCHRONOUS - The status of the Payment request will be returned synchronously to the merchant, e.g., a credit card request.
     + `amount`:`1000` (string) - This is the amount of the request, in minor units. **Note:** This field is mandatory if *transactionType* is included.
         _Max =99999999999_
-    + `currencyCode`:`CAD` (string) - This is the [currency of the merchant account](#currencycodes), e.g., USD or CAD, returned in the request response.
+    + `currencyCode`:`CAD` (string) - This is the [currency of the merchant account](#currencycodes), e.g., USD or CAD.
         _Read Only, max=3_
     + `paymentHandleToken`:`842778a0-03a2-11e9-8eb2-f2801f1b9fd1` (string, required) - This is the payment token generated by Paysafe that will be used by merchants for Payment API requests.
         _Read Only, length<=36_
@@ -3675,7 +3870,7 @@ Note: This API will be accessible with public API key.
         + FAILED - The transaction failed due to either an error or being declined. 
         + EXPIRED - The Payment Handle expired because the merchant did not proceed with the Payment request. 
         + COMPLETED - The Payment request was initiated successfully using the Payment Handle.
-+ `currencyCode`:`CAD` (string) - This is the [currency of the merchant account](#currencycodes), e.g., USD or CAD, returned in the request response.
++ `currencyCode`:`CAD` (string) - This is the [currency of the merchant account](#currencycodes), e.g., USD or CAD.
     _Read Only, max=3_
 + Include Level2Level3
 + Include Gateway Response
