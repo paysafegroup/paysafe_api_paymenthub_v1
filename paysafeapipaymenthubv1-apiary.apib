@@ -6,6 +6,7 @@ HOST: https://api.test.paysafe.com/paymenthub/
 # QUESTIONS
  * Should *paymentMethod* in the request to look up available payment methods actually be *paymentType* (used in creation of a payment handle)? Are they not referencing the same thing (CARD, etc.)?
  * Related, we have *currency* in payment methods, but *currencyCode* elsewhere.
+ * If *currencyCode* is included in creating payment handle, what happens if they include a different currencyCode in the payment request using that payment handle?
  * Apiary has *card* element but Confluence card object has *cardType* element. Other APIs do not use *cardType*. They use only the number or token in the request, and "type" and "lastDigits" are returned in the response, where type is inferred from the number provided. (Though I see the current Vault API returns *cardType* in response.)
  * Related, can someone verify that the list of card types is accurate?
  * The elements in *profile* are different when you compare the Confluence object and the object defined in the Apiary document. Kasi says this will be updated.
@@ -18,14 +19,11 @@ HOST: https://api.test.paysafe.com/paymenthub/
  * Why does payment handle request need an *amount* field? It's required for the subsequent payment request anyway.
  * When would *paymentHandleTokenFrom* be used?
  * Added errors from their Apiary file. More should be coming for payment handles and customer vault. (https://app.apiary.io/paysafetest/editor).
- * **NOTE** in the section *Using the Example API Calls* below, we need to update how they are going to get their API keys, since they will not be using the merchant back office to do this.
  * Need contact email address for Testing section below.
  * In section Applying for a Test Account, it looks like they retrieve their Test API key from the Portal. How do they get Production API key?
-
-
-
-
-
+ * Do we need to provide test card numbers (and similar information for other payment methods when they're available)? I assume our current Card Payments API test cards will work in the same way.
+ * Add **webhooks** content once Kasi signs off on their draft content.
+ * Add **checkout** content once Kasi signs off on their draft content.
 
 # Release Notes
 
@@ -36,7 +34,7 @@ HOST: https://api.test.paysafe.com/paymenthub/
 <a name="paymentsgettingstarted" title="Payments API Getting Started"></a>
 # Getting Started
 
-Paysafe **'Payments API'** allows merchants to collect Payments via multiple payment methods using a single endpoint integration.
+The Paysafe Payments API allows merchants to collect Payments via multiple payment methods using a single endpoint integration.
 
 ## Supported Payment Methods
 The following payment methods are currently supported by the Payments API:
@@ -47,14 +45,18 @@ The following payment methods are currently supported by the Payments API:
 - Paysafecard
 - Paysafecash
 
-## Using Payment Handles
+## Creating Payment Handles
 
-A Payment Handle is basically a token that represents a payment method that you set up for a customer. Once the Payment Handle is created, you then include the *paymentHandleToken* returned in the Payment Handle request response in a new [payment request](#paymentrequest).
-For example, you would create a separate Payment Handle for each permutation of transaction type and payment type you want to process &ndash; e.g., one each for credit card Payments and credit card Original Credits. 
+A Payment Handle is basically a token that represents a payment method that you set up for a customer. 
+When you create the payment handle, you can include information like the credit card number and expiry date, the card holder's name, the type of transaction request it will be used for, some profile information about the customer, and some billing address information.
+It represents all the payment details you need for the customer.
 
-The Payment Handle contains the payment details of the customer, including the payment method, amount, currency, payment instrument details, and customer profile details. 
+When you create the Payment Handle, Paysafe returns a *paymentHandleToken* in the response. That token represents all the customer payment information you need to include in, for example, a [credit card payment request](#paymentrequest).
 
-Payment Handle object is characterised by additional metadata information listed below which makes handling multiple payment methods (using a single endpoint) possible.
+You have to have to create a separate Payment Handle for each transaction type/payment type combination you need to use &ndash; e.g., one for credit card Payments, one for credit card Standalone Credits,  etc. 
+
+## Some Important Parameters
+When you create a Payment Handle, there are a few additional parameters that are important to know about.
 
 + **Action** - Determines the next step of the user journey
 
@@ -1421,7 +1423,7 @@ The *storedCredential* object is used to identify [authorization requests](#auth
 
 ## Overview
 The Paysafe Test environment can be used to test websites or applications without running transactions through the Production (live) processing platform. 
-Payment transactions (e.g., credit card payments) processed in the Test environment are not sent to the banking network, but through a simulator. 
+Payment transactions processed in the Test environment (e.g., credit card payments) are not sent to the banking network, but through a simulator. 
 Depending on the information provided with the transaction request, the simulator returns either a successful (approved) or failed (declined) response.
 
 With the Paysafe Payments API you can test the following:
@@ -1430,9 +1432,10 @@ With the Paysafe Payments API you can test the following:
 - Verify the lengths and format for all attributes you send.
 
 ## Applying for a Test Account
-For access to Test Accounts and credentials, please contact your business relationship manager or reach out to {contact email address}
+For access to Test accounts and credentials, please contact your business relationship manager or reach out to {contact email address}
 
-Your Test account will provide you with access to a Test version of the Paysafe Merchant Portal, where you can view the status of your Test transactions. Once signed in to the Merchant Portal, go to **Developer Center>API Keys** to retrieve your Base64 encoded API Key.
+Your Test account will provide you with access to a Test version of the Paysafe Merchant Portal, where you can view the status of your Test transactions. 
+Once signed in to the Merchant Portal, go to **Developer Center>API Keys** to retrieve your Base64 encoded API Key.
 
 The default Test account can be used for processing Card, PaysafeCash, Paysafecard, Neteller, and Skrill payments with the processing currency (*currencyCode*) set to USD. 
 You can choose to enable any payment method/currency combination in your Production account by completing the onboarding application form, which you can get from your business relationship manager.
@@ -1443,7 +1446,8 @@ You can choose to enable any payment method/currency combination in your Product
 Test accounts enable you to process API transactions that mirror the functionality on the Production environment. 
 Once you are satisfied with your integration to the Test environment, you will need to repeat any configuration changes made to your Test account on your Production account.
 
-You will need to use [different API endpoints](#urls) and [authentication credentials](#apikey) to connect to the Paysafe Production environment.
+> **Note:** You will need to use [different API endpoints](#urls) and [authentication credentials](#apikey) to connect to each Paysafe environment &ndash; Test and Production.
+You will not be able to use your Test credentials to process transaction requests in the Production environment, and vice versa.
 
 # Error Summary
 
@@ -1590,10 +1594,9 @@ Using the Console window you can update the headers, the request body, and parts
 
 ![](https://github.com/paysafegroup/paysafe_api_paymenthub_v1/raw/master/images/ApiaryConsole.png)
 
-You must also update the Header to include your API Key by selecting **Headers** and then updating the **Authorization** value using the Base64 version of your API key. 
+You must also update the Header to include your API Key by selecting **Headers** and then updating the **Authorization** value using the Base64 version of your API key.
+To get your Base64 encoded API key, sign in to the Merchant Portal and go to **Developer Center>API Keys**.
 ![](https://github.com/paysafegroup/paysafe_api_paymenthub_v1/raw/master/images/API_authorization.png)
-
-To get your API key, ... 
 
 When you are ready to test your example, you can choose between the Production and Mock server environment:
 
