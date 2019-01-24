@@ -4,7 +4,7 @@ HOST: https://api.test.paysafe.com/paymenthub/
 # Paysafe Payments API 
 
 # QUESTIONS
- * Should *paymentMethod* in the request to look up available payment methods actually be *paymentType* (used in creation of a payment handle)? Are they not referencing the same thing (CARD, etc.)?
+ * Should *paymentMethod* in the request to look up available payment methods actually be *paymentType* (used in creation of a payment handle)? Are they not referencing the same thing (CARD, etc.)? 
  * Related, we have *currency* in payment methods, but *currencyCode* elsewhere.
  * If *currencyCode* is included in creating payment handle, what happens if they include a different currencyCode in the payment request using that payment handle?
  * Apiary has *card* element but Confluence card object has *cardType* element. Other APIs do not use *cardType*. They use only the number or token in the request, and "type" and "lastDigits" are returned in the response, where type is inferred from the number provided. (Though I see the current Vault API returns *cardType* in response.)
@@ -22,8 +22,14 @@ HOST: https://api.test.paysafe.com/paymenthub/
  * Need contact email address for Testing section below.
  * In section Applying for a Test Account, it looks like they retrieve their Test API key from the Portal. How do they get Production API key?
  * Do we need to provide test card numbers (and similar information for other payment methods when they're available)? I assume our current Card Payments API test cards will work in the same way.
+ * The Getting Started section omits *AUTHENTICATE* as a value for the *action* parameter. Is this intentional?
+ * In the Getting Started section, we say that the merchant must use the payment handle within 15 minutes or it will expire. Is this true when *usage* is set to MULTI-USE?
+ * There is reference to *usage* being set to LOOKUP, but this does not seem to be documented in Apiary or Confluence (where values are single_use and multi_use).
+ * If a *paymentHandleToken* has the *usage* value set to MULTI-USE, is the token valid indefinitely?
+ * What determines what a token's *usage* will be set at in the response?
  * Add **webhooks** content once Kasi signs off on their draft content.
  * Add **checkout** content once Kasi signs off on their draft content.
+ * Once webhooks content is added, add xrefs to it where required (e.g., in Getting Started section when discussing *executionMode*). 
 
 # Release Notes
 
@@ -56,27 +62,43 @@ When you create the Payment Handle, Paysafe returns a *paymentHandleToken* in th
 You have to have to create a separate Payment Handle for each transaction type/payment type combination you need to use &ndash; e.g., one for credit card Payments, one for credit card Standalone Credits,  etc. 
 
 ## Some Important Parameters
-When you create a Payment Handle, there are a few additional parameters that are important to know about.
+When you create a Payment Handle, there are a few additional parameters that are important to be aware of because they have a significant impact on how you will use the payment token (*paymentHandleToken*) that's created.
+ * action
+ * usage
+ * executionMode
 
-+ **Action** - Determines the next step of the user journey
+### Action
 
-   Irrespective of the payment method selected by the customer, a merchant can use this value to determine the next step of the user journey. The possible values are,
+The *action* parameter is a read-only value that Paysafe returns in the response to the Payment Handle creation request, regardless of the payment method selected by the customer. It tells you what additional action, if any, you must take to allow the customer to complete the payment request. 
 
-   -> *NONE* – No further action is required from the customer. This is typically the case for a non-3D Secure card transaction where no further authentication is required from the customer after having entered valid card details. In this case, merchant can immediately make a Payments call to capture the payment. The Payment Handle status will immediately become Payable.
+The possible values are: 
+
+* NONE – No further action is required from the customer. This is typically the case for a card transaction where no further 3D Secure authentication is required from the customer after having entered valid card details. 
+In this case, merchant can immediately make a Payments call to capture the payment, since the *status* of the Payment Handle token will immediately be set to *PAYABLE*.
    
-   -> *REDIRECT* – Customer is required to authorize the payment on a redirected page. Typically the case with 3D Secure card transaction where the customer verifies themselves on the bank website. In this case, the Payment Handle object will contain the link to which customer needs to be redirected. Once customer has completed the authentication successfully, the Payment Handle will transition to status 'Payable'.
+* REDIRECT – The customer is required to authorize the payment on a redirected page. This is typically the case, e.g., with a 3D Secure card transaction where the customer must authenticate their card on the issuing bank's website. 
+In this case, you must redirect the customer to a link that Paysafe returns in the the response to the Payment Handle creation request. Once the customer has completed the authentication successfully, the *status* of the Payment Handle token will be modified to *PAYABLE*. 
 
+* AUTHENTICATE – 
 
-   Once the Payment Handle has become 'Payable', the merchant has to make a server to server ‘Payments’ request using the Payment Handle token within 15 minutes to capture the payment. Failing which, the Payment Handle will expire.<br>
+Once the status of the Payment Handle token is *PAYABLE*, the merchant has to [make a Payment request](#paymentrequest) using the Payment Handle token within 15 minutes to capture the payment. Otherwise, the the Payment Handle will expire.
 
-+ **Usage** – Specifies whether a Payment Handle can be reused or not
+### Usage
 
-    Merchants can use this information to determine whether a Payment Handle can be reused or not.
-    
-   -> *SINGLE USE* –  In this case, a Payment Handle can only be used once for a subsequent Payment/Credit request. 
-   
-   -> *MULTI USE* - In this case, a Payment Handle can be used multiple times for a Payment request . Eg: Recurring transactions, subscriptions, saved cards etc.
-   
+The *usage* parameter is a read-only value that Paysafe returns in the response to the Payment Handle creation request that specifies whether the Payment Handle token (*paymentHandleToken*) can be used once only or multiple times. 
+
+The possible values are:
+* SINGLE_USE – In this case, the Payment Handle token can be used only once for a subsequent Payments API request.
+* MULTI USE - In this case, the Payment Handle token can be used multiple times for a Payments API request. This would be used, e.g., for recurring transactions like subscriptions or saved cards.
+
+### Execution Mode
+
+The *executionMode* parameter is a read-only value that Paysafe returns in the response to the Payment Handle creation request that indicates whether the payment request will be completed immediately or after a delay of some length. 
+Merchants can use this information to determine whether they can receive the payment status synchronously or if instead they need to rely on the use of webhooks.
+
+The possible values are:
+* 
+
 + **Execution Mode** – Indicates whether the actual payment is expected to be completed immediately or after a time delay
     
     Merchants can use this information to determine whether they can receive the payment status synchronously or do they need to rely on webhooks.
@@ -3714,6 +3736,7 @@ Note: This API will be accessible with public API key.
         + EXPIRED - The Payment Handle expired because the merchant did not proceed with the Payment request. 
         + COMPLETED - The Payment request was initiated successfully using the Payment Handle.
 + `usage`:`SINGLE_USE` (enum) - This specifies how the Payment Handle will be used for Payments.
+    _Read Only_
     + Members
         + SINGLE_USE - The Payment Handle can be used for one transaction only and expires if not used.
         + MULTI_USE - The Payment Handle can be used multiple times.
@@ -3725,10 +3748,11 @@ Note: This API will be accessible with public API key.
         + PAYSAFECASH
         + PAYSAFECARD
 + `action`:`NONE` (enum) - This specifies the next step of the user journey once they proceed to the Payment.
+    _Read Only_
     + Members
-        + NONE
-        + REDIRECT
-        + AUTHENTICATE
+        + NONE - No action is required, e.g., for a standard credit card Payment.
+        + REDIRECT -The user must be redirected in order to complete a Payment, e.g., when an alternate payment method like NETELLER is used.
+        + AUTHENTICATE -The user must be redirected to authenticate ownership of the Payment account.
 + `executionMode`:`SYNCHRONOUS` (enum) - This specifies the action of the merchant server in order to complete the Payment.
     + Members
         + ASYNCHRONOUS - The Payment request is not completed immediately and the merchant must rely on webhooks to retrieve the status of the Payment request.
@@ -3784,6 +3808,7 @@ Note: This API will be accessible with public API key.
             + EXPIRED - The Payment Handle expired because the merchant did not proceed with the Payment request. 
             + COMPLETED - The Payment request was initiated successfully using the Payment Handle.
     + `usage`:`SINGLE_USE` (enum) - This specifies how the Payment Handle will be used for Payments.
+        _Read Only_
         + Members
             + SINGLE_USE - The Payment Handle can be used for one transaction only and expires if not used.
             + MULTI_USE - The Payment Handle can be used multiple times.
