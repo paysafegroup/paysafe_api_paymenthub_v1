@@ -27,6 +27,7 @@ HOST: https://api.test.paysafe.com/paymenthub/
  * There is reference to *usage* being set to LOOKUP, but this does not seem to be documented in Apiary or Confluence (where values are single_use and multi_use).
  * If a *paymentHandleToken* has the *usage* value set to MULTI-USE, is the token valid indefinitely?
  * What determines what a token's *usage* will be set at in the response?
+ * How do you update a Payment Handle? E.g., card expiry date or billing details?
  * Add **webhooks** content once Kasi signs off on their draft content.
  * Add **checkout** content once Kasi signs off on their draft content.
  * Once webhooks content is added, add xrefs to it where required (e.g., in Getting Started section when discussing *executionMode*). 
@@ -97,69 +98,83 @@ The *executionMode* parameter is a read-only value that Paysafe returns in the r
 Merchants can use this information to determine whether they can receive the payment status synchronously or if instead they need to rely on the use of webhooks.
 
 The possible values are:
-* 
-
-+ **Execution Mode** – Indicates whether the actual payment is expected to be completed immediately or after a time delay
-    
-    Merchants can use this information to determine whether they can receive the payment status synchronously or do they need to rely on webhooks.
-    
-   -> *SYNCHRONOUS* – The Payment status can be received by the merchant synchronously in this case. The merchant needs to poll the PROCESSING/PENDING Payments in a regular intervals.
-   
-   -> *ASYNCHRONOUS* - The actual payment is expected to be completed after a significant time delay (some hours or days. Eg: PaysafeCash) in this case. Here the merchant has to rely on webhooks to capture the payment status change.
-    
-
-
+* SYNCHRONOUS – The Payment status can be received by the merchant synchronously. In this case the merchant can poll the PROCESSING/PENDING Payments at regular intervals to retrieve the Payment status. 
+* ASYNCHRONOUS – The Payment is expected to be completed after a significant time delay (e.g., after hours or days, as in the case of PaysafeCash). In this case, the merchant must use webhooks to retrieve the Payment status.
 
 ## Card Scenarios
-Use of the Payments API for Card Payments/Credit requires you to collect cardholder details, such as the card number, expiry date, and CVV/CVC code on your gaming platform/website and send these to Paysafe with your API request.<br>
+When you use the Paysafe Payments API for credit card payments and credits, you have to collect a variety of card holder details on your platform/website, including card number, expiry date, and CVV/CVC code. 
+You must then and send this information to Paysafe with your API request.
 
-
-See the scenarios below describing a number of alternative ways in which merchants can set up Card Payment/Credit processing with Payments API.
+The scenarios below describe some of the common ways by which merchants can set up credit card Payment/Credit processing with Paysafe Payments API.
 
 ### Scenario 1: One-off Card Payment with Settlement
 
-This is typically used by merchants (Eg: Gaming, where customer deposits money in to their player account) who provide immediate delivery of the service<br>
+This is a common scenario, where the Authorization and Settlement of a credit card payment are completed in a single request. 
+This type of request is typically used by merchants who provide immediate delivery of the service, e.g., a gaming merchant where a customer deposits money in to their player account. 
+In this scenario, you would do the following: 
+ 1. Create a Payment Handle, which should immediately have the *status* of PAYABLE.
+ 2. Use the *paymentHandleToken* returned in the response to process the Payment request &ndash; the *settleWithAuth* parameter must be set to *true* in this case.
+ 3. Once the Payment request is successfully completed, the funds are immediately requested from the card issuer with the next Paysafe batch Settlement run.
 
+**API Requests to Use:** [Payment Handles](#paymenthandlerequest) + [Payments](#paymentrequest)
 
-**API to use:** [Payment Handles](#reference/payment-handles) + [Payments](#reference/payments)<br>
+### Scenario 2: One-off Card Payment with Settlement with 3D Secure Authentication
 
-In the above scenario, the merchant creates a Payment Handle and then (once the Payment Handle has become payable) makes a Payments call to request an authorization with a Settlement. The parameter `settleWithAuth` is set to *true*. Once the authorization is made, the funds are immediately requested from the card issuer with the next Paysafe batch Settlement run.
+In this scenario, the Authorization and Settlement of a credit card payment are completed in a single request, but in addition the card holder is authenticated via 3D Secure by the card issuer prior to Payment authorization.
+In this scenario, you would do the following:
+ 1. Create a Payment Handle. 
+ 2. Since the card is enabled for 3D Secure, Paysafe returns a response with the following:
+    * The *action* parameter is set to REDIRECT
+    * A *payment_redirect* link points to the 3D Secure authentication URL
+ 3. Redirect the customer to the 3D Secure authentication URL so they can authenticate the credit card.
+ 4. Upon successful customer authentication, the merchant gets notified at the URL specified in the *on_completed* parameter included with their request.
+ 5. At this point, the *status* of the Payment Handle becomes PAYABLE. 
+ 6. Use the *paymentHandleToken* returned in the response to process the Payment request &ndash; the *settleWithAuth* parameter must be set to *true*.
+ 7. Once the Payment request is successfully completed, the funds are immediately requested from the card issuer with the next Paysafe batch Settlement run.
 
-### Scenario 2: One-off 3D Secure Card Payment with Settlement
+**API Requests to Use:** [Payment Handles](#paymenthandlerequest) + [Payments](#paymentrequest)
 
-This is typically used by merchants offering immediate delivery of the service in regions where the cardholder is authenticated by the card issuer prior to Payment authorization. <br>
+### Scenario 3: Card Payment with Delayed Settlement
 
+This is another common scenario, where a merchant obtains an authorization for a purchase amount and then settles it later once the service is fulfilled. 
+A common example would be a merchant who ships goods &ndash; they might take your online order on day 1, when the do the authorization, but then settle it on day 3 when they ship the goods you have purchased. 
+In this scenario, you would do the following:
+ 1. Create a Payment Handle, which should immediately have the *status* of PAYABLE.
+ 2. Use the *paymentHandleToken* returned in the response to process the Payment request &ndash; the *settleWithAuth* parameter must be set to *false* in this case.
+ 3. Once you have shipped the goods, use the same *paymentHandleToken* to process a Settlement request. The *payment_id* to include in the Settlement request URL is the *id* that was returned in the response to the Payment request.
+ 4. Once the Settlement request is successfully completed, the funds are immediately requested from the card issuer with the next Paysafe batch Settlement run.
 
-**API to use:** [Payment Handles](#reference/payment-handles) + [Payments](#reference/payments)<br>
+> **Note:** You can make multiple Settlement requests to complete the initial Payment request, up to the full amount on the original authorization.
 
-In the above scenario, the merchant creates a Payment Handle and since the card is 3D Secure enabled, gets a Payment Handle response with parameter `Action` set to *Redirect* and `payment_redirect` parameter pointing to the authentication redirect URL. Merchant needs to redirect the customer to the respective redirect URL for customer to complete the authentication. On successful authentication by the customer, the merchant gets notified on the URL specified in 'on_completed' parameter passed during request. Payment Handle becomes 'Payable' at this stage and merchant needs to make a Payments call to request an authorization with a Settlement. The parameter `settleWithAuth` is set to *true*. Once the authorization is made, the funds are immediately requested from the card issuer with the next Paysafe batch settlement run.
-
-### Scenario 3: Card Payment with delayed Settlement
-
-This is typically used by merchants who obtain an authorization for an initial purchase amount and capture Payments at a later stage, for example, after fulfillment of the service.<br>
-
-
-**API to use:** [Payment Handles](#reference/payment-handles) + [Payments](#reference/payments) + [Settlements](#reference/settlements) <br>
-
-In the above scenario, the merchant creates a Payment Handle and then (once the Payment Handle has become payable) makes a Payments call to request an initial authorization, with the parameter `settleWithAuth` set to *false*. This enables the merchant to delay issuing the Settlement (Payment capture) request until the service is fulfilled. The merchant may make one or more partial Settlement requests, up to the full amount on the original authorization.
+**API Requests to Use:** [Payment Handles](#paymenthandlerequest) + [Payments](#paymentrequest) + [Settlements](#settlementrequest)
 
 ### Scenario 4: Card Original Credits
 
-This is typically used by merchants who want to issue credits to their customers without a previous Payment (authorization) <br>
+The Original Credit request allows the merchant to issue a credit to a customer in the case where there is no previous Payment to tie it to, as is the case with a regular [Refund](#refundrequest). 
+For example, an online gaming merchant may want to perform a payout using an Original Credit.
 
+In this scenario, you would do the following: 
+ 1. Create a Payment Handle, with the *transactionType* parameter set to ORIGINAL_CREDIT. This Payment Handle should immediately have the *status* of PAYABLE.
+ 2. Use the *paymentHandleToken* returned in the response to process the Original Credit.
+ 3. Once the Original Credit request is successfully completed, the funds are transferred to the customer's card with the next Paysafe batch run.
 
-**API to use:** [Payment Handles](#reference/payment-handles) + [Original Credits](#reference/original-credits)<br>
+>**Note:** Only merchants with [specific Merchant Category Codes](#originalcreditmccs) can process Original Credit requests.
 
-In the above scenario, the merchant creates a Payment Handle and then makes a Original Credit request once the Payment Handle has become 'Payable'.
+**API Requests to Use:** [Payment Handles](#paymenthandlerequest) + [Original Credits](#originalcreditrequest)
 
 ### Scenario 5: Card Standalone Credits
 
 This is typically used by merchants (with MCC Codes other than that specified for Original Credits) who want to issue credits to their customers without a previous Payment (authorization) <br>
 
+In this scenario, you would do the following: 
+ 1. Create a Payment Handle, with the *transactionType* parameter set to STANDALONE_CREDIT. This Payment Handle should immediately have the *status* of PAYABLE.
+ 2. Use the *paymentHandleToken* returned in the response to process the Standalone Credit.
+ 3. Once the Standalone Credit request is successfully completed, the funds are transferred to the customer's card with the next Paysafe batch run.
 
-**API to use:** [Payment Handles](#reference/payment-handles) + [Standalone Credits](#reference/standalone-credits) <br>
+>**Note:** Merchants with [these Merchant Category Codes](#originalcreditmccs) may **not** process Standalone Credit requests, but must instead [process Original Credit requests](#originalcreditrequest).
 
-In the above scenario, the merchant creates a Payment Handle and then makes a Standalone Credit request once the Payment Handle has become 'Payable'.
+**API Requests to Use:** [Payment Handles](#paymenthandlerequest) + [Standalone Credits](#standalonecreditrequest)
+
 
 <a name="apikey" title="Authentication"></a>
 # Authentication
@@ -828,9 +843,6 @@ This is additional information about the card acquirer required when you are per
 
 <a name="cardobject" title="card Object"></a>
 ## card
-
-* Other APIs use "card" and not "cardType"
-* What does status apply to? What are possible values?
 
 When providing card information, merchants can provide either card details or a payment token for a customer already created in the system.
 
@@ -2186,19 +2198,19 @@ Click on **Verification** above to see how to submit a Verification request usin
     + Body
 
             {
-              "id": "71aea8ae-e801-4df3-9436-c5a61c88d3ad",
-              "paymentHandleToken": "SCUgzJL5jlRIKCiX",
-              "merchantRefNum": "20095817730019123",
-              "customerIp": "10.10.12.64",
-              "currencyCode": "USD",
-              "description": "Verify card for payment request",
-              "txnTime": 2018-12-11T16:33:49Z,
-              "gatewayResponse" : {
-              "authCode": "XXXXXX",
-              "avsResponse" : "MATCH",
-              "cvvVerification": "NOT_PROCESSED"
-              },
-              "status": "COMPLETED"
+                "id": "71aea8ae-e801-4df3-9436-c5a61c88d3ad",
+                "paymentHandleToken": "SCUgzJL5jlRIKCiX",
+                "merchantRefNum": "20095817730019123",
+                "customerIp": "10.10.12.64",
+                "currencyCode": "USD",
+                "description": "Verify card for payment request",
+                "txnTime": "2018-12-11T16:33:49Z",
+                "gatewayResponse": {
+                    "authCode": "XXXXXX",
+                    "avsResponse": "MATCH",
+                    "cvvVerification": "NOT_PROCESSED"
+                },
+                "status": "COMPLETED"
             }
 
 ### Get Verification [GET /v1/verifications/{verification_id}]
@@ -2216,19 +2228,19 @@ Click on **Get Verification** above to see how to look up a Verification request
     + Body
 
             {
-              "id": "71aea8ae-e801-4df3-9436-c5a61c88d3ad",
-              "paymentHandleToken": "SCUgzJL5jlRIKCiX",
-              "merchantRefNum": "20095817730019123",
-              "customerIp": "10.10.12.64",
-              "currencyCode": "USD",
-              "description": "Verify card for payment request",
-              "txnTime": 2018-12-11T16:33:49Z,
-              "gatewayResponse" : {
-              "authCode": "XXXXXX",
-              "avsResponse" : "MATCH",
-              "cvvVerification": "NOT_PROCESSED"
-              },
-              "status": "COMPLETED"
+                "id": "71aea8ae-e801-4df3-9436-c5a61c88d3ad",
+                "paymentHandleToken": "SCUgzJL5jlRIKCiX",
+                "merchantRefNum": "20095817730019123",
+                "customerIp": "10.10.12.64",
+                "currencyCode": "USD",
+                "description": "Verify card for payment request",
+                "txnTime": "2018-12-11T16:33:49Z",
+                "gatewayResponse": {
+                    "authCode": "XXXXXX",
+                    "avsResponse": "MATCH",
+                    "cvvVerification": "NOT_PROCESSED"
+                },
+                "status": "COMPLETED"
             }
             
 ### Get Verification Using Merchant Reference Number [GET /v1/verifications?merchantRefNum={merchant_ref_num}]
@@ -2435,7 +2447,7 @@ Click on **Get Payment Using Merchant Reference Number** above to see how to loo
                   "settleWithAuth": false,
                   "paymentHandleToken": "SChfCGCURe5NiLIv",
                   "authCode": "107212",
-                  "txnTime": 2018-12-14T15:12:18Z,
+                  "txnTime": "2018-12-14T15:12:18Z",
                   "customerIp": "10.10.12.64",
                   "description": "Magazine subscription",
                   "currencyCode": "GBP",
@@ -3046,6 +3058,7 @@ Click on **Get Standalone Credit Using Merchant Reference Number** above to see 
 An Original Credit request allows you to issue credits to cardholders without requiring a previous *settlement_id*.
 
 Only merchants with the following MCCs can process Original Credits:
+<a name="originalcreditmccs" title="Orignal Credit MCCs"></a>
  * 4829
  * 6012
  * 6051
@@ -3832,7 +3845,7 @@ Note: This API will be accessible with public API key.
         _Max =99999999999_
     + `currencyCode`:`CAD` (string) - This is the [currency of the merchant account](#currencycodes), e.g., USD or CAD.
         _Read Only, max=3_
-    + `paymentHandleToken`:`842778a0-03a2-11e9-8eb2-f2801f1b9fd1` (string, required) - This is the payment token generated by Paysafe that will be used by merchants for Payment API requests.
+    + `paymentHandleToken`:`842778a0-03a2-11e9-8eb2-f2801f1b9fd1` (string) - This is the payment token generated by Paysafe that will be used by merchants for Payment API requests.
         _Read Only, length<=36_
     + Include Card
     + Include Profile
@@ -3867,7 +3880,7 @@ Note: This API will be accessible with public API key.
     + Default: true
 + `preAuth`:`false`  (boolean) - This indicates whether the Authorization request should be sent as a Pre-Authorization. You should use the *preAuth* element in cases where you are not sure that you can fully settle the Authorization within 4 days. Contact your account manager for more information.
 + Include Partial Auth
-+ `paymentHandleToken`:`842778a0-03a2-11e9-8eb2-f2801f1b9fd1` (string, required) - This is the payment token generated by Paysafe that will be used for the Payment request.
++ `paymentHandleToken`:`842778a0-03a2-11e9-8eb2-f2801f1b9fd1` (string) - This is the payment token generated by Paysafe that will be used for the Payment request.
     _length<=36_
 + `availableToSettle`:`0` (number) -This is the amount of of the Authorization remaining to settle, in minor units.
     _Read Only_
