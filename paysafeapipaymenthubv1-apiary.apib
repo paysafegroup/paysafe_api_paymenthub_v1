@@ -4,17 +4,28 @@ HOST: https://api.test.paysafe.com/paymenthub/
 # Paysafe Payments API 
 
 # QUESTIONS
+ * Update Resource Patterns section to include all request types.
  * Customers
+    * We need to tell the merchant **why** they would create a customer.
     * The Payments API includes a Billing Details object, and the new content for Customer seems to introduce a Billing Address object that does the same thing.
-    * In Customer object, Customer API uses "ip", whereas everywhere else we use "customerIp".
+    * In Customer object, Customer API uses "ip", whereas everywhere else we use "customerIp". 
+    Also, length for *ip* is set at 46, whereas it is set at 39 for *customerIp*.
     * Is *paymentToken* mistakenly included in the "Customers" complex object? Not in sample request. 
-    There is an addresses and cards object in the GET for a customer that includes subcomponents, but not a payment handle (see https://customersapi5.docs.apiary.io/#reference/0/customers/get-customer-including-subcomponents)
-    * When you GET customer with subcomponents, only cards and addresses are listed, but paymentHandles array is in example.
+    * In the request to create a customer using a payment handle token, the name of the request is "Create a Customer Using a Single-Use Token". Just a typo?
+    * There is an addresses and cards object in the GET for a customer that includes subcomponents, but not a payment handle (see https://customersapi5.docs.apiary.io/#reference/0/customers/get-customer-including-subcomponents)
+    * When you GET customer with subcomponents, only cards and addresses are listed, but paymentHandles array is in example. 
+    Note that addresses and cards are listed in the customer complex object in the Common Objects section.
+    * How do you update a Customer Payment Handle with a *billingDetailsId*? Looks like you need the *billingDetails* object in the update request.
+    * Currently, creating a Payment Handle in the Customers section documents only for card ... should this also include Paysafecash and Paysafecard?
+    * Table of attributes includes *timeToLiveSeconds*, but this is not included in example response in the Apiary document.
+    * Payment Handle object for customers does not have *transactionType*, *action*, or *links*. Just want to confirm that this is correct.
+    * It is not clear where to get the *paymentHandleTokenFrom* to use in the request to "Create a Payment Handle Using Single-Use Payment Handle Token". 
+    I also notice that this has the *status* of MULTI_USE, while the normal Customer Payment Handle has no *status* at all.
+    * Should "Create a Payment Handle Using a Single-Use Payment Handle Token" be renamed to "Create a **Permanent** Payment Handle Using a Single-Use Payment Handle Token"?
+    * Need a description for *paymentHandleTokenFrom* for "Create a Payment Handle Using Single-Use Payment Handle Token".
+    * Which of the two Customer Payment Handles (regular or single-use token) does the GET (Get Customer Payment Handle) look up?
  * Checkout
-    * For the section "Including the SDK", we need correct URL for the SDK. 
-    * For section "How to Use the SDK", what does "Please refer to the following API for making a payment" mean, in the last step?
-    * For section "Setup Options", is the question mark supposed to be in the signature, and the word "void"?
-    * Replacing "iframe" language.
+    * For the section "Including the SDK", we need correct URL for the SDK. **Kasi will provide.**
  * Payment Handles
     * Should *paymentMethod* in the request to look up available payment methods actually be *paymentType* (used in creation of a payment handle)? Are they not referencing the same thing (CARD, etc.)? 
     * Related, we have *currency* in payment methods, but *currencyCode* elsewhere.
@@ -27,7 +38,7 @@ HOST: https://api.test.paysafe.com/paymenthub/
     * Where do all the values for the *profile* elements come from? I see that *profile* is part of the *paymentHandle* object but it's not clear how/when to use it. Can you provide only the profile ID, as returned from creating a customer profile?
  * Length of *externalSubMerchantId* is not in Confluence. Kasi says this is part of Netbanx response but I can't find it. The *acquirerData* object in our Card Payments API does not have this field. 
  * Payment Handle
-    * Why does payment handle request need an *amount* field? It's required for the subsequent payment request anyway.
+    * Why does payment handle request need an *amount* field? It's required for the subsequent payment request anyway. **The amount in the payment request must match the amount in the payment handle request.**
     * When would *paymentHandleTokenFrom* be used?
     * In the Getting Started section, we say that the merchant must use the payment handle within 15 minutes or it will expire. Is this true when *usage* is set to MULTI-USE?
     * There is reference to *usage* being set to LOOKUP, but this does not seem to be documented in Apiary or Confluence (where values are single_use and multi_use).
@@ -35,19 +46,21 @@ HOST: https://api.test.paysafe.com/paymenthub/
     * What determines what a token's *usage* will be set at in the response?
     * When I created a payment handle for pscash or pscard in Postman in QA, *timeToLiveSeconds* came back as 345599.
  * Errors
+    * Check for new errors on confuence page!!
     * Added errors from their Apiary file. More should be coming for payment handles and customer vault.
     * Looks like specific Payments API errors should also be added - see https://confluence.neterra.paysafe.com/display/paymentnetwork/Error+Codes.
  * Testing
     * Need contact email address for Testing section below.
-    * In section Applying for a Test Account, it looks like they retrieve their Test API key from the Portal. How do they get Production API key?
+    * In section Applying for a Test Account, it looks like they retrieve their Test API key from the Portal. How do they get Production API key? 
+    Comes from a Production version of Portal. Merchant receives email from Tech Support with Live credentials. Even Test credentials come from a Sales rep.
     * Do we need to provide test card numbers (and similar information for other payment methods when they're available)? I assume our current Card Payments API test cards will work in the same way.
  * In Postman:
     * When I use a payment handle created, e.g., for a Verification and send it to the Payments endpoint, the error thrown says "Payment handle provided is not permitted for Payments because of its state", and nothing about wrong endpoint.
  * Authentication section - be sure to provide clear instructions on how they will get their API keys. 
  * Webhooks
-    * Add **webhooks** content once Kasi signs off on their draft content.
-    * How can they test their callback URL?
-    * Can you provide me with a sample of a webhooks payload they might expect? E.g., see https://developer.paysafe.com/en/rest-apis/alternate-payments/webhooks/webhook-samples/.  
+    * How can they test their callback URL? **They must sign in to merchant portal to create the callback url ... can't be tested initially.**
+    * Can you provide me with a sample of a webhooks payload they might expect? E.g., see https://developer.paysafe.com/en/rest-apis/alternate-payments/webhooks/webhook-samples/.
+    * Need to add content on getting Webhooks help in section *Opening a Service Request* ... there is already a cross-reference from Webhooks section to this Help section.
  * When creating payment handle tokens ... for multi-use paymenthandletokens ... only the case when it is attached to a customer.
  * Single-use customer tokens are used **only** in the Paysafe checkout scenario, and not in API requests. 
     * A different API key from merchant portal is used to "Search" for a single-use token ... this is the public key available in merchant portal.
@@ -342,14 +355,14 @@ In this scenario, you would do the following:
 # Payments Checkout
 
 Paysafe Payments Checkout allows merchants to take payment from credit cards and other alternate payment methods &ndash; like Paysafecash and Paysafecard &ndash; using a secure overlay while requiring the least demanding level of PCI compliance: SAQ-A. 
-The user input and storage of credit card is handled by Paysafe and the checkout uses Paysafe's Payment APIs for payment and credit processing.
+The user input and storage of payment information is handled by Paysafe and the checkout uses Paysafe's Payment APIs for payment and credit processing.
 
 ## How to Use the SDK
 
 1. Include the Paysafe Checkout SDK in your HTML payment form.
 2. Call the checkout setup function with your single-use token API key. The setup function creates an iframe overlay containing the secure payment form hosted on Paysafe's servers. 
 You will need to pass a callback function as part of the setup to handle successful payment handle success and failure.
-3. The callback should use AJAX to send the payment handle representing the customer's payment details to your merchant server to make payment. Please refer to the following API for making a payment.
+3. The callback should use AJAX to send the payment handle representing the customer's payment details to your merchant server to [make payment using the Paysafe Payments API](#paymentrequest).
 
 ## Including the SDK 
 
@@ -554,7 +567,7 @@ The checkout can show existing cards and addresses for a user.
 To use this functionality, the merchant needs to use the permanent customer token and invoke a call from the merchant server to fetch a single user customer token. 
 This single-use customer token should then be provided to the *setupOptions* while invoking the checkout. In this case, when the checkout is loaded, the user would be able to see their saved payment details.
 
-Step 1:
+**Step 1:**
 Make call from the merchant server using the customer's customer's permanent profile
 token, and generate a single-use customer token, which is valid for 15 minutes.
 
@@ -564,7 +577,7 @@ token, and generate a single-use customer token, which is valid for 15 minutes.
 |---                                                            |---                                    |---    |
 |/paymenthub/v1/customers/customer_id/singleusecustomertokens   |Create Single Use Customer Token       |POST   |
 
-Step 2:
+**Step 2:**
 Take the *singleUseCustomerToken* from the response in step 1 and provide this value in the *options.singleUseCustomerToken* field while invoking the checkout.
 
 ```
@@ -1348,6 +1361,39 @@ When providing card information, merchants can provide either card details or a 
     }
 ```
 
+<a name="customersobject" title="Customer Object"></a>
+## customer
+|Element            |Type                               |Description    |
+|---                |---                                |---            |
+|id                 |string <br/>`length<=36`           |This is the ID returned in the response.|
+|status             |enum                               |This is the status of the customer. Possible values are:<br/><ul><li>INITIAL</li><li>ACTIVE</li></ul><br/>By default the system automatically sets the customer status to an ACTIVE state. If you want to prevent the customer from being used for payments, you can set the status to an INITIAL state (e.g., in cases where you first want to validate the customer).|
+|merchantCustomerId |string <br/>`length<=100`          |This is a customer ID that the merchant provides with the request for their own internal customer identification. This value must be unique for each customer belonging to a merchant.|
+|locale             |enum                               |This indicates the language of the customer. Possible values are:<ul><li>en_US</li><li>fr_CA</li><li>en_GB</li></ul>
+|firstName          |string <br/>`length<=80`           |This is the customer’s first name. |
+|middleName         |string <br/>`length<=80`           |This is the customer’s middle name. |
+|lastName           |string <br/>`length<=80`           |This is the customer’s last name. |
+|dateOfBirth        |[dateOfBirth](#dateofbirthobject)  |This is the customer's date of birth.|
+|ip                 |string<br/>`length<=46`            |This is the customer’s IP address.|
+|gender             |enum                               |This is the customer’s gender. Possible values are:<ul><li>M (male)</li><li>F (female)</li></ul>
+|nationality        |string<br/>`length<=30`            |This is the customer’s nationality.|
+|email              |string<br/>`length<=255`           |This is the customer's email address.|
+|phone              |string<br/>`length<=40`            |This is the customer's phone number.|
+|cellPhone          |string<br/>`length<=40`            |This is the customer's cell phone number.|
+|paymentToken       |string<br/>`length<=50`            |This is a token generated by Paysafe that represents the customer and returned in the response to the customer request.|
+|addresses          |[addresses](#addressesobject)      |These are the addresses associated with this customer.|
+|card               |[cards](#cardsobject)              |These are the cards associated with this customer.|
+
+```apib
+            {
+              "merchantCustomerId":"mycustomer1",
+              "locale" : "en_US",
+              "firstName" : "John",
+              "lastName" : "Smith",
+              "email" : "john.smith@somedomain.com",
+              "phone" : "713-444-5555"
+             }
+```
+
 <a name="dateofbirthobject" title="Date of Birth Object"></a>
 ## dateOfBirth
 |Element            |Type                           |Description    |
@@ -1740,7 +1786,7 @@ This is an authorization that is approved for an amount lower than the requested
 
 ```apib
             {
-              "merchantCustomerId":"mycustomer1",
+              "merchantCustomerId":"mycustomer10",
               "locale" : "en_US",
               "firstName" : "John",
               "lastName" : "Smith",
@@ -1980,6 +2026,7 @@ The *storedCredential* object is used to identify [authorization requests](#auth
 |401|5279|The authentication credentials are invalid.|
 |401|5280|The required authentication credentials were not provided.|
 |405|5281|The request uses an action (e.g., GET, POST, or PUT) that is not supported by the resource.|
+|400|5283|The requested operation can only be executed on a Payment Handle with the status of *PAYABLE*.|
 |400|5501|The profile does not have an active credit card.|
 |400|5502|Either the payment token is invalid or the corresponding profile or bank account is not active.|
 
@@ -2773,7 +2820,7 @@ Click on **Get Payment Handle** above to see how to look up a Payment Handle usi
 
 + Parameters
 
-    + paymenthandle_id : `26359efd-7cfb-4014-a13d-1724e3ff17fa` - This is the Payment Handle ID returned in the response to the Payment Handle creation request.
+    + paymenthandle_id : `26359efd-7cfb-4014-a13d-1724e3ff17fa` - This is the Payment Handle ID returned in the response to the [Payment Handle creation request](#paymenthandlerequest).
 
 + Request Look Up Payment Handle (application/json)
 
@@ -3940,34 +3987,102 @@ Click on **Get Original Credit Using Merchant Reference Number** above to see ho
 ## Customers [/v1/customers]
 
 ### Create Customer [POST]
+<a name="createcustomerrequest" title="Create a Customer"></a>
 
-+ Request (application/json)
+This is how you submit a customer creation request.
 
++ Attributes
+    + Include Customer Base
+
++ Request Create a Customer (application/json)
+        
     + Headers
-
-            Authorization: "Basic YOUR-BASE64-ENCODED-API-KEY"
     
+            Authorization: Basic YOUR-BASE64-ENCODED-API-KEY
+
     + Body
 
             {
+                "merchantCustomerId": "mycustomer10",
+                "locale": "en_US",
                 "firstName": "John",
+                "middleName": "James",
                 "lastName": "Smith",
-                "phone" : "123-456-7890",
                 "dateOfBirth": {
                     "year": 1981,
                     "month": 10,
                     "day": 24
                 },
-                "address": {
-                    "nickName": "Home",
-                    "street": "100 Queen",
-                    "street2": "Unit 200",
-                    "city": "Toronto",
-                    "zip": "M5H 2N2",
-                    "country": "CA",
-                    "state": "ON"
+                "email": "john.smith@email.com",
+                "phone": "777-444-8888",
+                "ip": "192.0.126.111",
+                "gender": "M",
+                "nationality": "Canadian",
+                "cellPhone": "777-555-8888"
+            }
+            
++ Response 200 (application/json)
+
+    + Body
+
+            {
+                "id": "ccb24e28-6e38-47ce-8815-94706c5b608c",
+                "merchantCustomerId": "mycustomer10",
+                "locale": "en_US",
+                "firstName": "John",
+                "middleName": "James",
+                "lastName": "Smith",
+                "dateOfBirth": {
+                    "day": 24,
+                    "month": 10,
+                    "year": 1981
                 },
-                "email": "john.smith@email.com"
+                "email": "john.smith@email.com",
+                "phone": "777-444-8888",
+                "ip": "192.0.126.111",
+                "gender": "M",
+                "nationality": "Canadian",
+                "cellPhone": "777-555-8888"
+            }
+
+## Create a Customer Using a Payment Handle Token [POST /v1/customers]
+<a name="createcustomerrequesttoken" title="Create a Customer Using a Payment handle Token"></a>
+This is how you submit a customer creation request using a payment handle token.
+You can use this request to convert a single-use payment handle token to a permanent payment handle token.
+
+**Note:** Only the *paymentHandleToken* returned in the *paymentHandles* object in the response can be used for [payment requests with the Payments API](#paymentrequest).
+
++ Request Create a Customer Using a Single-Use Token (application/json)
+    
+    + Attributes
+    
+        + Include Customer Base
+        + paymentHandleTokenFrom:`SCURPCc6nEwXcdBQ` - This is the paymentHandle token that is present in the response of Creation of paymentHandle.
+        
+    + Headers
+    
+            Authorization: Basic YOUR-BASE64-ENCODED-API-KEY
+            
+    + Body 
+
+            {
+              "merchantCustomerId": "mycustomer10",
+              "locale": "en_US",
+              "firstName": "John",
+              "middleName": "James",
+              "lastName": "Smith",
+              "dateOfBirth": {
+                "year": 1981,
+                "month": 10,
+                "day": 24
+              },
+              "email": "john.smith@email.com",
+              "phone": "777-444-8888",
+              "ip": "192.0.126.111",
+              "gender": "M",
+              "nationality": "Canadian",
+              "cellPhone": "777-555-8888",
+              "paymentHandleTokenFrom": "SCURPCc6nEwXcdBQ"
             }
 
 + Response 200 (application/json)
@@ -3975,27 +4090,576 @@ Click on **Get Original Credit Using Merchant Reference Number** above to see ho
     + Body
 
             {
-                "customerId": "Gt56fR6",
+              "merchantCustomerId": "mycustomer10",
+              "locale": "en_US",
+              "firstName": "John",
+              "middleName": "James",
+              "lastName": "Smith",
+              "dateOfBirth": {
+                "year": 1981,
+                "month": 10,
+                "day": 24
+              },
+              "email": "john.smith@email.com",
+              "phone": "777-444-8888",
+              "ip": "192.0.126.111",
+              "gender": "M",
+              "nationality": "Canadian",
+              "cellPhone": "777-555-8888",
+              "paymentHandleTokenFrom": "SCURPCc6nEwXcdBQ"
+            }
+
+## Get Customer [GET /v1/customers/{customer_id}]
+
+<a name="getcustomerrequest" title="Look Up a Customer"></a>
+This is how you look up a customer using the ID returned in the response to the original customer creation request. 
+    
++ Parameters
+    + customer_id:`ccb24e28-6e38-47ce-8815-94706c5b608c` (string, required) - This is the unique ID returned in the response to the [customer creation request](#createcustomerrequest).
+
++ Request Get Customer (application/json)
+    
+    + Headers
+    
+            Authorization: Basic YOUR-BASE64-ENCODED-API-KEY
+            
++ Response 200 (application/json)
+
+    + Body
+
+            {
+                "id": "ccb24e28-6e38-47ce-8815-94706c5b608c",
+                "merchantCustomerId": "mycustomer10",
+                "locale": "en_US",
                 "firstName": "John",
+                "middleName": "James",
                 "lastName": "Smith",
-                "phone" : "123-456-7890",
+                "dateOfBirth": {
+                    "day": 24,
+                    "month": 10,
+                    "year": 1981
+                },
+                "email": "john.smith@email.com",
+                "phone": "777-444-8888",
+                "ip": "192.0.126.111",
+                "gender": "M",
+                "nationality": "Canadian",
+                "cellPhone": "777-555-8888"
+            }
+
+## Get Customer Using Merchant Customer ID [GET /v1/customers?merchantCustomerId={merchant_customer_id}]
+<a name="getcustomerrequest" title="Look Up a Customer"></a>
+This is how you look up a customer using the Merchant Customer ID that was used in [the original request](#createcustomerequest). 
+    
++ Parameters
+    + merchant_customer_id:`mycustomer10` (string, required) - This is a customer ID that the merchant provided with the [customer creation request](#createcustomerrequest) for their own internal customer identification.. 
+
++ Response 200 (application/json)
+
+    + Body
+
+            {
+                "id": "ccb24e28-6e38-47ce-8815-94706c5b608c",
+                "merchantCustomerId": "mycustomer10",
+                "locale": "en_US",
+                "firstName": "John",
+                "middleName": "James",
+                "lastName": "Smith",
+                "dateOfBirth": {
+                    "day": 24,
+                    "month": 10,
+                    "year": 1981
+                },
+                "email": "john.smith@email.com",
+                "phone": "777-444-8888",
+                "ip": "192.0.126.111",
+                "gender": "M",
+                "nationality": "Canadian",
+                "cellPhone": "777-555-8888"
+            }
+
+## Get Customer Including Subcomponents [GET /v1/customers/{customer_id}?fields={fields}]
+<a name="getcustomerrequestsubcomponents" title="Look Up a Customer Including Subcomponents"></a>
+You can look up a customer along with its associated sub-components using one or more comma-separated values from this list:
+  * paymentHandles
+  * addresses
+  
+    
++ Parameters
+    + customer_id:`ccb24e28-6e38-47ce-8815-94706c5b608c` (string, required) - This is the unique ID returned in the customer creation response.
+    + fields:`addresses,paymentHandles` (string, optional) - This is a comma-separated list of sub-components.
+
++ Request Get Customer (application/json)
+    
+    + Headers
+    
+            Authorization: Basic YOUR-BASE64-ENCODED-API-KEY
+            
++ Response 200 (application/json)
+
+    + Body
+
+            {
+                "id": "326d6b3b-3c47-4ee2-9b6b-3801ec97a09d",
+                "merchantCustomerId": "mycustomer1",
+                "locale": "en_US",
+                "firstName": "John",
+                "middleName": "James",
+                "lastName": "Smith",
+                "dateOfBirth": {
+                    "day": 24,
+                    "month": 10,
+                    "year": 1981
+                },
+                "email": "john.smith@email.com",
+                "phone": "777-444-8888",
+                "ip": "192.0.126.111",
+                "gender": "M",
+                "nationality": "Canadian",
+                "cellPhone": "777-555-8888",
+                "addresses": [{
+                    "id": "3722476e-4891-426b-8dcd-a25ad3d14ffe",
+                    "street": "Andhra bank lane",
+                    "street2": "Manikonda",
+                    "city": "Hyderabad",
+                    "state": "TS",
+                    "country": "IN",
+                    "zip": "500089",
+                    "status": "ACTIVE"
+                }],
+                "paymentHandles": [{
+                    "id": "0aee8670-ae5e-44dc-bf9d-73ad84dabbf3",
+                    "merchantRefNum": "9c011804-c123-40f3-8cd5-de21aec8d88e",
+                    "status": "INITIATED",
+                    "usage": "MULTI_USE",
+                    "paymentType": "CARD",
+                    "action": "REDIRECT",
+                    "executionMode": "SYNCHRONOUS",
+                    "accountId": "1001535430",
+                    "paymentHandleToken": "Cvz7pumqVb8rnJX",
+                    "creationDate": 1547726600919,
+                    "card": {
+                        "lastDigits": "0007",
+                        "cardExpiry": {
+                            "month": "12",
+                            "year": "2024"
+                        },
+                        "cardBin": "400344",
+                        "cardType": "VI",
+                        "singleUseToken": "SCR37YxqciqpGeKF",
+                        "billingDetailsId": "3722476e-4891-426b-8dcd-a25ad3d14ffe"
+                    },
+                    "paymentHandleTokenFrom": "SCR37YxqciqpGeKF"
+                }]
+            }
+
+## Update a Customer [PUT /v1/customers/{customer_id}]
+
+<a name="updatecustomerrequest" title="Update a Customer"></a>
+This is how you update a customer.
+
+**Note:** You must provide all of the elements of the customer when you are updating it, including the elements that are not changing. Elements that are part of an existing customer but that are not included in the update request will be set to *null* in the resulting customer.
+
++ Attributes
+    + Include Customer Base
+
++ Parameters
+    + customer_id:`326d6b3b-3c47-4ee2-9b6b-3801ec97a09d` (string, required) - This is the unique ID returned in the response to the [customer creation request](#createcustomerrequest).
+
++ Request Update a Customer (application/json)
+    
+    + Headers
+    
+            Authorization: Basic YOUR-BASE64-ENCODED-API-KEY
+
+    + Body
+
+            {
+                "merchantCustomerId": "mycustomer10",
+                "locale": "en_US",
+                "firstName": "John",
+                "middleName": "James",
+                "lastName": "Smythe",
                 "dateOfBirth": {
                     "year": 1981,
-                    "month": 10,
+                    "month": 11,
                     "day": 24
                 },
-                "address": {
-                    "addressId": "DF45FDtrR",
-                    "nickName": "Home",
-                    "street": "100 Queen",
-                    "street2": "Unit 200",
-                    "city": "Toronto",
-                    "zip": "M5H 2N2",
-                    "country": "CA",
-                    "state": "ON"
-                },
-                "email": "john.smith@email.com"
+                "email": "john.smythe@email.com",
+                "phone": "777-444-8888",
+                "ip": "192.0.126.111",
+                "gender": "M",
+                "nationality": "Canadian",
+                "cellPhone": "777-555-8888"
             }
+
+
+            
++ Response 200 (application/json)
+    
+    + Body
+
+            {
+                "id": "326d6b3b-3c47-4ee2-9b6b-3801ec97a09d",
+                "merchantCustomerId": "mycustomer10",
+                "locale": "en_US",
+                "firstName": "John",
+                "middleName": "James",
+                "lastName": "Smythe",
+                "dateOfBirth": {
+                    "year": 1981,
+                    "month": 11,
+                    "day": 24
+                },
+                "email": "john.smythe@email.com",
+                "phone": "777-444-8888",
+                "ip": "192.0.126.111",
+                "gender": "M",
+                "nationality": "Canadian",
+                "cellPhone": "777-555-8888"
+            }
+
+## Delete a Customer [DELETE /v1/customers/{customer_id}]
+<a name="deletecustomerrequest" title="Delete a Customer"></a>
+
+This is how you delete a customer.
+
++ Parameters
+    + customer_id:`a7b218e7-290a-4434-aea2-a1f985fc26c0` (string, required) - This is the customer ID returned in the response (in NETBANX this is called the Consumer ID).
+
++ Request Delete a Customer (application/json)
+
+    + Headers
+
+            Authorization: Basic YOUR-BASE64-ENCODED-API-KEY
+            
++ Response 200 (application/json)
+
+# Addresses [/addresses]
+<a name="addressesrequest" title="Addresses Request"></a>
+
+## Create an Address [POST /v1/customers/{customer_id}/addresses]
+<a name="createaddressrequest" title="Create an Address"></a>
+
+This is how you submit an address creation request to add an address to a previously created customer.
+
++ Attributes
+
+    + Include Address
+
++ Parameters
+    + customer_id:`a5f1889d-f1be-4bbf-941d-fd9b8d09d5b1` (string,required) - This is the ID of the customer to which you are adding an address.
+
++ Request Create an Address (application/json)
+        
+    + Headers
+    
+            Authorization: Basic YOUR-BASE64-ENCODED-API-KEY
+
+    + Body
+
+            {
+                "nickName": "Home",
+                "street": "100 Queen",
+                "street2": "Unit 201",
+                "city": "Toronto",
+                "zip": "M5H 2N2",
+                "country": "CA",
+                "state": "ON",
+                "phone": "647-788-3901",
+                "defaultShippingAddressIndicator": true
+            }
+
+
++ Response 200 (application/json)
+    
+    + Body
+
+            {
+                "id": "6a275b7c-6f11-4ed1-ae77-21071724574a",
+                "status": "ACTIVE",
+                "nickName": "Home",
+                "street": "100 Queen",
+                "street2": "Unit 201",
+                "city": "Toronto",
+                "zip": "M5H 2N2",
+                "country": "CA",
+                "state": "ON",
+                "phone": "647-788-3901",
+                "defaultShippingAddressIndicator": true
+            }
+
+## Get Address [GET /v1/customers/{customer_id}/addresses/{address_id}]
+<a name="getaddressrequest" title="Look Up an Address"></a>
+
+This is how you look up an address using the ID returned in the response to the original address creation request.
+    
++ Parameters
+    + customer_id:`a7b218e7-290a-4434-aea2-a1f985fc26c0` (string, required) - This is the customer ID returned in the response.
+    + address_id:`6a275b7c-6f11-4ed1-ae77-21071724574a` (string, required) - This is the address ID returned in the response.
+
++ Request Get Address (application/json)
+    
+    + Headers
+    
+            Authorization: Basic YOUR-BASE64-ENCODED-API-KEY
+            
++ Response 200 (application/json)
+
+    + Body
+
+            {
+                "id": "6a275b7c-6f11-4ed1-ae77-21071724574a",
+                "status": "ACTIVE",
+                "nickName": "Home",
+                "street": "100 Queen",
+                "street2": "Unit 201",
+                "city": "Toronto",
+                "zip": "M5H 2N2",
+                "country": "CA",
+                "state": "ON",
+                "phone": "647-788-3901",
+                "defaultShippingAddressIndicator": true
+            }
+
+## Update an Address [PUT /v1/customers/{customer_id}/addresses/{address_id}]
+<a name="updateaddressrequest" title="Update an Address"></a>
+
+This is how you update an address.
+
+**Note:** You must provide all of the elements of the address when you are updating it, including the elements that are not changing. Elements that are part of an existing address but that are not included in the update request will be set to *null* in the resulting address.
+
++ Parameters
+    + customer_id:`a7b218e7-290a-4434-aea2-a1f985fc26c0` (string, required) - This is the customer ID returned in the response.
+    + address_id:`6a275b7c-6f11-4ed1-ae77-21071724574a` (string, required) - This is the address ID returned in the address creation response.
+
++ Attributes
+
+    + Include Address
+
++ Request Update an Address (application/json)
+        
+    + Headers
+
+            Authorization: Basic YOUR-BASE64-ENCODED-API-KEY
+            
+    + Body
+
+            {
+                "nickName": "Home",
+                "street": "100 Queen",
+                "street2": "Unit 2201",
+                "city": "Toronto",
+                "zip": "M5H 2N2",
+                "country": "CA",
+                "state": "ON",
+                "phone": "647-788-3901",
+                "defaultShippingAddressIndicator": true
+            }
+
+
++ Response 200 (application/json)
+    
+    + Body
+
+            {
+                "id": "6a275b7c-6f11-4ed1-ae77-21071724574a",
+                "status": "ACTIVE",
+                "nickName": "Home",
+                "street": "100 Queen",
+                "street2": "Unit 2201",
+                "city": "Toronto",
+                "zip": "M5H 2N2",
+                "country": "CA",
+                "state": "ON",
+                "phone": "647-788-3901",
+                "defaultShippingAddressIndicator": true
+            }
+
+## Delete an Address [DELETE /v1/customers/{customer_id}/addresses/{address_id}]
+<a name="deletecustomerrequest" title="Delete a Customer"></a>
+
+This is how you delete a customer's address.
+
++ Parameters
+    + customer_id:`a7b218e7-290a-4434-aea2-a1f985fc26c0` (string, required) - This is the customer ID returned in the response (in NETBANX this is called the Consumer ID).
+    + address_id:`6a275b7c-6f11-4ed1-ae77-21071724574a` (string, required) - This is the address ID returned in the address creation response. 
+
++ Request Delete a Customer (application/json)
+
+    + Headers
+
+            Authorization: Basic YOUR-BASE64-ENCODED-API-KEY
+            
++ Response 200 (application/json)
+
+# Customer Payment Handles [/paymenthandles]
+<a name="paymenthandlerequest" title="Payment Handle Request"></a>
+
+## Create a Payment Handle for a Customer [POST /v1/customers/{customer_id}/paymenthandles]
+<a name="createcustomerpaymenthandlerequest" title="Create a Customer Payment Handle"></a>
+
+This is how you submit a Payment Handle creation request to associate a Payment Handle with an existing customer. The *paymentHandleToken* returned in the response can be used for [payment requests in the Payments API](#paymentrequest).
+
+**Note:** Although the *billingDetails* parameter is optional, it is recommended that you include it when you create the customer Payment Handle 
+because a Payment request that uses the *paymentHandleToken* in the response will fail AVS checks unless there is a billing address associated with it. 
+If you do not include it when creating the customer Payment Handle, you should then [update the Payment Handle](#) with the *billingDetailsId* before using it for transaction requests.
+
++ Parameters
+    + customer_id:`a5f1889d-f1be-4bbf-941d-fd9b8d09d5b1` (string,required) - This is the [ID of the customer](#createcustomerrequest) to which you are adding the Payment Handle.
+
++ Attributes 
+    + Include PaymentHandleRequest Customer
+
++ Request Create a Payment Handle for a Customer (application/json)
+
+    + Headers
+
+            Authorization: Basic YOUR-BASE64-ENCODED-API-KEY
+        
+    + Body
+
+            {
+                "merchantRefNum": "xzcxzcwqeqwewewqer",
+                "paymentType": "CARD",
+                "currencyCode": "GBP",
+                "customerIp": "10.10.12.64",
+                "merchantDescriptor": {
+                    "dynamicDescriptor": "Casino slots payin",
+                    "phone": "189134336"
+                },
+                "billingDetails": {
+                    "street": "Andhra bank lane",
+                    "street2": "Manikonda",
+                    "city": "Hyderabad",
+                    "state": "TS",
+                    "country": "IN",
+                    "zip": "500089"
+                },
+                "card": {
+                    "cardNum": "4222222222222",
+                    "lastDigits": "2222",
+                    "cardExpiry": {
+                        "month": "12",
+                        "year": "2021"
+                    },
+                    "cvv": "111"
+                }
+            }
+
++ Response 200 (application/json)
+    
+    + Body
+
+            {
+                "id": "218d68c7-77c8-4d37-9d06-0a4bb5272adb",
+                "merchantRefNum": "ad9c23c2-509b-43ae-bf5d-64554c9fc378",
+                "status": "INITIATED",
+                "usage": "MULTI_USE",
+                "paymentType": "CARD",
+                "action": "NONE",
+                "paymentHandleToken": "Cy4WEGJ9IWIkcUn",
+                "billingDetails": {
+                    "street": "Andhra bank lane",
+                    "street2": "Manikonda",
+                    "city": "Hyderabad",
+                    "state": "TS",
+                    "country": "IN",
+                    "zip": "500089"
+                },
+                "billingDetailsId": "786cf0cd-4296-43ce-8a57-5f4675e3fafd",
+                "merchantDescriptor": {
+                    "dynamicDescriptor": "Casino slots payin",
+                    "phone": "189134336"
+                },
+                "card": {
+                    "lastDigits": "2222",
+                    "cardExpiry": {
+                        "month": "12",
+                        "year": "2021"
+                    }
+                }
+            }
+
+## Create a Payment Handle Using a Single-Use Payment Handle Token [POST /v1/customers/{customer_id}/paymenthandles]
+<a name="createpaymenthandlerequestsut" title="Create a Payment Handle Using a Single-Use Payment Handle Token"></a>
+
+This is how you submit a payment handle creation request using a single-use payment handle token. The *paymentHandleToken* returned in the response can be used for [payment requests in the Payments API](#paymentrequest).
+
++ Parameters
+    + customer_id:`a5f1889d-f1be-4bbf-941d-fd9b8d09d5b1` (string,required) - This is the [ID of the customer](#createcustomerrequest) to which you are adding the Payment Handle.
+
++ Attributes 
+
+    + `paymentHandleTokenFrom`:`SC7nLsLzHWVqI62i` (string, required) - This is 
+        _length<=36_
+
++ Request Create a Payment Handle Using Single-Use Payment Handle Token (application/json)
+
+    + Headers
+
+            Authorization: Basic YOUR-BASE64-ENCODED-API-KEY
+        
+    + Body
+    
+             {
+                 "paymentHandleTokenFrom": "SC7nLsLzHWVqI62i"
+             }
+        
++ Response 200 (application/json)
+
+    + Body
+
+            {
+                "id": "218d68c7-77c8-4d37-9d06-0a4bb5272adb",
+                "merchantRefNum": "ad9c23c2-509b-43ae-bf5d-64554c9fc378",
+                "status": "INITIATED",
+                "usage": "MULTI_USE",
+                "paymentType": "CARD",
+                "action": "NONE",
+                "paymentHandleTokenFrom": "SC7nLsLzHWVqI62i",
+                "paymentHandleToken": "Cy4WEGJ9IWIkcUn",
+                "card": {
+                    "lastDigits": "2222",
+                    "cardExpiry": {
+                        "month": "12",
+                        "year": "2021"
+                    }
+                },
+                "billingDetailsId": "786cf0cd-4296-43ce-8a57-5f4675e3fafd",
+                "billingDetails": {
+                    "street": "Andhra bank lane",
+                    "street2": "Manikonda",
+                    "city": "Hyderabad",
+                    "state": "TS",
+                    "country": "IN",
+                    "zip": "500089"
+                },
+                "merchantDescriptor": {
+                    "dynamicDescriptor": "Casino slots payin",
+                    "phone": "189134336"
+                }
+            }
+
+
+## Get Customer Payment Handle [GET /v1/customers/{customer_id}/paymenthandles/{paymenthandle_id}]
+<a name="getcustomerpaymenthandlerequest" title="Look Up a Customer Payment Handle"></a>
+
+This is how you look up a Payment Handle using the ID returned in the response to the original request.
+    
++ Parameters
+    + customer_id:`a5f1889d-f1be-4bbf-941d-fd9b8d09d5b1` (string,required) - This is the [ID of the customer](#createcustomerrequest) to which you are adding the Payment Handle.
+    + paymenthandle_id:`218d68c7-77c8-4d37-9d06-0a4bb5272adb` (string, required) - This is the Payment Handle ID returned in the response to the [Customer Payment Handle creation request](#createcustomerpaymenthandlerequest).
+
++ Request Look Up a Customer Payment Handle (application/json)
+    
+    + Headers
+    
+            Authorization: Basic YOUR-BASE64-ENCODED-API-KEY
+            
++ Response 200 (application/json)
+
+    + Body
 
 # Group Single-Use Tokens
 
@@ -4029,7 +4693,7 @@ The API allows creation of single use token needed for cases where saved Payment
              "paymentTypes" : [ "CARD", "ACH"],
              "timeToLiveSeconds" : "899",
              "status" : "ACTIVE",
-             "merchantCustomerId" : "mycustomer1",
+             "merchantCustomerId" : "mycustomer10",
              "locale" : "en_US",
              "firstName" : "John",
              "lastName" : "Smith",
@@ -4093,7 +4757,7 @@ Note: This API will be accessible with public API key.
              "paymentTypes" : [ "CARD", "ACH"],
              "timeToLiveSeconds" : "899",
              "status" : "ACTIVE",
-             "merchantCustomerId" : "mycustomer1",
+             "merchantCustomerId" : "mycustomer10",
              "locale" : "en_US",
              "firstName" : "John",
              "lastName" : "Smith",
@@ -4273,7 +4937,7 @@ Note: This API will be accessible with public API key.
 ## Customer Base
 + `id`:`5d4db3bc-34c9-417f-a051-0d992ad9284e` (string) - This is the ID of the request, returned in the response.
     _Read Only, length<=36_
-+ merchantCustomerId:`mycustomer1` (string, required) - This is a customer ID that the merchant provides with the request for their own internal customer identification. This value must be unique for each customer belonging to a merchant.
++ merchantCustomerId:`mycustomer10` (string, required) - This is a customer ID that the merchant provides with the request for their own internal customer identification. This value must be unique for each customer belonging to a merchant.
     _length<=100_
 + locale:`en_US` (enum, required) - This indicates the language of the customer.
     - en_US
@@ -4303,7 +4967,6 @@ Note: This API will be accessible with public API key.
     _Default: ACTIVE_
     - ACTIVE
     - INITIAL
-+ Include Addresses
 
 
 ## Date of Birth
@@ -4484,8 +5147,6 @@ Note: This API will be accessible with public API key.
 
 + `id`:`26359efd-7cfb-4014-a13d-1724e3ff17fa` (string) - This is the ID returned in the response. This ID can be used for future associated requests, e.g., to look up the Payment Handle. 
     _Read Only, length<=36_
-+ `paymentHandleTokenFrom`:`7576835c-0396-11e9-8eb2-f2801f1b9fd1` (string) - This is an existing Payment Handle token, from which payment instrument and profile details can be retrieved.
-    _length<=36_
 + `merchantRefNum`:`merchantRefNum-101` (string, required) - This is the merchant reference number created by the merchant and submitted as part of the request. It must be unique for each request.
     _length<=255_
 + `transactionType`:`PAYMENT` (enum, required) - This specifies the transaction type for which the Payment Handle is created.
@@ -4529,7 +5190,59 @@ Note: This API will be accessible with public API key.
 + `paymentHandleToken`:`842778a0-03a2-11e9-8eb2-f2801f1b9fd1` (string, required) - This is the payment token generated by Paysafe that will be used by merchants for Payment API requests.
     _Read Only, length<=36_
 + Include Payment Instrument
-+ Include Profile
++ Include Billing Details
++ `returnLinks` (object) - The URL endpoints to redirect the customer to after a redirection to an alternative payment or 3D Secure site. You can customize the return URL based on the transaction status. 
+    + `rel`(enum) -This is the link type, allowing different endpoints to be targeted depending on the end state of the transaction. The link relation describes how this link relates to the previous call. 
+        + default (string, required) - The default return URL that will be used if specific status return URL is not defined.
+        + on_completed (string) - Will be returned to this URL if the payment is completed.
+        + on_failed (string) - Will be returned to this URL if the payment fails.
+    + `href` - The actual URL
+    + `method` - The HTTP method
++ links (object) - This is an array of links related to the resource.
+    + `rel`: `redirect_payment` (enum)
+    + `href`:`http://api.paysafe.com/card/redirect/372b5ee7-6360-4403-b444-164f8f1d2709`
+    + `method`:`GET`
++ `customerIp`:`111.111.111.111` (string) - This is the customer's IP address.
+    _length<=39_
++ `timeToLiveSeconds`:`1212121212` (number) - This is the period of time, in seconds, the *paymentHandleToken* is valid before expiration. 
+    _Read Only, length<=899_
+
+## PaymentHandleRequest Customer
+
++ `id`:`26359efd-7cfb-4014-a13d-1724e3ff17fa` (string) - This is the ID returned in the response. This ID can be used for future associated requests, e.g., to look up the Payment Handle. 
+    _Read Only, length<=36_
++ `merchantRefNum`:`merchantRefNum-101` (string, required) - This is the merchant reference number created by the merchant and submitted as part of the request. It must be unique for each request.
+    _length<=255_
++ `status`:`PAYABLE` (enum) - This is the status of the transaction request.
+    _Read Only_
+    + Members
+        + INITIATED - The transaction was initiated with the downstream provider.
+        + PAYABLE - The merchant can use the Payment Handle for a Payment request.
+        + PROCESSING - The Payment Handle was authorized by customer, awaiting PSP response.
+        + FAILED - The transaction failed due to either an error or being declined. 
+        + EXPIRED - The Payment Handle expired because the merchant did not proceed with the Payment request. 
+        + COMPLETED - The Payment request was initiated successfully using the Payment Handle.
++ `usage`:`SINGLE_USE` (enum) - This specifies how the Payment Handle will be used for Payments.
+    _Read Only_
+    + Members
+        + SINGLE_USE - The Payment Handle can be used for one transaction only and expires if not used.
+        + MULTI_USE - The Payment Handle can be used multiple times.
++ `paymentType`:`CARD` (enum, required) - This is the payment type associated with this Payment Handle.
+    + Members
+        + CARD
+        + PAYSAFECASH
+        + PAYSAFECARD
++ `executionMode`:`SYNCHRONOUS` (enum) - This specifies the action of the merchant server in order to complete the Payment.
+    + Members
+        + ASYNCHRONOUS - The Payment request is not completed immediately and the merchant [must rely on webhooks](#paymentswebhooks) to retrieve the status of the Payment request.
+        + SYNCHRONOUS - The status of the Payment request will be returned synchronously to the merchant, e.g., a credit card request.
++ `amount`:`1000` (string) - This is the amount of the request, in minor units. **Note:** This field is mandatory if *transactionType* is included.
+    _Max =99999999999_
++ `currencyCode`:`CAD` (string) - This is the [currency of the merchant account](#currencycodes), e.g., USD or CAD.
+    _Read Only, max=3_
++ `paymentHandleToken`:`842778a0-03a2-11e9-8eb2-f2801f1b9fd1` (string, required) - This is the payment token generated by Paysafe that will be used by merchants for Payment API requests.
+    _Read Only, length<=36_
++ Include Payment Instrument
 + Include Billing Details
 + `returnLinks` (object) - The URL endpoints to redirect the customer to after a redirection to an alternative payment or 3D Secure site. You can customize the return URL based on the transaction status. 
     + `rel`(enum) -This is the link type, allowing different endpoints to be targeted depending on the end state of the transaction. The link relation describes how this link relates to the previous call. 
@@ -4612,7 +5325,7 @@ Note: This API will be accessible with public API key.
         + `method`:`GET`
     + `customerIp`:`111.111.111.111` (string) - This is the customer's IP address.
         _length<=39_
-    + `timeToLiveSeconds`:`1212121212` (number) - This is the period of time, in seconds, the *paymentHandleToken* is valid before expiration. 
+    + `timeToLiveSeconds`:`899` (number) - This is the period of time, in seconds, the *paymentHandleToken* is valid before expiration. 
         _Read Only, length<=899_
 
 ## `Payment Instrument`
@@ -4743,7 +5456,7 @@ Note: This API will be accessible with public API key.
     + `status`:`ACTIVE` (enum) - This is the status of the customer profile, returned in the response.
         + Members
             + ACTIVE
-    + `merchantCustomerId`:`custid123` (string) - This is the reference number for the customer created by the merchant and submitted as part of the request. It must be unique for each customer.
+    + `merchantCustomerId`:`mycustomer10` (string) - This is the reference number for the customer created by the merchant and submitted as part of the request. It must be unique for each customer.
         _length<=255_
     + `firstName`:`Jane` (string) - This is the customer’s first name.
         _length<=80_
@@ -4785,7 +5498,7 @@ Note: This API will be accessible with public API key.
     _Read Only, length<=36_
 + `merchantRefNum`:`P1234` (string, required) - This is the merchant reference number created by the merchant and submitted as part of the request.
     _length<=255_
-+ `amount`:`100` (number) - This is the amount of the request, in minor units. If this value is not provided, the full remaining amount on the Authorization will be settled. 
++ `amount`:`100` (number) - This is the amount of the request, in minor units. If this value is not provided, the full remaining amount on the Settlement will be refunded. 
     _max=99999999999_
 + `dupCheck`:`true` (boolean) - This validates that this request is not a duplicate. A request is considered a duplicate if the merchantRefNum has already been used in a previous request within the past 90 days.
     + Default: true
