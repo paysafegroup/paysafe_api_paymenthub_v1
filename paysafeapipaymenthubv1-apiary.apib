@@ -24,6 +24,10 @@ HOST: https://api.test.paysafe.com/paymenthub/
     * Should "Create a Payment Handle Using a Single-Use Payment Handle Token" be renamed to "Create a **Permanent** Payment Handle Using a Single-Use Payment Handle Token"?
     * Need a description for *paymentHandleTokenFrom* for "Create a Payment Handle Using Single-Use Payment Handle Token".
     * Which of the two Customer Payment Handles (regular or single-use token) does the GET (Get Customer Payment Handle) look up?
+    * Same question, but for the Update request?
+    * The note about providing all elements for the update "Update a Multi-Use Customer Payment Handle with a Single-Use Payment Handle" doesn't seem to apply because all they're including in the request itself is a *paymentHandleTokenFrom* (not sure where it comes from).
+        * The description of *paymentHandleTokenFrom* in this request just says it is "returned in the response while creating the single-use payment handle". I need this clarified, since you can create payment handles with and without a *customer_id*.
+    * The requests for customer Single-Use Tokens look really old. E.g., there is language about payment handle requests and card creation. So I don't know if the examples for request/responses are accurate.
  * Checkout
     * For the section "Including the SDK", we need correct URL for the SDK. **Kasi will provide.**
  * Payment Handles
@@ -4581,7 +4585,7 @@ If you do not include it when creating the customer Payment Handle, you should t
                 }
             }
 
-## Create a Payment Handle Using a Single-Use Payment Handle Token [POST /v1/customers/{customer_id}/paymenthandles]
+## Create a Customer Payment Handle Using a Single-Use Payment Handle Token [POST /v1/customers/{customer_id}/paymenthandles]
 <a name="createpaymenthandlerequestsut" title="Create a Payment Handle Using a Single-Use Payment Handle Token"></a>
 
 This is how you submit a payment handle creation request using a single-use payment handle token. The *paymentHandleToken* returned in the response can be used for [payment requests in the Payments API](#paymentrequest).
@@ -4594,7 +4598,7 @@ This is how you submit a payment handle creation request using a single-use paym
     + `paymentHandleTokenFrom`:`SC7nLsLzHWVqI62i` (string, required) - This is 
         _length<=36_
 
-+ Request Create a Payment Handle Using Single-Use Payment Handle Token (application/json)
++ Request Create a Customer Payment Handle Using Single-Use Payment Handle Token (application/json)
 
     + Headers
 
@@ -4661,143 +4665,425 @@ This is how you look up a Payment Handle using the ID returned in the response t
 
     + Body
 
-# Group Single-Use Tokens
+            {
+                "id": "218d68c7-77c8-4d37-9d06-0a4bb5272adb",
+                "merchantRefNum": "ad9c23c2-509b-43ae-bf5d-64554c9fc378",
+                "status": "INITIATED",
+                "usage": "MULTI_USE",
+                "paymentType": "CARD",
+                "action": "NONE",
+                "paymentHandleToken": "Cy4WEGJ9IWIkcUn",
+                "card": {
+                    "lastDigits": "2222",
+                    "cardExpiry": {
+                        "month": "12",
+                        "year": "2021"
+                    }
+                },
+                "billingDetailsId": "786cf0cd-4296-43ce-8a57-5f4675e3fafd",
+                "billingDetails": {
+                    "street": "Andhra bank lane",
+                    "street2": "Manikonda",
+                    "city": "Hyderabad",
+                    "state": "TS",
+                    "country": "IN",
+                    "zip": "500089"
+                },
+                "merchantDescriptor": {
+                    "dynamicDescriptor": "Casino slots payin",
+                    "phone": "189134336"
+                }
+            }
 
-## Single-Use Tokens [/v1/singleusecustomertokens]
 
-### Create Single-Use Tokens [POST]
+## Update a Customer Payment Handle [PUT /v1/customers/{customer_id}/paymenthandles/{paymenthandle_id}]
+<a name="updatecustomerpaymenthandlerequest" title="Update a Customer Payment Handle"></a>
 
-The API allows creation of single use token needed for cases where saved Payment Handles for a customer needs to be displayed in UI.
+This is how you update a Customer Payment Handle. 
 
-+ Request (application/json)
+**Note:** You must provide all of the elements of the Payment Handle when you are updating it, including the elements that are not changing. 
+Elements that are part of an existing Payment Handle but that are not included in the update request will be set to null in the resulting Payment Handle, with the exception of the *cardNum* element.
+
++ Parameters
+    + customer_id:`a5f1889d-f1be-4bbf-941d-fd9b8d09d5b1` (string,required) - This is the [ID of the customer](#createcustomerrequest) to which you are adding the Payment Handle.
+    + paymenthandle_id:`218d68c7-77c8-4d37-9d06-0a4bb5272adb` (string, required) - This is the Payment Handle ID returned in the response to the [Customer Payment Handle creation request](#createcustomerpaymenthandlerequest).
+
++ Attributes 
+    + Include PaymentHandleRequest Customer
+
++ Request Update a Payment Handle for a Customer (application/json)
 
     + Headers
 
-            Authorization: "Basic YOUR-BASE64-ENCODED-API-KEY"
+            Authorization: Basic YOUR-BASE64-ENCODED-API-KEY
+        
+    + Body
+
+            {
+                "merchantRefNum": "xzcxzcwqeqwewewqer",
+                "paymentType": "CARD",
+                "currencyCode": "GBP",
+                "customerIp": "10.10.12.64",
+                "merchantDescriptor": {
+                    "dynamicDescriptor": "Casino slots payin",
+                    "phone": "189134336"
+                },
+                "billingDetails": {
+                    "street": "Andhra bank lane",
+                    "street2": "Manikonda",
+                    "city": "Hyderabad",
+                    "state": "TS",
+                    "country": "IN",
+                    "zip": "500089"
+                },
+                "card": {
+                    "cardNum": "4222222222222",
+                    "lastDigits": "2222",
+                    "cardExpiry": {
+                        "month": "12",
+                        "year": "2021"
+                    },
+                    "cvv": "111"
+                }
+            }
+
++ Response 200 (application/json)
     
     + Body
 
             {
-               "customerId" : "e979132e-a1f7-454b-a764-2aada299b3be",
-               "paymentTypes" : [ "CARD", "ACH"]
+                "id": "218d68c7-77c8-4d37-9d06-0a4bb5272adb",
+                "merchantRefNum": "ad9c23c2-509b-43ae-bf5d-64554c9fc378",
+                "status": "INITIATED",
+                "usage": "MULTI_USE",
+                "paymentType": "CARD",
+                "action": "NONE",
+                "paymentHandleToken": "Cy4WEGJ9IWIkcUn",
+                "billingDetails": {
+                    "street": "Andhra bank lane",
+                    "street2": "Manikonda",
+                    "city": "Hyderabad",
+                    "state": "TS",
+                    "country": "IN",
+                    "zip": "500089"
+                },
+                "billingDetailsId": "786cf0cd-4296-43ce-8a57-5f4675e3fafd",
+                "merchantDescriptor": {
+                    "dynamicDescriptor": "Casino slots payin",
+                    "phone": "189134336"
+                },
+                "card": {
+                    "lastDigits": "2222",
+                    "cardExpiry": {
+                        "month": "12",
+                        "year": "2021"
+                    }
+                }
             }
 
+## Update a Multi-Use Customer Payment Handle with a Single-Use Payment Handle [PUT /v1/customers/{customer_id}/paymenthandles/{paymenthandle_id}]
+<a name="updatemultiusepaymenthandlerequest" title="Update a Customer Multi-Use Payment Handle with a Single-Use Payment Handle"></a>
+
+This is how you update a multi-use Customer Payment Handle using single-use payment handle token.
+
+**Note:** You must provide all of the elements of the payment handle while creating single use payment handle when you are updating multi-use payment handle with it, including the elements that are not changing. Elements that are part of an existing payment handle but that are not included in the update request will be set to null in the resulting Payment Handle, with the exception of the *cardNum* element.
+
++ Parameters
+    + customer_id:`a5f1889d-f1be-4bbf-941d-fd9b8d09d5b1` (string,required) - This is the [ID of the customer](#createcustomerrequest) to which you are adding the Payment Handle.
+    + paymenthandle_id:`218d68c7-77c8-4d37-9d06-0a4bb5272adb` (string, required) - This is the Payment Handle ID returned in the response to the [Customer Payment Handle creation request](#createcustomerpaymenthandlerequest).
+
++ Attributes 
+
+    + `paymentHandleTokenFrom`:`SC7nLsLzHWVqI62i` (string, required) - This is the *paymentHandleToken* returned in the response while creating the single-use payment handle.
+        _length<=36_
+
++ Request Update a Multi-Use Customer Payment Handle with a Single-Use Payment Handle (application/json)
+
+    + Headers
+
+            Authorization: Basic YOUR-BASE64-ENCODED-API-KEY
+        
+    + Body
+
+             {
+                 "paymentHandleTokenFrom":"SC7nLsLzHWVqI62i"
+             }
 
 + Response 200 (application/json)
 
     + Body
 
             {
-             "id" : "86dcb68d-cbd0-4878-8da7-ffc0e6554513",     
-             "customerId" : "e979132e-a1f7-454b-a764-2aada299b3be",
-             "paymentTypes" : [ "CARD", "ACH"],
-             "timeToLiveSeconds" : "899",
-             "status" : "ACTIVE",
-             "merchantCustomerId" : "mycustomer10",
-             "locale" : "en_US",
-             "firstName" : "John",
-             "lastName" : "Smith",
-             "email" : "john.smith@somedomain.com",
-             "phone" : "713-444-5555",
-             "addresses": [
-                {
-                  "id": "6a275b7c-6f11-4ed1-ae77-21071724574a",
-                  "status": "ACTIVE",
-                  "nickName": "Home",
-                  "street": "100 Queen",
-                  "street2": "Unit 201",
-                  "city": "Toronto",
-                  "zip": "M5H 2N2",
-                  "country": "CA",
-                  "state": "ON",
-                  "recipientName": "Jane Smith",
-                  "phone": "647-788-3901"
-                }
-              ],
-             "paymentHandles" : [
-              {
-                "id" : "52c54707-a536-4c3d-b2e9-ebdba8c1bd3e",
-                "timeToLiveSeconds" : "899",
-                "usage": "LOOKUP",
+                "id": "218d68c7-77c8-4d37-9d06-0a4bb5272adb",
+                "merchantRefNum": "ad9c23c2-509b-43ae-bf5d-64554c9fc378",
+                "status": "INITIATED",
+                "usage": "MULTI_USE",
                 "paymentType": "CARD",
-                "paymentHandleToken" : "hdhfsafhdfsahg",
-                "card": {
-                    "lastDigits": "1111",
-                    "cardExpiry": {
-                        "month" : "12",
-                        "year" : "2020"
-                    },
-                    "holderName": "TEST CUSTOMER",
-                    "cardBin": "453091",
-                    "cardType": "VI"
+                "action": "NONE",
+                "paymentHandleToken": "Cy4WEGJ9IWIkcUn",
+                "merchantDescriptor": {
+                    "dynamicDescriptor": "Casino slots payin",
+                    "phone": "189134336"
                 },
-                "billingAddressId": "6a275b7c-6f11-4ed1-ae77-21071724574a"
-             }]
+                "billingDetailsId": "786cf0cd-4296-43ce-8a57-5f4675e3fafd",
+                "card": {
+                    "lastDigits": "2222",
+                    "cardExpiry": {
+                        "month": "01",
+                        "year": "2032"
+                    }
+                }
             }
 
-### Get Saved Payment Handles using single use Token Id [GET /v1/singleusecustomertokens/{id}]
 
-The operation allows look up of saved Payment Handles using a single use token. The Payment Handles are created with usage set to LOOKUP in a PENDING state.
-The Payment Handles returned can be converted into a single Use Payment Handle when a user clicks on the pay button and the flow continues as with a non-saved flow.
+## Delete a Customer Payment Handle [DELETE /v1/customers/{customer_id}/paymenthandles/{paymenthandle_id}]
+<a name="deletecardrequest" title="Delete a Card"></a>
 
-Note: This API will be accessible with public API key. 
+This is how you delete a Customer Payment Handle. 
 
-+ Parameter
++ Parameters
+    + customer_id:`a5f1889d-f1be-4bbf-941d-fd9b8d09d5b1` (string,required) - This is the [ID of the customer](#createcustomerrequest) to which you are adding the Payment Handle.
+    + paymenthandle_id:`218d68c7-77c8-4d37-9d06-0a4bb5272adb` (string, required) - This is the Payment Handle ID returned in the response to the [Customer Payment Handle creation request](#createcustomerpaymenthandlerequest).
 
-   + id : `86dcb68d-cbd0-4878-8da7-ffc0e6554513` 
++ Request Delete a Customer Payment Handle (application/json)
 
+    + Headers        
 
-+ Response 200 (application/json)
-
-    + Body
+            Authorization: Basic YOUR-BASE64-ENCODED-API-KEY
             
++ Response 200 (application/json)
+
+# Single-Use Tokens [/singleusecustomertokens]
+
+## Create a Single-Use Customer Token [POST /v1/customers/{customer_id}/singleusecustomertokens]
+<a name="createcustomersut" title="Create a Single-Use Customer Token"></a>
+
+This is how you submit a Single-Use Customer Token creation request. The *paymentHandleToken* returned in the response can be [used for payment requests](#paymentrequest). 
+The payment handle tokens are single use and are valid till limited time. 
+
++ Parameters
+    + customer_id:`a5f1889d-f1be-4bbf-941d-fd9b8d09d5b1` (string,required) - This is the [ID of the customer](#createcustomerrequest) for which you are creating the single-use token.
+
++ Attributes
+        + Include PaymentHandleRequest Customer
+        + paymentTypes:`["CARD"]` (enum, required) - This specifies the payment type for which you are creating the single-use token.
+            + Members
+                + CARD 
+    
++ Request Create a Single-Use Customer Token (application/json)
+
+    + Headers
+
+            Authorization: Basic YOUR-BASE64-ENCODED-API-KEY
+        
+    + Body
+
             {
-             "id" : "86dcb68d-cbd0-4878-8da7-ffc0e6554513",     
-             "customerId" : "e979132e-a1f7-454b-a764-2aada299b3be",
-             "paymentTypes" : [ "CARD", "ACH"],
-             "timeToLiveSeconds" : "899",
-             "status" : "ACTIVE",
-             "merchantCustomerId" : "mycustomer10",
-             "locale" : "en_US",
-             "firstName" : "John",
-             "lastName" : "Smith",
-             "email" : "john.smith@somedomain.com",
-             "phone" : "713-444-5555",
-             "addresses": [
-                {
-                  "id": "6a275b7c-6f11-4ed1-ae77-21071724574a",
-                  "status": "ACTIVE",
-                  "nickName": "Home",
-                  "street": "100 Queen",
-                  "street2": "Unit 201",
-                  "city": "Toronto",
-                  "zip": "M5H 2N2",
-                  "country": "CA",
-                  "state": "ON",
-                  "recipientName": "Jane Smith",
-                  "phone": "647-788-3901"
-                }
-              ],
-             "paymentHandles" : [
-              {
-                "id" : "52c54707-a536-4c3d-b2e9-ebdba8c1bd3e",
-                "timeToLiveSeconds" : "899",
-                "usage": "LOOKUP",
-                "paymentType": "CARD",
-                "paymentHandleToken" : "hdhfsafhdfsahg",
-                "card": {
-                    "lastDigits": "1111",
-                    "cardExpiry": {
-                        "month" : "12",
-                        "year" : "2020"
-                    },
-                    "cardBin": "453091",
-                    "cardType": "VI",
-                    "holderName": "TEST CUSTOMER"
-                },
-                "billingAddressId": "6a275b7c-6f11-4ed1-ae77-21071724574a"
-             }]
+                "paymentTypes": ["CARD"]
             }
+        
++ Response 200  (application/json)
+
+    + Body
+
+             {
+                 "id": "f39ebd23-e203-498f-9981-dfbc49882959",
+                 "profileId": "59cce04e-e429-4016-9d3f-1e579f3aa2ad",
+                 "timeToLiveSeconds": 899,
+                 "status": "ACTIVE",
+                 "singleUseCustomerToken": "SPFAB1cA5iwdu48H",
+                 "paymentTypes": [
+                     "CARD"
+                 ],
+                 "locale": "en_US",
+                 "firstName": "John",
+                 "middleName": "James",
+                 "lastName": "Smith",
+                 "dateOfBirth": {
+                     "day": 24,
+                     "month": 10,
+                     "year": 1981
+                 },
+                 "email": "john.smith@email.com",
+                 "phone": "777-444-8888",
+                 "ip": "192.0.126.111",
+                 "nationality": "Canadian",
+                 "addresses": [{
+                     "id": "786cf0cd-4296-43ce-8a57-5f4675e3fafd",
+                     "nickName": "Home",
+                     "street": "100 Queen",
+                     "street2": "Unit 201",
+                     "city": "Toronto",
+                     "state": "ON",
+                     "country": "CA",
+                     "zip": "M5H 2N2",
+                     "phone": "647-788-3901",
+                     "status": "ACTIVE",
+                     "defaultShippingAddressIndicator": true
+                 }],
+                 "paymentHandles": [{
+                     "id": "f258f338-ff2f-4bee-9560-0d476ed7c1b4",
+                     "status": "INITIATED",
+                     "usage": "SINGLE_USE",
+                     "paymentType": "CARD",
+                     "paymentHandleToken": "SClcqO9awdvdgjoe",
+                     "billingDetailsId": "786cf0cd-4296-43ce-8a57-5f4675e3fafd",
+                     "card": {
+                         "lastDigits": "0000",
+                         "cardExpiry": {
+                             "month": "10",
+                             "year": "2020"
+                         },
+                         "cardBin": "403711",
+                         "cardType": "VI",
+                         "holderName": "Dilip"
+                     }
+                 }]
+             }
+
+## Get Single-Use Customer Token [GET /v1/singleusecustomertokens/{singleusecustomertoken_id}]
+<a name="getcustomersut" title="Look Up a Card"></a>
+
+This is how you look up a Single Use Customer Token using the ID returned in the response to the original request.
+    
++ Parameters
+    + singleusecustomertoken_id:`f39ebd23-e203-498f-9981-dfbc49882959` (string, required) - This is the Single-Use Customer Token ID returned in the response to the [Single-Use Customer Token creation request](#createcustomersut).
+
++ Response 200  (application/json)
+
+    + Body
+
+             {
+                 "id": "f39ebd23-e203-498f-9981-dfbc49882959",
+                 "profileId": "59cce04e-e429-4016-9d3f-1e579f3aa2ad",
+                 "timeToLiveSeconds": 899,
+                 "status": "ACTIVE",
+                 "singleUseCustomerToken": "SPFAB1cA5iwdu48H",
+                 "paymentTypes": [
+                     "CARD"
+                 ],
+                 "locale": "en_US",
+                 "firstName": "John",
+                 "middleName": "James",
+                 "lastName": "Smith",
+                 "dateOfBirth": {
+                     "day": 24,
+                     "month": 10,
+                     "year": 1981
+                 },
+                 "email": "john.smith@email.com",
+                 "phone": "777-444-8888",
+                 "ip": "192.0.126.111",
+                 "nationality": "Canadian",
+                 "addresses": [{
+                     "id": "786cf0cd-4296-43ce-8a57-5f4675e3fafd",
+                     "nickName": "Home",
+                     "street": "100 Queen",
+                     "street2": "Unit 201",
+                     "city": "Toronto",
+                     "state": "ON",
+                     "country": "CA",
+                     "zip": "M5H 2N2",
+                     "phone": "647-788-3901",
+                     "status": "ACTIVE",
+                     "defaultShippingAddressIndicator": true
+                 }],
+                 "paymentHandles": [{
+                     "id": "f258f338-ff2f-4bee-9560-0d476ed7c1b4",
+                     "status": "INITIATED",
+                     "usage": "SINGLE_USE",
+                     "paymentType": "CARD",
+                     "paymentHandleToken": "SClcqO9awdvdgjoe",
+                     "billingDetailsId": "786cf0cd-4296-43ce-8a57-5f4675e3fafd",
+                     "card": {
+                         "lastDigits": "0000",
+                         "cardExpiry": {
+                             "month": "10",
+                             "year": "2020"
+                         },
+                         "cardBin": "403711",
+                         "cardType": "VI",
+                         "holderName": "Dilip"
+                     }
+                 }]
+             }
+
+## Search Single-Use Customer Token [POST /v1/singleusecustomertokens/search]
+<a name="createpaymenthandlerequest" title="Create a Payment Handle"></a>
+
+This is how you can search for a Single-Use Customer Token. The *paymentHandleToken* returned in the response can be [used for payment requests](#paymentrequest).
+
++ Attributes
+        + Include PaymentHandleRequest Customer
+
++ Request Search Single-Uset Customer Tokens (application/json)
+
+    + Headers
+
+            Authorization: Basic YOUR-BASE64-ENCODED-API-KEY
+        
+    + Body
+
+
+
++ Response 200  (application/json)
+
+    + Body
+
+             {
+                 "id": "f39ebd23-e203-498f-9981-dfbc49882959",
+                 "profileId": "59cce04e-e429-4016-9d3f-1e579f3aa2ad",
+                 "timeToLiveSeconds": 899,
+                 "status": "ACTIVE",
+                 "singleUseCustomerToken": "SPFAB1cA5iwdu48H",
+                 "paymentTypes": [
+                     "CARD"
+                 ],
+                 "locale": "en_US",
+                 "firstName": "John",
+                 "middleName": "James",
+                 "lastName": "Smith",
+                 "dateOfBirth": {
+                     "day": 24,
+                     "month": 10,
+                     "year": 1981
+                 },
+                 "email": "john.smith@email.com",
+                 "phone": "777-444-8888",
+                 "ip": "192.0.126.111",
+                 "nationality": "Canadian",
+                 "addresses": [{
+                     "id": "786cf0cd-4296-43ce-8a57-5f4675e3fafd",
+                     "nickName": "Home",
+                     "street": "100 Queen",
+                     "street2": "Unit 201",
+                     "city": "Toronto",
+                     "state": "ON",
+                     "country": "CA",
+                     "zip": "M5H 2N2",
+                     "phone": "647-788-3901",
+                     "status": "ACTIVE",
+                     "defaultShippingAddressIndicator": true
+                 }],
+                 "paymentHandles": [{
+                     "id": "f258f338-ff2f-4bee-9560-0d476ed7c1b4",
+                     "status": "INITIATED",
+                     "usage": "SINGLE_USE",
+                     "paymentType": "CARD",
+                     "paymentHandleToken": "SClcqO9awdvdgjoe",
+                     "billingDetailsId": "786cf0cd-4296-43ce-8a57-5f4675e3fafd",
+                     "card": {
+                         "lastDigits": "0000",
+                         "cardExpiry": {
+                             "month": "10",
+                             "year": "2020"
+                         },
+                         "cardBin": "403711",
+                         "cardType": "VI",
+                         "holderName": "Dilip"
+                     }
+                 }]
+             }
 
 # Data Structures
 
