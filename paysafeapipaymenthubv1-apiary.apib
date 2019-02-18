@@ -4203,12 +4203,14 @@ You can create a customer in order to store credit card information to the custo
 ### Create a Customer Using a Single-Use Payment Handle Token [POST]
 <a name="createcustomerrequesttoken" title="Create a Customer"></a>
 
-Click on **Create a Customer** above to see how to create a customer. 
+Click on **Create a Customer Using a Single-Use Payment Handle Token** above to see how to create a customer using a single-use Payment Handle Token. 
 
 You can create a customer in order to store credit card information to the customer profile by [adding a Customer Payment Handle](#createcustomerpaymenthandlerequest) to that customer.
 
 + Attributes
     + Include Customer Base
+    + `paymentHandleTokenFrom`:`SCURPCc6nEwXcdBQ` (string, required) - This is the *paymentHandleToken* that is present in the response to a [single-use Payment Handle creation request](#paymenthandlerequest).
+        _length<=36_
 
 + Request Create a Customer (application/json)
         
@@ -4234,7 +4236,8 @@ You can create a customer in order to store credit card information to the custo
                 "ip": "192.0.126.111",
                 "gender": "M",
                 "nationality": "Canadian",
-                "cellPhone": "777-555-8888"
+                "cellPhone": "777-555-8888",
+                "paymentHandleTokenFrom": "SCURPCc6nEwXcdBQ"
             }
             
 + Response 200 (application/json)
@@ -4242,16 +4245,15 @@ You can create a customer in order to store credit card information to the custo
     + Body
 
             {
-                "id": "ccb24e28-6e38-47ce-8815-94706c5b608c",
                 "merchantCustomerId": "mycustomer10",
                 "locale": "en_US",
                 "firstName": "John",
                 "middleName": "James",
                 "lastName": "Smith",
                 "dateOfBirth": {
-                    "day": 24,
+                    "year": 1981,
                     "month": 10,
-                    "year": 1981
+                    "day": 24
                 },
                 "email": "john.smith@email.com",
                 "phone": "777-444-8888",
@@ -4259,7 +4261,41 @@ You can create a customer in order to store credit card information to the custo
                 "gender": "M",
                 "nationality": "Canadian",
                 "cellPhone": "777-555-8888",
-                "paymentToken":"P0zPDqggWESaktW"
+                "paymentToken": "P0zPDqggWESaktW",
+                "paymentHandleTokenFrom": "SCURPCc6nEwXcdBQ",
+                "addresses": [{
+                    "id": "3722476e-4891-426b-8dcd-a25ad3d14ffe",
+                    "street": "Andhra bank lane",
+                    "street2": "Manikonda",
+                    "city": "Hyderabad",
+                    "state": "TS",
+                    "country": "IN",
+                    "zip": "500089",
+                    "status": "ACTIVE"
+                }],
+                "paymentHandles": [{
+                    "id": "0aee8670-ae5e-44dc-bf9d-73ad84dabbf3",
+                    "merchantRefNum": "9c011804-c123-40f3-8cd5-de21aec8d88e",
+                    "status": "INITIATED",
+                    "usage": "MULTI_USE",
+                    "paymentType": "CARD",
+                    "action": "REDIRECT",
+                    "executionMode": "SYNCHRONOUS",
+                    "accountId": "1001535430",
+                    "paymentHandleToken": "Cvz7pumqVb8rnJX",
+                    "card": {
+                        "lastDigits": "0007",
+                        "cardExpiry": {
+                            "month": "12",
+                            "year": "2024"
+                        },
+                        "cardBin": "400344",
+                        "cardType": "VI",
+                        "singleUseToken": "SCR37YxqciqpGeKF",
+                        "billingDetailsId": "3722476e-4891-426b-8dcd-a25ad3d14ffe"
+                    },
+                    "paymentHandleTokenFrom": "SCR37YxqciqpGeKF"
+                }]
             }
 
 
@@ -5617,10 +5653,10 @@ Use the *singleUseCustomerToken* returned in the response in the Payments Checko
     _Max =99999999999_
 + `currencyCode`:`CAD` (string) - This is the [currency of the merchant account](#currencycodes), e.g., USD or CAD. **Note:** This field is mandatory if *transactionType* is included. The *currencyCode* specified in the Payment Handle request must match the *currencyCode* specified in the Payments API request the *paymentHandleToken* is used for.
     _Read Only, max=3_
-+ `paymentHandleTokenFrom`:`SCyGZDlUuZ9zxjyd` (string) - This is an [existing Customer Payment Handle](#createcustomerpaymenthandlerequest), from which the payment instrument and profile details are retrieved. 
++ `paymentHandleTokenFrom`:`SCyGZDlUuZ9zxjyd` (string) - This is an [existing Customer Payment Handle](#createcustomerpaymenthandlerequest), from which the payment instrument and profile details are retrieved. If this parameter is included you can omit the *billingDetails* object.
     _length<=36_
 + cvv:`123` (string) - This is the 3- or 4-digit security code that appears on the card following the card number.  **Note:** The *cvv* value is **required** if you include the parameter *paymentHandleTokenFrom*.
-                _length=3-4_
+    _length=3-4_
 + `paymentHandleToken`:`SCO3wKcIyLoQbQvw` (string) - This is the payment token generated by Paysafe that will be used by merchants for Payment API requests.
     _Read Only, length<=36_
 + Include Payment Instrument
