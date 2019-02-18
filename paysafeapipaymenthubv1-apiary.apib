@@ -8,23 +8,38 @@ HOST: https://api.test.paysafe.com/paymenthub/
 
 ## Introduction
 
-WIP
+The Paysafe Payments API allows merchants to accept payments via multiple payment methods while using a single endpoint integration.
+
+ * Choose your preferred mode of integration based on your PCI DSS compliance level.
+ * Transaction analysis and account management are made simple with our all-in-one business portal. 
+ * Enjoy the flexibility of adding new payment methods to your merchant account later with minimal integration effort.
 
 ## Features and Benefits
+
+
 
 WIP
 
 <a name="paymentsgettingstarted" title="Payments API Getting Started"></a>
 # Getting Started
 
-The Paysafe Payments API allows merchants to collect Payments via multiple payment methods using a single endpoint integration.
-
-## Supported Payment Methods
-The following payment methods are currently supported by the Payments API:
+The Paysafe Payments API currently supports the following payment methods: 
 
 - Card
 - Paysafecard
 - Paysafecash
+
+**Here is a step-by-step guide to get you started:**
+
+ 1. Apply for a sandbox account &ndash; See [Applying for a Test Account](#applytestaccount) for information on how to get Test credentials.
+ 2. Get your API keys &ndash; See [Authentication](#apikey) for information on how to retrieve your Public and Secret API keys from the Business Portal. 
+ 3. Know the API endpoints &ndash; Check out our [API Endpoints](#apiendpoints) to see the endpoints that you need to use for different request types.
+ 4. Choose your preferred type of integration &ndash; [Pick an integration type](#choosingintegration) based on your PCI compliance level.
+ 5. Understand Payment Handles and some common Payments API scenarios &ndash; [Read about Payment Handles](#paymenthandleoverview) and 
+ preview [some of the most common scenarios](#typicalscenarios).
+ 6. Integrate and test in our Sandbox &ndash; Access all test data and instructions on how to [proceed with your testing](#testinginstructions).
+ 7. Go live &ndash; See our instructions on [how to go live](#goinglive).
+
 
 <a name="apikey" title="Authentication"></a>
 ## Authentication
@@ -35,7 +50,7 @@ and provide you with an API key. Your API key will have the following format:
  * Key Username – MerchantXYZ
  * Key Password – B-tst1-0-51ed39e4-312d02345d3f123120881dff9bb4020a89e8ac44cdfdcecd702151182fdc952272661d290ab2e5849e31bb03deede7e
 
-> **Note:** This is not the same the username and password you use to access the Merchant Portal. Your Production API key will be different from your Test API key. Contact your account manager for details. You must keep your API keys safe and ensure that it is used appropriately for your needs.
+> **Note:** This is not the same the username and password you use to access the Business Portal. Your Production API key will be different from your Test API key. Contact your account manager for details. You must keep your API keys safe and ensure that it is used appropriately for your needs.
 
 The case-sensitive API key is sent using HTTP Basic Authentication. To use HTTP Basic Authentication, you must send the API key credentials using the Authorization header with every request. The Authorization header is constructed as follows:
 
@@ -59,7 +74,7 @@ The Payments API uses two distinct API keys:
 
 You will require a Secret key and a Public key for each of the two Paysafe environments: Test and Production (live).
 
-You will receive separate emails from Paysafe that will provide you with the credentials to sign in to the corresponding versions of the Paysafe Merchant Portal (Test and Production), where you can retrieve 
+You will receive separate emails from Paysafe that will provide you with the credentials to sign in to the corresponding versions of the Paysafe Business Portal (Test and Production), where you can retrieve 
 the API keys as required.
 
 <a name="publicapikey" title="Public API Key"></a>
@@ -68,7 +83,7 @@ You use the Public API key if you are using the [Payments Checkout SDK](#payment
 
  > **Note:** You must Base64 Encode your Public API key before using it in the Payments Checkout SDK.
 
-To retrieve your Public API key from the Merchant Portal:
+To retrieve your Public API key from the Business Portal:
  1. Go to **Integrate>API Keys**. 
 ![](https://github.com/paysafegroup/paysafe_api_paymenthub_v1/raw/master/images/API_Key.png)
  2. For *Public Key*, click on the icon in the **Copy** column to copy the API key to your clipboard.  
@@ -81,11 +96,11 @@ You use the Secret API key in all your server-to-server Payments API requests.
 
  > **Note:** You must Base64 Encode your Secret API key before using it in your API requests.
 
-To retrieve your Secret API key from the Merchant Portal: 
+To retrieve your Secret API key from the Business Portal: 
  1. Go to **Integrate>API Keys**.
  2. Under **Secret Key**, click on **Authenticate Now**.
  ![](https://github.com/paysafegroup/paysafe_api_paymenthub_v1/raw/master/images/Secret_Key1.png)
- 3. Enter your Merchant Portal password and click **Authenticate**.
+ 3. Enter your Business Portal password and click **Authenticate**.
  4. You can now access your Secret API key 
  ![](https://github.com/paysafegroup/paysafe_api_paymenthub_v1/raw/master/images/Secret_Key2.png)
  
@@ -113,7 +128,8 @@ For example:
 
 `https://api.paysafe.com/paymenthub/v1/payments/{payment_id}`
 
-## Payment Handles
+<a name="paymenthandleoverview" title="Payment Handle Overview"></a>
+## Payment Handle Overview
 
 A Payment Handle is a token that represents a payment method that you set up for a customer. 
 When you create the payment handle, you can include information like the credit card number and expiry date, the card holder's name, the type of transaction request it will be used for, some profile information about the customer, and some billing address information. 
@@ -163,19 +179,15 @@ The possible values are:
 * SYNCHRONOUS – The Payment status can be received by the merchant synchronously. In this case the merchant can poll the PROCESSING/PENDING Payments at regular intervals to retrieve the Payment status. 
 * ASYNCHRONOUS – The Payment is expected to be completed after a significant time delay (e.g., after hours or days, as in the case of PaysafeCash). In this case, the merchant must [use webhooks to retrieve the Payment status](#paymentswebhooks).
 
+<a name="choosingintegration" title="Choosing Your Integration"></a>
 ## Choosing Your Integration
- * API or Checkout SDK
 
-### Integrating New Payment Methods
-To cover:
- * Who is this appicable for
- * How to raise a request to add new payment method
- * What is the additional integration effort required to integrate
-
-<a name="configure3ds" title="Configuring for 3D Secure"></a>
-## Configuring for 3D Secure
-
- > **This is a placeholder until content is provided.**
+The Paysafe Payments API supports two integration types: 
+ 1. [Direct API Integration](#paysafeapi) &ndash; This method is recommended for merchants who are  PCI-DSS compliant to level SAQ-D. 
+ This method allows you to collect user payment information in your website while processing payments and other transactions using secure server-to-server requests sent to Paysafe.
+ 2. [Paysafe Payments Checkout](#paymentscheckout) &ndash; This method is perfect for merchants with the least demanding level of PCI compliance: SAQ-A.
+ This method allows you to take payments from credit cards and other supported payment methods using a secure overlay that is hosted by Paysafe. 
+ The user input and storage of credit card and other PII information (Personally Identifiable Information) are handled by Paysafe. 
 
 ## Testing 
 
@@ -185,6 +197,7 @@ See [Testing Instructions](#testinginstructions)
 
 See [Going Live](#goinglive)
 
+<a name="paysafeapi" title="Paysafe API"></a>
 # API
 
 The Payments API allows merchants to process payment-related requests across a wide variety of payment methods with a simple integration a single API using the REST protocol. The protocol uses JSON for all requests and responses.
@@ -206,6 +219,8 @@ The following request types are supported:
   * [Customer Payment Handles](#createcustomerpaymenthandlerequest)
   * [Customer Single-Use Tokens](#createcustomersut)
   
+
+<a name="apiendpoints" title="API Endpoints"></a>
 ## API Endpoints
 
 `https://api.paysafe.com/paymenthub/v1/payments/{payment_id}`
@@ -252,6 +267,7 @@ The following request types are supported:
 |/singleusecustomertokens/search                |Search for Single-Use Customer Token   |POST   |
 
 
+<a name="typicalscenarios" title="Typical Scenarios"></a>
 ## Typical Scenarios
 When you use the Paysafe Payments API for payments and credits, you have to collect a variety of customer details on your platform/website, including card number, expiry date, and CVV/CVC code, among other items. 
 You must then and send this information to Paysafe with your API request.
@@ -350,7 +366,7 @@ The entry and storage of payment information is handled by Paysafe and the check
 ## How to Use the SDK
 
 1. Include the Paysafe Checkout SDK in your HTML payment form.
-2. Call the checkout setup function with your single-use token API key, [which you retrieve from the Merchant Portal](#secretapikey), where it is is called a Secret Key. 
+2. Call the checkout setup function with your single-use token API key, [which you retrieve from the Business Portal](#secretapikey), where it is is called a Secret Key. 
 The setup function creates an iframe overlay containing the secure payment form hosted on Paysafe's servers. 
 You will need to pass a callback function as part of the setup to handle successful payment handle success and failure.
 3. The callback should use AJAX to send the payment handle representing the customer's payment details to your merchant server to [make payment using the Paysafe Payments API](#paymentrequest).
@@ -428,7 +444,7 @@ paysafe.checkout.setup(apiKey, setupOptions, resultCallback, closeCallback?): vo
 
 |Parameter|Type|Required|Validations|Description|
 |---------|-------|---------------|-----------|------------------|
-|apiKey|string|yes||This is your Base64-encoded [Public API key](#publicapikey), available in the Merchant Portal.|
+|apiKey|string|yes||This is your Base64-encoded [Public API key](#publicapikey), available in the Business Portal.|
 |[setupOptions](#setupoptions)|object|yes||This is the merchant's configuration for rendering the Checkout.|
 |[resultCallback](#resultcallback)|function|yes||The function to be invoked when the payment handle needs to be passed to the merchant, who then uses it to make the payment.|
 |[closeCallback](#closecallback)|function|optional||The function to be invoked when the user closes the Checkout without making a payment.|
@@ -465,10 +481,10 @@ paysafe.checkout.setup(apiKey, setupOptions, resultCallback, closeCallback?): vo
 **customer**
 |Parameter|Type|Required|Validations|Description|
 |---------|-------|---------------|-----------|------------------|
-|firstName|string|yes||The first name of the customer.|
-|lastName|string|yes||The last name of the customer.|
+|firstName|string|yes|`length<=80`|The first name of the customer.|
+|lastName|string|yes|`length<=80`|The last name of the customer.|
 |[dateOfBirth](#dateofbirth)|object|yes||The date of birth of the customer.|
-|email|string|yes| |The email address of the customer.|
+|email|string|yes|`length<=255`|The email address of the customer.|
 
 <a name="dateofbirth"></a>
 **dateOfBirth**
@@ -612,7 +628,7 @@ In this case, when the Checkout is loaded, the customer would be able to view th
 # Using Webhooks
 
 A webhook allows you to define an HTTP callback to which a request will be posted when an event occurs that you want to be notified about. 
-To configure webhooks, you need to [open a service request](#openservicerequest) with Paysafe in the Merchant Portal.
+To configure webhooks, you need to [open a service request](#support) with Paysafe in the Business Portal.
 
 > **Note:** In order to receive webhooks from Paysafe, you must create a callback URL to receive the webhook that is triggered. 
 You are responsible for ensuring its continued availability.
@@ -654,6 +670,25 @@ You can trigger webhooks for the following events:
 |SA_CREDIT_FAILED | The credit request failed, due to either an error or being declined.|
 |SA_CREDIT_CANCELLED | The credit request has been cancelled.|
 
+
+## Sample Webhooks Payload
+This is an example of a typical webhooks payload you would receive from Paysafe.
+In this case, the merchant is receiving a callback notifying them that a Payments call associated with a payment handle has been completed.
+
+```
+{
+    "accountId": "1009688230",
+    "id": "a49ba790-9cc5-4502-9f4a-dccc72460cf1",
+    "merchantRefNum": "2e568da7c4643d567d60",
+    "amount": 500,
+    "usage": "SINGLE_USE",
+    "executionMode": "SYNCHRONOUS",
+    "currencyCode": "USD",
+    "type": "PAYMENT_HANDLE",
+    "status": "COMPLETED",
+    "paymentType": "CARD"
+}
+```
 
 ## Some Notes on Webhooks
 
@@ -706,9 +741,10 @@ With the Paysafe Payments API you can test the following:
 - Review all common errors as well as errors that may occur for each operation, and ensure your application can handle them.
 - Verify the lengths and format for all attributes you send.
 
+<a name="applytestaccount" title="Applying for a Test Account"></a>
 ## Applying for a Test Account
 For access to Test accounts and credentials, please contact your business relationship manager or reach out to {contact email address}. 
-Your Test account will provide you with access to a Test version of the Paysafe Merchant Portal, where you can view the status of your Test transactions. 
+Your Test account will provide you with access to a Test version of the Paysafe Business Portal, where you can view the status of your Test transactions. 
 
 ## Supported Currencies and Payment Types
 
@@ -1638,7 +1674,7 @@ merchants who provide more detailed information when processing card-not-present
 |amount             |number<br/>`max=99999999999`           |This is the amount of the request, in minor units. For example, to process US $10.99, this value should be 1099. <br/>**Note:** The *amount* specified in the Original Credit request must match the *amount* specified in the Payment Handle request from which the *paymentHandleToken* is taken.|
 |merchantRefNum     |string <br/>`length<=255`              |This is the merchant reference number created by the merchant and submitted as part of the request. It must be unique for each request.|
 |paymentHandleToken |string<br/>`length<=36`                |This is the payment token generated by Paysafe that will be used by merchants for Original Credit requests.|
-|currencyCode       |string<br/>`length=3`                  |This is the currency of the merchant account, e.g., USD or CAD, returned in the request response. See [Currency Codes](#currencycodes)|
+|currencyCode       |string<br/>`length=3`                  |This is the currency of the merchant account, e.g., USD or CAD, returned in the request response. See [Currency Codes](#currencycodes). <br/>**Note:** The *currencyCode* specified in the Credit request must match the *currencyCode* specified in the Payment Handle request from which the *paymentHandleToken* is taken.|
 |card               |[card](#cardobject)                    |These are the details of the card used.|
 |billingDetails     |[billingDetails](#billingdetailsobject)|These are the billing details for the request.|
 |customerIp         |string<br/>`length<=39`                |This is the customer's IP address.|
@@ -1692,8 +1728,8 @@ This is an authorization that is approved for an amount lower than the requested
 |paymentType            |enum                       |This is the payment type associated with this Payment Handle. Possible values are:<ul><li>CARD</li><li>PAYSAFECASH</li><li>PAYSAFECARD</li></ul>|
 |action                 |enum                       |This specifies the next step of the user journey once they proceed to the Payment. Possible values are:<ul><li>NONE &ndash; No action is required, e.g., for a standard credit card payment.</li><li>REDIRECT &ndash; The user must be redirected in order to complete a Payment, e.g., when an alternate payment method like Paysafecard is used.</li></ul>|
 |executionMode          |enum                       |This specifies the action of the merchant server in order to complete the Payment. Possible values are:<ul><li>SYNCHRONOUS &ndash; The status of the Payment request will be returned synchronously to the merchant, e.g., a credit card request.</li><li>ASYNCHRONOUS &ndash; The Payment request is not completed immediately and the merchant [must rely on webhooks](#paymentswebhooks) to retrieve the status of the Payment request.</li></ul>|
-|amount                 |number<br/>`max=99999999999` |This is the amount of the request, in minor units.<br/>Note: This field is mandatory if *transactionType* is included. <br/>**Note:** The *amount* specified in the Payment Handle request must match the *amount* specified in the Payments API request the *paymentHandleToken* is used for. |
-|currencyCode           |string<br/>`length=3`      |This is the currency of the merchant account, e.g., USD or CAD. See [Currency Codes](#currencycodes)|
+|amount                 |number<br/>`max=99999999999` |This is the amount of the request, in minor units.<br/>**Note:** This field is mandatory if *transactionType* is included. <br/>The *amount* specified in the Payment Handle request must match the *amount* specified in the Payments API request the *paymentHandleToken* is used for. |
+|currencyCode           |string<br/>`length=3`      |This is the currency of the merchant account, e.g., USD or CAD. See [Currency Codes](#currencycodes). <br/>The *currencyCode* specified in the Payment Handle request must match the *currencyCode* specified in the Payments API request the *paymentHandleToken* is used for.|
 |paymentHandleToken     |string                     |This is the payment token generated by Paysafe that will be used by merchants for Payment API requests.|
 |card \| paysafecard \| paysafecash               | [card](#cardobject) \| [paysafecard](#paysafecardobject)\ | [paysafecash](#paysafecashobject)        |These are details of the payment instrument used in the request. |
 |billingDetails         |[billingDetails](#billingdetailsobject)         |These are billing details for the request.<br/>**Note:** For single-use Payment Handles, this address information will be ignored if the *paymentHandleTokenFrom* parameter is included and there is already address information associated with that customer.|
@@ -1761,7 +1797,7 @@ This is an authorization that is approved for an amount lower than the requested
 |description        |string<br/>`length<=255`               |This is a description of the transaction, provided by the merchant.|
 |txnTime            |UTC formatted date                     |This is the date and time the request was processed. For example:<br/>2019-01-26T10:32:28Z|
 |status             |enum                                   |This is the status of the transaction request. Possible values are:<ul><li>RECEIVED &ndash; Our system has received the request and is waiting for the downstream processor’s response.</li><li>COMPLETED &ndash; The transaction has been completed.</li><li>HELD &ndash; The transaction has been placed on hold due to risk considerations.</li><li>FAILED &ndash; The transaction failed, due to either an error or being declined.</li><li>CANCELLED &ndash; The request has been fully voided (reversed).</li><li>PENDING &ndash; The request is pending.</li></ul>|
-|currencyCode       |string<br/>`length=3`                  |This is the currency of the merchant account, e.g., USD or CAD, returned in the request response. See [Currency Codes](#currencycodes)|
+|currencyCode       |string<br/>`length=3`                  |This is the currency of the merchant account, e.g., USD or CAD, returned in the request response. See [Currency Codes](#currencycodes). <br/>**Note:** The *currencyCode* specified in the Payment request must match the *currencyCode* specified in the Payment Handle request from which the *paymentHandleToken* is taken.|
 |level2level3       |[level2level3](#level2level3object)    |This allows merchants who are enabled to provide additional L2/L3 transaction data.<br/>**Note:** Not all processing gateways support this parameter. Contact your account manager for more information.|
 |gatewayResponse    |[gatewayResponse](#gatewayresponseobject) | This is the read-only raw response returned by an acquirer. It is returned only if your account is configured accordingly.|
 |accordD            |[accordD](#accorddobject)              |These are parameters for financing plans supported for certain merchant configurations.<br/>Include this element **only when** instructed to do so by your account manager.|
@@ -1985,10 +2021,10 @@ If you [look up an authorization request](#getauth)  that used the *visaAddition
 |Element            |Type                                   |Description                        |
 |---                |---                                    |---                                |
 |id                 |string <br/>`length<=36`               |This is the ID returned in the response. This ID can be used for future associated requests.|
-|amount             |number<br/>`max=99999999999`           |This is the amount of the request, in minor units. For example, to process US $10.99, this value should be 1099. <br/>**Note:** The *amount* specified in the Standalone Credit request must match the *amount* specified in the Payment Handle request from which the *paymentHandleToken* is taken.|
+|amount             |number<br/>`max=99999999999`           |This is the amount of the request, in minor units. For example, to process US $10.99, this value should be 1099. <br/>**Note:** The *amount* specified in the Credit request must match the *amount* specified in the Payment Handle request from which the *paymentHandleToken* is taken.|
 |merchantRefNum     |string <br/>`length<=255`              |This is the merchant reference number created by the merchant and submitted as part of the request. It must be unique for each request.|
 |paymentHandleToken |string                                 |This is the payment token generated by Paysafe that will be used by merchants for Standalone Credit requests.|
-|currencyCode       |string<br/>`length=3`                  |This is the currency of the merchant account, e.g., USD or CAD, returned in the request response. See [Currency Codes](#currencycodes)|
+|currencyCode       |string<br/>`length=3`                  |This is the currency of the merchant account, e.g., USD or CAD, returned in the request response. See [Currency Codes](#currencycodes). <br/>**Note:** The *currencyCode* specified in the Credit request must match the *currencyCode* specified in the Payment Handle request from which the *paymentHandleToken* is taken.|
 |card               |[card](#cardobject)                    |These are the details of the card used.|
 |billingDetails     |[billingDetails](#billingdetailsobject)|These are the billing details for the request.|
 |customerIp         |string<br/>`length<=39`                |This is the customer's IP address.|
@@ -2089,6 +2125,7 @@ The *storedCredential* object is used to identify [authorization requests](#auth
 ## Payment Errors
 |HTTP Status Code|Error Code|Description|
 |---------|---------|---------------|
+|400|PAYMENTHUB-1 |The submitted payment type and currency code combination is not supported. |
 |400|3002|You submitted an invalid card number or brand or combination of card number and brand with your request.|
 |400|3004|The zip/postal code must be provided for an AVS check request.|
 |400|3005|You submitted an incorrect CVV value with your request.|
@@ -2183,14 +2220,72 @@ The *storedCredential* object is used to identify [authorization requests](#auth
 |402|3418|The external processing gateway for which your merchant account is configured does not support partial Credits.|
 |402|3419|This type of transaction cannot be refunded.|
 
-# Getting Help
+## Customer Vault Errors
+|HTTP Status Code       |Error Code |Description|
+|---                    |---        |---|
+|409                    |7503       |The card number you are trying to add to this profile is already used by this profile.|
+|409                    |7504       |This card has been used for the maximum number of profiles allowed. Please use a different card.|
+|409                    |7505       |The *merchantCustomerId* provided for this profile has already been used for another profile.|
+|409                    |7506       |The bank account you are trying to add to this profile is already in use.|
+|409                    |7507       |The mandate reference you are trying to add to this profile is already in use.|
+|400                    |7508       |You submitted an invalid card number or brand or combination of card number and brand with your request.|
+|409                    |7509       |The bank account has one or more existing mandates so associated banking information cannot be updated.|
+|400                    |7510       |You submitted invalid bank account information for your banking scheme.|
+|404                    |7511       |The address ID provided in your request could not be found.|
+|400                    |7512       |The merchant's Apple Pay configuration could not be found.|
+|400                    |7513       |The Apple Pay token is invalid.|
+|404                    |7514       |The payment token has expired.|
+|409                    |7515       |The card cannot be added to this profile because the profile has reached the maximum number of cards allowed.|
+|400                    |7516       |You need to provide at least one search parameter.|
+|400                    |7517       |You need to provide dates with the format YYYY-MM-DDTHH24:MI:SSZ.|
+|400                    |7518       |The days between the dates specified exceeds the maximum.|
+|400                    |7519       |The pagination limit exceeds the maximum.|
+|409                    |7520       |The bank account cannot be added to this profile because the profile has reached the maximum number of bank accounts allowed.|
 
-<a name="openservicerequest" title="Opening a Service Request"></a>
-## Opening a Service Request
+## Alternate Payments Errors
+|HTTP Status   |Error Code                    |Message                                 |Details|
+|---           |---                           |---                                     |---|
+|402           |ALTERNATE-PAYMENTS-GATEWAY-1  |Transaction cancelled at the gateway    |The transaction was cancelled at the gateway.|
+|402           |ALTERNATE-PAYMENTS-GATEWAY-4  |Transaction declined by the gateway     |The transaction declined by the gateway. |
+|402           |ALTERNATE-PAYMENTS-GATEWAY-5  |Incomplete transaction                  |The requested operation can only be executed on a completed transaction.|
+|402           |ALTERNATE-PAYMENTS-GATEWAY-6  |Over refund                             |The total refund amount cannot exceed the original payment amount.|
+|402           |ALTERNATE-PAYMENTS-GATEWAY-7  |Payment expired                         |The payment has expired.|
+|402           |ALTERNATE-PAYMENTS-GATEWAY-8  |Over settlement                         |The total Settlement amount cannot exceed the authorized (payment) amount.|
+|402           |ALTERNATE-PAYMENTS-GATEWAY-9  |Risk gateway error                      |A risk issue was reported by the gateway.|
+|502           |ALTERNATE-PAYMENTS-GATEWAY-10 |Payment type temporarily unavailable    |The gateway is temporarily unavailable due to system maintenance activities.|
+|402           |ALTERNATE-PAYMENTS-GATEWAY-11 |Over voidauth                           |The void authorization cannot exceed the amount remaining to settle for the corresponding payment.|
+|402           |ALTERNATE-PAYMENTS-GATEWAY-12 |Payment already settled                 |The payment is already partially/fully settled.|
+|402           |ALTERNATE-PAYMENTS-GATEWAY-13 |Transaction not refundable yet          |The transaction is not refundable yet.|
+|402           |ALTERNATE-PAYMENTS-GATEWAY-14 |Partial settlements not possible        |Partial Settlements are not possible with the selected payment method.|
 
- * How to open service requests in Merchant Portal
- * Adding new payment method
- * Setting up webhooks
+<a name="support" title="Help and Support"></a>
+# Help and Support
+
+## Existing Merchants
+
+If you are an existing merchant with access to the Paysafe Business Portal, 
+you can use the portal to open a service request for all your technical and integration-related queries.
+For example, the following steps show you how to open a service request to set up webhooks.
+
+**To raise a service request:**
+ 1. Sign in to the Paysafe Business Portal.
+ 2. Navigate to **Support** in the left menu.
+ ![](https://github.com/paysafegroup/paysafe_api_paymenthub_v1/raw/master/images/Help1.png)
+ 3. Click on **New Request**.
+ ![](https://github.com/paysafegroup/paysafe_api_paymenthub_v1/raw/master/images/Help2.png)
+ 4. Select **Integrations** from the **Category** drop-down list and enter *Webhooks Setup* in the **Subject** field.  
+ ![](https://github.com/paysafegroup/paysafe_api_paymenthub_v1/raw/master/images/Help3.png)
+ 5. In the **Message** section, enter your callback URL and the list of events about which you want to be notified. See [Using Webhooks](#paymentswebhooks) for details.
+ 6. Enter your company name in the **Company Name** field and click **Create New Request**.
+![](https://github.com/paysafegroup/paysafe_api_paymenthub_v1/raw/master/images/Help4.png) 
+
+
+## New Merchants
+
+If you are new to the Paysafe Payments API and want to integrate or if you have a sales enquiry, please contact your sales manager, if you already have one.
+You can also reach out to us at <sales email id – yet to be created>.
+
+ >**Note:** Merchants who have previously integrated to either the Paysafe Card Payments API or the Alternate Payments API are still considered new to the Paysafe Payments API.
 
 # Using the Example API Calls (Console Window)
 
@@ -2200,7 +2295,7 @@ Using the Console window you can update the headers, the request body, and parts
 ![](https://github.com/paysafegroup/paysafe_api_paymenthub_v1/raw/master/images/ApiaryConsole.png)
 
 You must also update the Header to include your API Key by selecting **Headers** and then updating the **Authorization** value using the Base64 version of your API key.
-To get your Base64 encoded API key, sign in to the Merchant Portal and go to **Integrate>API Keys**.
+To get your Base64 encoded API key, sign in to the Business Portal and go to **Integrate>API Keys**.
 ![](https://github.com/paysafegroup/paysafe_api_paymenthub_v1/raw/master/images/API_authorization.png)
 
 When you are ready to test your example, you can choose between the Production and Mock server environment:
@@ -2264,17 +2359,17 @@ Click on **Look Up Payment Methods** above to see how to look up the payment met
             {
                 "paymentMethods": [{
                         "paymentMethod": "CARD",
-                        "currency": "USD",
+                        "currencyCode": "USD",
                         "accountId": 1009355920
                     },
                     {
                         "paymentMethod": "PAYSAFECARD",
-                        "currency": "USD",
+                        "currencyCode": "USD",
                         "accountId": 1009355921
                     },
                     {
                         "paymentMethod": "PAYSAFECASH",
-                        "currency": "USD",
+                        "currencyCode": "USD",
                         "accountId": 1009355923
                     }
                 ]
@@ -2302,7 +2397,7 @@ Click on **Create a Payment Handle** above to see six examples of how to create 
 * A Payment Handle for a credit card Verification
 
  > **Note:** The status of Payment Handles that require the customer to be redirected to a *redirect_payment* URL will have the *status* of INITIATED until the customer verifies the payment instrument. 
- This is the case, for example, for alternate payment methods like Paysafecash and Paysafecard, and for credit cards that must be authenticated for 3D Secure, where the request amount is more than the maximum configured in the Merchant Portal.
+ This is the case, for example, for alternate payment methods like Paysafecash and Paysafecard, and for credit cards that must be authenticated for 3D Secure, where the request amount is more than the maximum configured in the Business Portal.
 
 
 + Attributes 
@@ -4566,6 +4661,8 @@ Click on **Create a Payment Handle for a Customer** above to create a Payment Ha
 The *paymentHandleToken* returned in the response can be used for [payment requests in the Payments API](#paymentrequest).
 Currently, only CARD is supported as a *paymentType* parameter.
 
+Once the *paymentHandleToken* in the response to this request is [used successfully in a Payment request](#paymentrequest), its *status* will become PAYABLE.
+
 **Note:** Although the *billingDetails* parameter is optional, it is recommended that you include it when you create the customer Payment Handle 
 because a Payment request that uses the *paymentHandleToken* in the response will fail AVS checks unless there is a billing address associated with it. 
 If you do not include it when creating the customer Payment Handle, you should then [update the Payment Handle](#) with the *billingDetailsId* before using it for transaction requests.
@@ -4636,6 +4733,7 @@ If you do not include it when creating the customer Payment Handle, you should t
             
                 "card": {
                     "lastDigits": "2222",
+                    "cardBin": "422222",
                     "cardExpiry": {
                         "month": "12",
                         "year": "2021"
@@ -4651,9 +4749,10 @@ If you do not include it when creating the customer Payment Handle, you should t
 <a name="createpaymenthandlerequestsut" title="Create a Payment Handle Using a Single-Use Payment Handle Token"></a>
 
 Click on **Create a Customer Payment Handle Using a Single-Use Payment Handle Token** above to create a Payment Handle using a regular [single-use Payment Handle Token](#paymenthandlerequest) that 
-you created in order [to process a Payment request](#paymentrequest). The single-use Payment Handle Token must still be valid (i.e., the *timeToLiveSeconds* has not expired).
+you created in order [to process a Payment request](#paymentrequest). The single-use Payment Handle Token must still be valid - i.e., the *timeToLiveSeconds* has not expired.
 
-Once the Payment request you have used the single-use Payment Handle Token for is successfully processed, the *status* of the *paymentHandleToken* in the response to this request will become PAYABLE.
+Once the Payment request you have used the single-use Payment Handle Token for is successfully processed, 
+the *status* of the *paymentHandleToken* in the response to this request will become PAYABLE.
 
 
 The *paymentHandleToken* returned in the response can be used for [payment requests in the Payments API](#paymentrequest).
@@ -4744,6 +4843,7 @@ Click on **Get Customer Payment Handle** above to see how to look up a Customer 
                 "paymentHandleToken": "Cy4WEGJ9IWIkcUn",
                 "card": {
                     "lastDigits": "2222",
+                    "cardBin": "422222",
                     "cardExpiry": {
                         "month": "12",
                         "year": "2021"
@@ -4771,7 +4871,9 @@ Click on **Get Customer Payment Handle** above to see how to look up a Customer 
 Click on **Update a Customer Payment Handle** above to see how update a Customer Payment Handle using the ID returned in the response to [the original request](#createcustomerpaymenthandlerequest).
 
 **Note:** You must provide all of the elements of the Payment Handle when you are updating it, including the elements that are not changing. 
-Elements that are part of an existing Payment Handle but that are not included in the update request will be set to null in the resulting Payment Handle, with the exception of the *cardNum* element.
+Elements that are part of an existing Payment Handle but that are not included in the update request will be set to null in the resulting Payment Handle, 
+with the exception of the *cardNum* element.
+
 
 + Parameters
     + customer_id:`a5f1889d-f1be-4bbf-941d-fd9b8d09d5b1` (string,required) - This is the [ID of the customer](#createcustomerrequest) to which you are adding the Payment Handle.
@@ -4855,7 +4957,11 @@ Elements that are part of an existing Payment Handle but that are not included i
 
 Click on **Update a Multi-Use Customer Payment Handle with a Single-Use Payment Handle Token** above to see how update a Customer Payment Handle using the ID returned in the response to [the original request](#paymenthandlerequest).
 
-**Note:** You must provide all of the elements of the payment handle while creating single use payment handle when you are updating multi-use payment handle with it, including the elements that are not changing. Elements that are part of an existing payment handle but that are not included in the update request will be set to null in the resulting Payment Handle, with the exception of the *cardNum* element.
+**Note:** You must provide all of the elements of the payment handle while creating single use payment handle when you are updating multi-use payment handle with it, 
+including the elements that are not changing. Elements that are part of an existing payment handle but that are not included in the update request will be set to null in the resulting Payment Handle, with the exception of the *cardNum* element.
+
+If you want to update the payment information in a Customer Payment Handle, you must [create a new single-use Payment Handle](#paymenthandlerequest) containing the new payment information and use 
+the *paymentHandleToken* returned in that response as the value for the *paymentHandleTokenFrom* parameter in this request.
 
 + Parameters
     + customer_id:`a5f1889d-f1be-4bbf-941d-fd9b8d09d5b1` (string,required) - This is the [ID of the customer](#createcustomerrequest) to which you are adding the Payment Handle.
@@ -4931,6 +5037,8 @@ Click on **Create a Single-Use Customer Token** above to create a Payment Handle
 
 The *singleUseCustomerToken* returned in the response is then used in the Payments Checkout SDK (for the *singleUseCustomerToken* parameter) when you want to [use saved cards and addresses](#usingsavedcardscheckout). 
 Any addresses and/or payment details that have been saved for this *customer_id* would then be displayed in the Payments Checkout.
+
+**Note:** The *customer_id* used in this request must be taken from [a Customer created using a single-use Payment Handle Token](#createpaymenthandlerequestsut).
 
 The *paymentHandleToken* returned in the response can be [used for payment requests](#paymentrequest). 
 
@@ -5089,88 +5197,6 @@ Use the *singleUseCustomerToken* returned in the response in the Payments Checko
                  }]
              }
 
-## Search Single-Use Customer Token [POST /v1/singleusecustomertokens/search]
-<a name="createpaymenthandlerequest" title="Create a Payment Handle"></a>
-
-Click on **Search Single-Use Customer Token** above to see how to look up a Single-Use Customer Token using the ID returned in the response to [the original request](#createcustomersut).
-
-This is how you can search for a Single-Use Customer Token. The *paymentHandleToken* returned in the response can be [used for payment requests](#paymentrequest).
-
-+ Attributes
-    + `singleUseCustomerToken`:`SPno7hCBn5kwu6Wm` (string, required) - This is the *singleUseCustomerToken* returned in the response to the [Single-Use Customer Token creation request](#createcustomersut).
-        _length<=36_
-
-+ Request Search Single-Use Customer Tokens (application/json)
-
-    + Headers
-
-            Authorization: Basic YOUR-BASE64-ENCODED-API-KEY
-        
-    + Body
-
-            {
-                "singleUseCustomerToken": "SPno7hCBn5kwu6Wm"
-            }
-
-
-+ Response 200  (application/json)
-
-    + Body
-
-             {
-                 "id": "f39ebd23-e203-498f-9981-dfbc49882959",
-                 "profileId": "59cce04e-e429-4016-9d3f-1e579f3aa2ad",
-                 "timeToLiveSeconds": 899,
-                 "status": "ACTIVE",
-                 "singleUseCustomerToken": "SPFAB1cA5iwdu48H",
-                 "paymentTypes": [
-                     "CARD"
-                 ],
-                 "locale": "en_US",
-                 "firstName": "John",
-                 "middleName": "James",
-                 "lastName": "Smith",
-                 "dateOfBirth": {
-                     "day": 24,
-                     "month": 10,
-                     "year": 1981
-                 },
-                 "email": "john.smith@email.com",
-                 "phone": "777-444-8888",
-                 "ip": "192.0.126.111",
-                 "nationality": "Canadian",
-                 "addresses": [{
-                     "id": "786cf0cd-4296-43ce-8a57-5f4675e3fafd",
-                     "nickName": "Home",
-                     "street": "100 Queen",
-                     "street2": "Unit 201",
-                     "city": "Toronto",
-                     "state": "ON",
-                     "country": "CA",
-                     "zip": "M5H 2N2",
-                     "phone": "647-788-3901",
-                     "status": "ACTIVE",
-                     "defaultShippingAddressIndicator": true
-                 }],
-                 "paymentHandles": [{
-                     "id": "f258f338-ff2f-4bee-9560-0d476ed7c1b4",
-                     "status": "INITIATED",
-                     "usage": "SINGLE_USE",
-                     "paymentType": "CARD",
-                     "paymentHandleToken": "SClcqO9awdvdgjoe",
-                     "billingDetailsId": "786cf0cd-4296-43ce-8a57-5f4675e3fafd",
-                     "card": {
-                         "lastDigits": "0000",
-                         "cardExpiry": {
-                             "month": "10",
-                             "year": "2020"
-                         },
-                         "cardBin": "403711",
-                         "cardType": "VI",
-                         "holderName": "Dilip"
-                     }
-                 }]
-             }
 
 # Data Structures
 
@@ -5502,10 +5528,10 @@ This is how you can search for a Single-Use Customer Token. The *paymentHandleTo
     _length<=255_
 + `paymentHandleToken`:`842778a0-03a2-11e9-8eb2-f2801f1b9fd1` (string, required) - This is the payment token generated by Paysafe that will be used for the request.
     _length<=36_
-+ `amount`:`1000` (string, required) - This is the amount of the request, in minor units. 
++ `amount`:`1000` (string, required) - This is the amount of the request, in minor units. **Note:** The *amount* specified in the Credit request must match the *amount* specified in the Payment Handle request from which the *paymentHandleToken* is taken.
     _Max =99999999999_
-+ `currencyCode`:`CAD` (string) - This is the [currency of the merchant account](#currencycodes), e.g., USD or CAD.
-    _Read Only, max=3_
++ `currencyCode`:`CAD` (string, required) - This is the [currency of the merchant account](#currencycodes), e.g., USD or CAD. **Note:** The *currencyCode* specified in the Credit request must match the *currencyCode* specified in the Payment Handle request from which the *paymentHandleToken* is taken.
+    _max=3_
 + `dupCheck`:`true` (boolean) - This validates that this request is not a duplicate. A request is considered a duplicate if the merchantRefNum has already been used in a previous request within the past 90 days.
     + Default: true
 + `txnTime`:`2018-12-11T16:33:49Z` (string) - This is the date and time the transaction was processed.
@@ -5587,9 +5613,9 @@ This is how you can search for a Single-Use Customer Token. The *paymentHandleTo
     + Members
         + ASYNCHRONOUS - The Payment request is not completed immediately and the merchant [must rely on webhooks](#paymentswebhooks) to retrieve the status of the Payment request.
         + SYNCHRONOUS - The status of the Payment request will be returned synchronously to the merchant, e.g., a credit card request.
-+ `amount`:`1000` (string) - This is the amount of the request, in minor units. **Note:** This field is mandatory if *transactionType* is included.
++ `amount`:`1000` (string) - This is the amount of the request, in minor units. **Note:** This field is mandatory if *transactionType* is included. The *amount* specified in the Payment Handle request must match the *amount* specified in the Payments API request the *paymentHandleToken* is used for.
     _Max =99999999999_
-+ `currencyCode`:`CAD` (string) - This is the [currency of the merchant account](#currencycodes), e.g., USD or CAD.
++ `currencyCode`:`CAD` (string) - This is the [currency of the merchant account](#currencycodes), e.g., USD or CAD. **Note:** This field is mandatory if *transactionType* is included. The *currencyCode* specified in the Payment Handle request must match the *currencyCode* specified in the Payments API request the *paymentHandleToken* is used for.
     _Read Only, max=3_
 + `paymentHandleTokenFrom`:`SCyGZDlUuZ9zxjyd` (string) - This is an [existing Customer Payment Handle](#createcustomerpaymenthandlerequest), from which the payment instrument and profile details are retrieved. 
     _length<=36_
@@ -5707,10 +5733,10 @@ This is how you can search for a Single-Use Customer Token. The *paymentHandleTo
         + Members
             + ASYNCHRONOUS - The Payment request is not completed immediately and the merchant [must rely on webhooks](#paymentswebhooks) to retrieve the status of the Payment request.
             + SYNCHRONOUS - The status of the Payment request will be returned synchronously to the merchant, e.g., a credit card request.
-    + `amount`:`1000` (string) - This is the amount of the request, in minor units. **Note:** This field is mandatory if *transactionType* is included.
+    + `amount`:`1000` (string) - This is the amount of the request, in minor units. **Note:** This field is mandatory if *transactionType* is included. The *amount* specified in the Payment Handle request must match the *amount* specified in the Payments API request the *paymentHandleToken* is used for.
         _Max =99999999999_
-    + `currencyCode`:`CAD` (string) - This is the [currency of the merchant account](#currencycodes), e.g., USD or CAD.
-        _Read Only, max=3_
+    + `currencyCode`:`CAD` (string) - This is the [currency of the merchant account](#currencycodes), e.g., USD or CAD. **Note:** This field is mandatory if *transactionType* is included. The *currencyCode* specified in the Payment Handle request must match the *currencyCode* specified in the Payments API request the *paymentHandleToken* is used for.
+        _max=3_
     + `paymentHandleToken`:`842778a0-03a2-11e9-8eb2-f2801f1b9fd1` (string) - This is the payment token generated by Paysafe that will be used by merchants for Payment API requests.
         _Read Only, length<=36_
     + Include Payment Instrument
@@ -5797,7 +5823,7 @@ This is how you can search for a Single-Use Customer Token. The *paymentHandleTo
     _Read Only, length<=36_
 + `merchantRefNum`:`merchantRefNum-101` (string, required) - This is the merchant reference number created by the merchant and submitted as part of the request. It must be unique for each request.
     _length<=255_
-+ `amount`:`1000` (number, required) - This is the amount of the request, in minor units.
++ `amount`:`1000` (number, required) - This is the amount of the request, in minor units. **Note:** The *amount* specified in the Payment request must match the *amount* specified in the Payment Handle request from which the *paymentHandleToken* is taken.
     _max=99999999999_
 + `dupCheck`:`false` (boolean) - This validates that this request is not a duplicate. A request is considered a duplicate if the *merchantRefNum* has already been used in a previous request within the past 90 days.
     + Default: true
@@ -5826,8 +5852,8 @@ This is how you can search for a Single-Use Customer Token. The *paymentHandleTo
         + FAILED - The transaction failed, due to either an error or being declined.
         + CANCELLED - The request authorization request has been reversed.
         + PENDING - The transaction awaiting payment service provider's response.
-+ `currencyCode`:`CAD` (string) - This is the [currency of the merchant account](#currencycodes), e.g., USD or CAD.
-    _Read Only, max=3_
++ `currencyCode`:`CAD` (string, required) - This is the [currency of the merchant account](#currencycodes), e.g., USD or CAD. **Note:** The *currencyCode* specified in the Payment request must match the *currencyCode* specified in the Payment Handle request from which the *paymentHandleToken* is taken.
+    _max=3_
 + Include Level2Level3
 + Include Gateway Response
 + Include accordD
