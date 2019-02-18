@@ -6,19 +6,11 @@ HOST: https://api.test.paysafe.com/paymenthub/
 <a name="paymentsoverview" title="Payments API Overview"></a>
 # Overview
 
-## Introduction
-
 The Paysafe Payments API allows merchants to accept payments via multiple payment methods while using a single endpoint integration.
 
  * Choose your preferred mode of integration based on your PCI DSS compliance level.
  * Transaction analysis and account management are made simple with our all-in-one business portal. 
  * Enjoy the flexibility of adding new payment methods to your merchant account later with minimal integration effort.
-
-## Features and Benefits
-
-
-
-WIP
 
 <a name="paymentsgettingstarted" title="Payments API Getting Started"></a>
 # Getting Started
@@ -264,7 +256,6 @@ The following request types are supported:
 |/customers/{customer_id}/paymenthandles/{paymenthandle_id} |Delete a Customer Payment Handle    |DELETE |
 |/customers/{customer_id}/singleusetokens       |Create a Single-Use Customer Token     |POST   |
 |/singleusecustomertokens/[singleusecustomertoken_id}   |Look Up a Single-Use Customer Token    |GET    |
-|/singleusecustomertokens/search                |Search for Single-Use Customer Token   |POST   |
 
 
 <a name="typicalscenarios" title="Typical Scenarios"></a>
@@ -373,13 +364,13 @@ You will need to pass a callback function as part of the setup to handle success
 
 ## Including the SDK 
 
-The SDK is located at `https://hosted.paysafe.com/checkout/v2/paysafe.checkout.min.js`. You need to include it in your HTML form by adding a '<'script> element in either the header or body.
+The SDK is located here: `https://hosted.paysafe.com/checkout/v2/paysafe.checkout.min.js`
 
-```
+You need to include it in your HTML form by adding a `<script>` element in either the header or body.
+
 <head>
     <script src="https://hosted.paysafe.com/checkout/v2/paysafe.checkout.min.js"></script>
 </head>
-```
 
 ## Example Payment Form
 
