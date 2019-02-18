@@ -2289,10 +2289,10 @@ A Payment Handle is basically a token that represents a payment method that you 
 <br>
 > **Note:** A Payment Handle can be used in a [Payment request](#paymentrequest) only if it has the status of **PAYABLE**. 
 
-### Create Payment Handle [POST]
-<a name="paymenthandlerequest" title="Create Payment Handle"></a>
+### Create a Payment Handle [POST]
+<a name="paymenthandlerequest" title="Create a Payment Handle"></a>
 
-Click on **Create Payment Handle** above to see six examples of how to create a Payment Handle object:
+Click on **Create a Payment Handle** above to see six examples of how to create a Payment Handle object:
 
 * A Payment Handle for a standard credit card authorization
 * A Payment Handle for a credit card that is registered for 3D Secure - the response for this request will contain a redirect to present to the customer so they can validate their 3D Secure credentials
@@ -4105,47 +4105,21 @@ You can create a customer in order to store credit card information to the custo
                 "paymentToken":"P0zPDqggWESaktW"
             }
 
-## Create a Customer Using a Single-Use Payment Handle Token [POST /v1/customers]
-<a name="createcustomerrequesttoken" title="Create a Customer Using a Payment handle Token"></a>
-Click on **Create a Customer Using a Single-Use Payment Handle Token** above to see how to create a customer using a single-use Payment Handle Token. 
+### Create a Customer Using a Single-Use Payment Handle Token [POST]
+<a name="createcustomerrequesttoken" title="Create a Customer"></a>
 
-Use this request convert the single-use Payment Handle Token to a permanent one. 
+Click on **Create a Customer** above to see how to create a customer. 
 
-**Note:** Only the *paymentHandleToken* returned in the *paymentHandles* object in the response can be used for [payment requests with the Payments API](#paymentrequest).
+You can create a customer in order to store credit card information to the customer profile by [adding a Customer Payment Handle](#createcustomerpaymenthandlerequest) to that customer.
 
 + Attributes
-        + Include Customer Base
-        + paymentHandleTokenFrom:`SCURPCc6nEwXcdBQ` - This is the paymentHandle token that is present in the response of Creation of paymentHandle.
+    + Include Customer Base
 
-+ Request Create a Customer Using a Payment Handle Token (application/json)
++ Request Create a Customer (application/json)
         
     + Headers
     
             Authorization: Basic YOUR-BASE64-ENCODED-API-KEY
-            
-    + Body 
-
-            {
-              "merchantCustomerId": "mycustomer10",
-              "locale": "en_US",
-              "firstName": "John",
-              "middleName": "James",
-              "lastName": "Smith",
-              "dateOfBirth": {
-                "year": 1981,
-                "month": 10,
-                "day": 24
-              },
-              "email": "john.smith@email.com",
-              "phone": "777-444-8888",
-              "ip": "192.0.126.111",
-              "gender": "M",
-              "nationality": "Canadian",
-              "cellPhone": "777-555-8888",
-              "paymentHandleTokenFrom": "SCURPCc6nEwXcdBQ"
-            }
-
-+ Response 200 (application/json)
 
     + Body
 
@@ -4165,45 +4139,36 @@ Use this request convert the single-use Payment Handle Token to a permanent one.
                 "ip": "192.0.126.111",
                 "gender": "M",
                 "nationality": "Canadian",
+                "cellPhone": "777-555-8888"
+            }
+            
++ Response 200 (application/json)
+
+    + Body
+
+            {
+                "id": "ccb24e28-6e38-47ce-8815-94706c5b608c",
+                "merchantCustomerId": "mycustomer10",
+                "locale": "en_US",
+                "firstName": "John",
+                "middleName": "James",
+                "lastName": "Smith",
+                "dateOfBirth": {
+                    "day": 24,
+                    "month": 10,
+                    "year": 1981
+                },
+                "email": "john.smith@email.com",
+                "phone": "777-444-8888",
+                "ip": "192.0.126.111",
+                "gender": "M",
+                "nationality": "Canadian",
                 "cellPhone": "777-555-8888",
-                "paymentToken": "P0zPDqggWESaktW",
-                "paymentHandleTokenFrom": "SCURPCc6nEwXcdBQ",
-                "addresses": [{
-                    "id": "3722476e-4891-426b-8dcd-a25ad3d14ffe",
-                    "street": "Andhra bank lane",
-                    "street2": "Manikonda",
-                    "city": "Hyderabad",
-                    "state": "TS",
-                    "country": "IN",
-                    "zip": "500089",
-                    "status": "ACTIVE"
-                }],
-                "paymentHandles": [{
-                    "id": "0aee8670-ae5e-44dc-bf9d-73ad84dabbf3",
-                    "merchantRefNum": "9c011804-c123-40f3-8cd5-de21aec8d88e",
-                    "status": "INITIATED",
-                    "usage": "MULTI_USE",
-                    "paymentType": "CARD",
-                    "action": "REDIRECT",
-                    "executionMode": "SYNCHRONOUS",
-                    "accountId": "1001535430",
-                    "paymentHandleToken": "Cvz7pumqVb8rnJX",
-                    "card": {
-                        "lastDigits": "0007",
-                        "cardExpiry": {
-                            "month": "12",
-                            "year": "2024"
-                        },
-                        "cardBin": "400344",
-                        "cardType": "VI",
-                        "singleUseToken": "SCR37YxqciqpGeKF",
-                        "billingDetailsId": "3722476e-4891-426b-8dcd-a25ad3d14ffe"
-                    },
-                    "paymentHandleTokenFrom": "SCR37YxqciqpGeKF"
-                }]
+                "paymentToken":"P0zPDqggWESaktW"
             }
 
-## Get Customer [GET /v1/customers/{customer_id}]
+
+### Get Customer [GET /v1/customers/{customer_id}]
 
 <a name="getcustomerrequest" title="Look Up a Customer"></a>
 Click on **Get Customer** above to see how to look up a Customer using the ID returned in the response to [the original request](#createcustomerequest).
@@ -4242,7 +4207,7 @@ Click on **Get Customer** above to see how to look up a Customer using the ID re
                 "paymentToken":"P0zPDqggWESaktW"
             }
 
-## Get Customer Using Merchant Customer ID [GET /v1/customers?merchantCustomerId={merchant_customer_id}]
+### Get Customer Using Merchant Customer ID [GET /v1/customers?merchantCustomerId={merchant_customer_id}]
 <a name="getcustomerrequest" title="Look Up a Customer"></a>
 Click on **Get Customer Using Merchant Reference Number** above to see how to look up a Customer using the merchant reference number used in [the original request](#createcustomerequest).
     
@@ -4274,7 +4239,7 @@ Click on **Get Customer Using Merchant Reference Number** above to see how to lo
                 "paymentToken":"P0zPDqggWESaktW"
             }
 
-## Get Customer Including Subcomponents [GET /v1/customers/{customer_id}?fields={fields}]
+### Get Customer Including Subcomponents [GET /v1/customers/{customer_id}?fields={fields}]
 <a name="getcustomerrequestsubcomponents" title="Look Up a Customer Including Subcomponents"></a>
 Click on **Get Customer Including Subcomponents** above to see how to look up a Customer along with its associated sub-components using one or more comma-separated values from this list:
   * paymenthandles
@@ -4350,7 +4315,7 @@ Click on **Get Customer Including Subcomponents** above to see how to look up a 
                 }]
             }
 
-## Update a Customer [PUT /v1/customers/{customer_id}]
+### Update a Customer [PUT /v1/customers/{customer_id}]
 
 <a name="updatecustomerrequest" title="Update a Customer"></a>
 Click on **Update a Customer** above to see how update a Customer using the ID returned in the response to [the original request](#createcustomerequest).
@@ -4417,7 +4382,7 @@ Click on **Update a Customer** above to see how update a Customer using the ID r
                 "paymentToken":"P0zPDqggWESaktW"
             }
 
-## Delete a Customer [DELETE /v1/customers/{customer_id}]
+### Delete a Customer [DELETE /v1/customers/{customer_id}]
 <a name="deletecustomerrequest" title="Delete a Customer"></a>
 
 Click on **Delete a Customer** above to see how delete a Customer.
