@@ -734,7 +734,7 @@ With the Paysafe Payments API you can test the following:
 
 <a name="applytestaccount" title="Applying for a Test Account"></a>
 ## Applying for a Test Account
-For access to Test accounts and credentials, please contact your business relationship manager or reach out to {contact email address}. 
+For access to Test accounts and credentials, please contact your business relationship manager or reach out to <integrations@paysafe.com>. 
 Your Test account will provide you with access to a Test version of the Paysafe Business Portal, where you can view the status of your Test transactions. 
 
 ## Supported Currencies and Payment Types
@@ -2274,7 +2274,7 @@ For example, the following steps show you how to open a service request to set u
 ## New Merchants
 
 If you are new to the Paysafe Payments API and want to integrate or if you have a sales enquiry, please contact your sales manager, if you already have one.
-You can also reach out to us at <sales email id – yet to be created>.
+You can also reach out to us at <integrations@paysafe.com>.
 
  >**Note:** Merchants who have previously integrated to either the Paysafe Card Payments API or the Alternate Payments API are still considered new to the Paysafe Payments API.
 
@@ -4692,7 +4692,7 @@ Once the *paymentHandleToken* in the response to this request is [used successfu
 
 **Note:** Although the *billingDetails* parameter is optional, it is recommended that you include it when you create the customer Payment Handle 
 because a Payment request that uses the *paymentHandleToken* in the response will fail AVS checks unless there is a billing address associated with it. 
-If you do not include it when creating the customer Payment Handle, you should then [update the Payment Handle](#) with the *billingDetailsId* before using it for transaction requests.
+If you do not include it when creating the customer Payment Handle, you should then [update the Payment Handle](#updatecustomerpaymenthandlerequest) with the *billingDetailsId* before using it for transaction requests.
 
 + Parameters
     + customer_id:`a5f1889d-f1be-4bbf-941d-fd9b8d09d5b1` (string,required) - This is the [ID of the customer](#createcustomerrequest) to which you are adding the Payment Handle.
