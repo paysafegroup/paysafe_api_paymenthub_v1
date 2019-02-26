@@ -3,13 +3,16 @@ HOST: https://api.test.paysafe.com/paymenthub/
 
 # Paysafe Payments API 
 
+>**IMPORTANT:**  Because the Paysafe Payments API uses its [own unique API keys for request authentication](#apikey) and provides its own [Test and Production accounts](#goinglive), you should never click the **SIGN UP** or **LOGIN** buttons at the top right of the 
+Developer Center navigation, as these are used strictly for the other APIs on the Developer Center.
+
 <a name="paymentsoverview" title="Payments API Overview"></a>
 # Overview
 
 The Paysafe Payments API allows merchants to accept payments via multiple payment methods while using a single endpoint integration.
 
  * Choose your preferred mode of integration based on your PCI DSS compliance level.
- * Transaction analysis and account management are made simple with our all-in-one business portal. 
+ * Transaction analysis and account management are made simple with our all-in-one [Business Portal](https://merchant.paysafe.com/portal). 
  * Enjoy the flexibility of adding new payment methods to your merchant account later with minimal integration effort.
 
 <a name="paymentsgettingstarted" title="Payments API Getting Started"></a>
@@ -42,7 +45,7 @@ and provide you with an API key. Your API key will have the following format:
  * Key Username – MerchantXYZ
  * Key Password – B-tst1-0-51ed39e4-312d02345d3f123120881dff9bb4020a89e8ac44cdfdcecd702151182fdc952272661d290ab2e5849e31bb03deede7e
 
-> **Note:** This is not the same the username and password you use to access the Business Portal. Your Production API key will be different from your Test API key. Contact your account manager for details. You must keep your API keys safe and ensure that it is used appropriately for your needs.
+> **Note:** This is not the same the username and password you use to access the [Business Portal](https://merchant.paysafe.com/portal). Your Production API key will be different from your Test API key. Contact your account manager for details. You must keep your API keys safe and ensure that it is used appropriately for your needs.
 
 The case-sensitive API key is sent using HTTP Basic Authentication. To use HTTP Basic Authentication, you must send the API key credentials using the Authorization header with every request. The Authorization header is constructed as follows:
 
@@ -66,7 +69,7 @@ The Payments API uses two distinct API keys:
 
 You will require a Secret key and a Public key for each of the two Paysafe environments: Test and Production (live).
 
-You will receive separate emails from Paysafe that will provide you with the credentials to sign in to the corresponding versions of the Paysafe Business Portal (Test and Production), where you can retrieve 
+You will receive separate emails from Paysafe that will provide you with the credentials to sign in to the corresponding versions of the Paysafe [Business Portal](https://merchant.paysafe.com/portal) (Test and Production), where you can retrieve 
 the API keys as required.
 
 <a name="publicapikey" title="Public API Key"></a>
@@ -357,7 +360,7 @@ The entry and storage of payment information is handled by Paysafe and the check
 ## How to Use the SDK
 
 1. Include the Paysafe Checkout SDK in your HTML payment form.
-2. Call the checkout setup function with your single-use token API key, [which you retrieve from the Business Portal](#secretapikey), where it is is called a Secret Key. 
+2. Call the checkout setup function with your Public API key, [which you retrieve from the Business Portal](#publicapikey). 
 The setup function creates an iframe overlay containing the secure payment form hosted on Paysafe's servers. 
 You will need to pass a callback function as part of the setup to handle successful payment handle success and failure.
 3. The callback should use AJAX to send the payment handle representing the customer's payment details to your merchant server to [make payment using the Paysafe Payments API](#paymentrequest).
@@ -375,9 +378,9 @@ You need to include it in your HTML form by adding a `<script>` element in eithe
 ## Example Payment Form
 
 The following code sample shows a minimal Paysafe Checkout example for card payments that creates a payment overlay for the user to enter their card number, expiry date, and CVV. 
-The overlay contains a payment button that creates a payment handle for the data entered by the user and displays the payment handle (if successful) in the browser console.
+The overlay contains a payment button that creates a payment handle for the data entered by the user and displays the payment handle token (if successful) in the browser console.
 
-```
+```html
 <html>
     <head>
         <script src="https://hosted.paysafe.com/checkout/v2/paysafe.checkout.min.js"></script>
@@ -391,7 +394,7 @@ The overlay contains a payment button that creates a payment handle for the data
     <script>
         function checkout() {
             paysafe.checkout.setup("API Key", {
-                amount: 25000,
+                amount: 2500,
                 currency: "USD",
                 locale: "en_US",
                 merchantRefNum: "10231231311",
@@ -405,7 +408,7 @@ The overlay contains a payment button that creates a payment handle for the data
                     console.error(error);
                     // Handle the error
                 }
-            }, function(stage) {
+            }, function(stage, expired) {
                 switch(stage) {
                     case "BeforePayment": // Handle the scenario
                     case "DuringPayment": // Handle the scenario
@@ -418,40 +421,40 @@ The overlay contains a payment button that creates a payment handle for the data
 </html>
 ```
 
-## Setup Options
+## Setup Function
 
 The setup function creates and initializes the Paysafe Checkout in an overlay. It has the following parameters:
-+ The Base64-encoded version of the single-use token API key used to authenticate with the Customer Vault REST API. Note that this key can only be used to generate single-use tokens for use with payments, and has no other API access rights, such as those required for taking payments. Consequently, this key can be exposed publicly in the user's browser.
-+ A *setupOptions* object containing the environment to use (Test or Live), the payment amount, currency, and several parameters to show additional features in the payment form.
++ The [Public API key](#publicapikey) provided in the Business Portal. Note that this key can only be used to generate payment handle tokens for use with payments, and has no other API access rights, such as those required for taking payments. Consequently, this key can be exposed publicly in the user's browser.
++ An *options* object containing the environment to use (Test or Live), the payment amount, currency, and several parameters to show additional features in the payment form.
 + A *resultCallback* function you provide to receive the Paysafe checkout instance, handle successful payment handle (by sending the payment handle to your merchant server), or respond to any errors caused by a failed payment handle creation.
 + An optional *closeCallback* function you provide to handle the customer closing the payment overlay.
 
 The function signature is as follows:
 ```
-paysafe.checkout.setup(apiKey, setupOptions, resultCallback, closeCallback?): void
+paysafe.checkout.setup(apiKey, options, resultCallback, closeCallback?)
 ```
 
 ### Setup Function and Objects
 
 |Parameter|Type|Required|Validations|Description|
 |---------|-------|---------------|-----------|------------------|
-|apiKey|string|yes||This is your Base64-encoded [Public API key](#publicapikey), available in the Business Portal.|
-|[setupOptions](#setupoptions)|object|yes||This is the merchant's configuration for rendering the Checkout.|
+|apiKey|string|yes||This is your [Public API key](#publicapikey), available in the Business Portal.|
+|[options](#options)|object|yes||This is the merchant's configuration for rendering the Checkout.|
 |[resultCallback](#resultcallback)|function|yes||The function to be invoked when the payment handle needs to be passed to the merchant, who then uses it to make the payment.|
 |[closeCallback](#closecallback)|function|optional||The function to be invoked when the user closes the Checkout without making a payment.|
 
-<a name="setupoptions"></a>
-**setupOptions**
+<a name="options"></a>
+**options**
 |Parameter|Type|Required|Validations|Description|
 |---------|-------|---------------|-----------|------------------|
-|currency|string|yes|`length=3`<br/>`Regex:[A-Z]`|This is the currency for the transaction to be processed, e.g., CAD, USD, EUR, GBP, etc.|
+|currency|string|yes|`length=3`<br/>`Regex:[A-Z]`|This is the [currency of the merchant account](#currencycodes), e.g., USD or CAD.|
 |merchantRefNum|string|yes|`length<=255`|A unique identifier provided by the merchant for every transaction from Checkout. |
-|amount|number|optional|`length=1-9`|The merchant can choose not to pass an amount when the checkout is loaded. In that case, the *canEditAmount* parameter should be set to *true*. However, before clicking the Pay button, the user would have to enter the desired amount in the Checkout.|
+|amount|number|optional|`length=1-9`|Payment amount in minor units to process the transaction. Use the correct minor units amount for the *currency* passed to *options*. For example, to process US $10.99, this value should be 1099. To process 1000 Japanese yen, this value should be 1000. To process 10.139 Tunisian dinar, this value should be 10139. The merchant can choose not to pass an amount when the Checkout is loaded. In that case, the *canEditAmount* parameter should be set to *true*. However, before clicking the Pay button, the user would have to enter the desired amount in the Checkout.|
 |environment|string|optional|Possible values: LIVE or TEST|The environment to be used for making the API calls and loading the Checkout. Default value is LIVE, if not specified. |
 |locale|string|optional|Possible values: en_US|Language locale for the checkout.|
-|[billingAddress](#billingaddress)|object|optional||The Billing Address of the customer stored with the merchant. In case the customer is a first-time user and has no customer profile. The merchant can choose to pass an existing *billingAddress* that would be displayed in the Checkout as a saved address.|
+|[billingAddress](#billingaddress)|object|conditional||This is the billing address of the customer that will be displayed to the customer at checkout. The merchant should include this object if this is a first-time customer with no customer profile. If the *customer* entity has been created with the Payments API, then address information from the *singleUseCustomerToken* will be used and the merchant does not have to include the *billingAddress* object.<br>**Note:** The address information from this object will be displayed in place of the address information from the *singleUseCustomerToken*, if both are included.|
 |singleUseCustomerToken|string|optional||This is the *singleUseCustomerToken* that the merchant generated using the [Create a Single-Use Customer Token request](#createcustomersut). Any saved addresses and/or payment details would be displayed in the Checkout.|
-|canEditAmount|boolean|optional||If *true*, the customer can edit the amount in the Checkout before clicking Pay. If false, the amount is fixed.|
+|canEditAmount|boolean|optional||If *true*, the customer can edit the amount in the Checkout before clicking Pay. If false, the amount is not editable.|
 |[customer](#customer)|object|optional||In case the customer is a first-time user and has no customer profile, the merchant can choose to pass an existing customer profile in the call to create a payment handle.|
 |[paymentMethodDetails](#paymentmethoddetails)|object|optional||Required for Paysafecash and Paysafecard payment types.|
 
@@ -459,13 +462,13 @@ paysafe.checkout.setup(apiKey, setupOptions, resultCallback, closeCallback?): vo
 **billingAddress**
 |Parameter|Type|Required|Validations|Description|
 |---------|-------|---------------|-----------|------------------|
-|nickName|string|yes|`length<=50`|An identifier to identify the type of address, e.g., Work or Home.|
+|nickName|string|optional|`length<=50`|An identifier to identify the type of address, e.g., Work or Home.|
 |street|string|yes|`length<=50`|The first line of the address.|
-|street2|string|yes|`length<=50`|The second line of the address.|
+|street2|string|optional|`length<=50`|The second line of the address.|
 |city|string|yes|`length<=40`|The city name in the address.|
 |zip|string|yes|`length<=10`|The zip code of the address.|
-|country|string|yes|`length=2`|The country of the address, e.g., US.|
-|state|string|yes|`length<=40`|The state of the address.|
+|country|string|yes|`length=2`|The country of the address, e.g., US. See [Country Codes](#countrycodes).|
+|state|string|yes|`length<=40`|The state of the address. See [State Codes](#statecodes).|
 
 
 <a name="customer"></a>
@@ -504,7 +507,7 @@ paysafe.checkout.setup(apiKey, setupOptions, resultCallback, closeCallback?): vo
 |---------|-------|---------------|-----------|------------------|
 |consumerId|string|yes|`length<=50`|This is a consumer ID that the merchant has stored for Paysafecash payments.|
 
-The Paysafe Checkout is displayed when the configuration provided in *setupOptions* is correctly validated.
+The Paysafe Checkout is displayed when the configuration provided in *options* is correctly validated.
 
 <a name="resultcallback"></a>
 #### resultCallback
@@ -543,7 +546,7 @@ The signature is as follows:
 **result**
 |Parameter|Type|Required|Description|
 |---------|-------|---------------|-----------|
-|paymentHandleToken|string|yes|The Payment Handle ID to be passed to the Payments API call.|
+|paymentHandleToken|string|yes|The Payment Handle token to be passed to the Payments API call.|
 |paymentMethod|string|yes|The payment method used by the customer.|
 |customerOperation|string|yes|The customer operation for the card. Values: ADD, EDIT or DELETE.|
 |amount|number|yes|The amount used to create the Payment Handle. This is required because the user might change the the amount in the Checkout.|
@@ -555,39 +558,94 @@ Invoked when the checkout overlay is closed by the customer. This function has t
 |Parameter|Type|Required|Description|
 |---------|-------|---------------|-----------|
 |stage|string|yes|Stage during which the Checkout overlay is closed. Possible values are: *BeforePayment*, *DuringPayment*, *AfterPayment*|
+|expired|boolean|yes|Indicates whether the *close* event was triggered after the Checkout expired.|
 |{return}|undefined|false|
 
 
 <a name="usingsavedcardscheckout" title="Using Saved Cards and Addresses in Checkout"></a>
-### Using Saved Cards and Addresses in Checkout
-The Checkout can display existing cards and addresses that are available for a customer. 
-To implement this functionality, the merchant needs to use the permanent customer ID and make a call from the merchant server to create a single-use customer token. 
-This single-use customer token should then be provided to the *setupOptions* while invoking the Checkout. 
-In this case, when the Checkout is loaded, the customer would be able to view their saved payment details.
+## Using Saved Cards and Addresses in Checkout
+The Paysafe Checkout provides the functionality for a customer to use their saved cards and addresses for their future transactions. 
 
-**To display saved cards and addresses to a customer in Checkout:**
- 1. [Create a customer](#getcustomerrequest) and [add an address to that customer](#addresses request), using the Payments API. 
- If the customer has already been created along with an address, you can just [look up that customer with a GET request](#getcustomerrequest).
- 2. Take the *id* from the response to either request in step 1 and [create a single-use customer token](#createcustomersut).
- 3. In the response to this request there will be a *singleUseCustomerToken*, e.g., *SPFAB1cA5iwdu48H*.
- **Note:** This token has a lifespan of 15 minutes and will expire after that time.
- 4. Take this value for the *singleUseCustomerToken* and provide it in the *options.singleUseCustomerToken* Checkout field, as in the example below.
+### Creating a Customer Profile
+To use this functionality, the merchant needs to first create a customer profile with Paysafe. There are two ways to create a customer profile:
+
+1. Create the Profile in the Payments Call
+
+   On creation of a successful payment handle, the *resultCallback* is invoked, which contains the parameter *customerOperation*. If the value of *customerOperation* is 
+   ADD (the value of the *customerOperation* is ADD when the customer selects the *saveCard* while doing the payment), then the merchant
+   needs to pass an additional *merchantCustomerId* field in the body when [processing a Payment request using a payment handle token](#paymentrequest). 
+   ```json
+   Request Body :
+        {
+            ...
+            "merchantCustomerId": "user1"
+        }
+   ```
+   
+   When the payment request is successful, a customer profile and a multi-use payment handle also get created. 
+   The merchant needs to store the equivalent Paysafe customer ID for their provided *merchantCustomerId* in their database for that particular user. 
+   The equivalent customer ID with Paysafe and the multi-use payment handle will be returned in the response to the payments request itself.
+   
+   ```json
+   Request Body :
+        {
+            ...
+            "customerId": "ccb24e28-6e38-47ce-8815-94706c5b608c",
+            "multiUsePaymentHandleToken": "uyfiuewyrw273uw"
+        }
+   ```
+   This is the preferred way of creating a customer profile if you are integrating with Paysafe Checkout.
+   
+2. Create the Profile Using the Customer API
+   
+    The second way to create a customer profile is by using the request to [Create a Customer](#createcustomerrequest).
+    The merchant should then store the unique ID provided in Paysafe's response for that particular user.
+    ```json
+    Response body: {
+        "id": "ccb24e28-6e38-47ce-8815-94706c5b608c"
+    }
+    ```
+
+Either of these methods allow you to create a customer profile for a user ndash; just save the corresponding
+customer ID in your database for that user.
+
+### Creating a Single-Use Customer Token
+The Checkout can show existing cards and addresses for a user. To use this functionality,
+the merchant needs to make use of the customer ID and make an API call to [create a single-use customer token](#createcustomersut). 
+This single-use customer token in the response should then be provided as the value for *singleUseCustomerToken* in the [Checkout options](#options)
+while invoking the Checkout. In this case, when the checkout is loaded, the user would be able
+to see their saved payment details. 
+
+The following are the 2 steps are involved.
+
+1. Create a Single-Use Customer Token
+
+   Make an API call to [create a single-use customer token](#createcustomersut), using the customer ID for that user.
+   This generates a single-use customer token &ndash; the field *singleUseCustomerToken* in the response &ndash; which is valid for 15 minutes.
+   ```json
+   Response Body: {
+        ...
+        "singleUseCustomerToken": "SPFAB1cA5iwdu48H"
+   }
+   ```
+
+2. Use the *singleUseCustomerToken* field from the response in step 1 above and provide this value for the *singleUseCustomerToken* parameter in the [Checkout options](#options).
 
 ```
 <html>
     <head>
-        <script src="https://hosted.paysafe.com/checkout/v2/paysafe.checkout.min.js"></script>
+        <script src="https://hosted.test.paysafe.com/checkout/v2/paysafe.checkout.min.js"></script>
     </head>
 
  
     <body>
-        <button onclick="checkout()"> Pay 25$ </button>
+        <button onclick="checkout()"> Pay $25 </button>
     </body>
 
     <script>
         function checkout() {
             paysafe.checkout.setup("API Key", {
-                amount: 25000,
+                amount: 2500,
                 currency: "USD",
                 locale: "en_US",
                 merchantRefNum: "10231231311",
@@ -602,7 +660,7 @@ In this case, when the Checkout is loaded, the customer would be able to view th
                     console.error(error);
                     // Handle the error
                 }
-            }, function(stage) {
+            }, function(stage, expired) {
                 switch(stage) {
                     case "BeforePayment": // Handle the scenario
                     case "DuringPayment": // Handle the scenario
@@ -614,6 +672,9 @@ In this case, when the Checkout is loaded, the customer would be able to view th
     </script>
 </html>
 ```
+
+>**Note:** In the case where a customer ID already exists for a customer, then the parameter *merchantCustomerId* should not be passed in the 
+[Payment request](#paymentrequest). 
 
 <a name="paymentswebhooks" title="Payments Webhooks"></a>
 # Using Webhooks
@@ -735,7 +796,7 @@ With the Paysafe Payments API you can test the following:
 <a name="applytestaccount" title="Applying for a Test Account"></a>
 ## Applying for a Test Account
 For access to Test accounts and credentials, please contact your business relationship manager or reach out to <integrations@paysafe.com>. 
-Your Test account will provide you with access to a Test version of the Paysafe Business Portal, where you can view the status of your Test transactions. 
+Your Test account will provide you with access to a Test version of the Paysafe [Business Portal](#https://merchant.test.paysafe.com/portal#/login), where you can view the status of your Test transactions. 
 
 ## Supported Currencies and Payment Types
 
@@ -1288,26 +1349,6 @@ You will not be able to use your Test credentials to process transaction request
     }
 ```
 
-<a name="acquirerdataobject" title="Acquirer Data Object"></a>
-## acquirerData
-
-This is additional information about the card acquirer required when you are performing an Original Credit request. This object is required **only when** you are using Credorax (CRX) as your acquirer for Original Credits. Contact your account manager for details.
-
-|Element            |Type                       |Description                        |
-|---                |---                        |---       |
-|authId             |string<br/>`length<=36`    |This is the ID returned in the response to a previous successful Payment request.|
-|code               |string</br>`length<=10`    |This is the code for your card acquirer.|
-|externalSubMerchantId |string                  |This is the external merchant ID of the acquirer data.|
-
-```apib
-    {
-    "acquirerData":{
-        "authId":"f06bccd6-de90-4b73-b10f-30266763bc60",
-        "code":"CRX"
-    }
-    }
-```
-
 <a name="addressesobject" title="Addresses Object"></a>
 ## addresses
 |Element            |Type                       |Description    |
@@ -1406,7 +1447,6 @@ This is additional information about the card acquirer required when you are per
 |lastDigits         |string<br/>`length=4`      |This is the last four digits of the card used for the request, returned in the response.|
 |cardExpiry         |[cardExpiry](#cardexpiryobject)|This is the card's expiry date.|
 |cvv                |string<br/>`length=3-4`    |This is the 3- or 4-digit security code that appears on the card following the card number.|
-|merchantDescriptor |[merchantDescriptor](#merchantdescriptorobject) |This is the merchant descriptor that will be displayed on the customer's card or bank statement.<br/>**Note:** Not all processing gateways support this parameter. Contact your account manager for more information.    |
 |holderName         |string<br/>`length<=160`   |This is the name of the card holder. |
 |status             |enum                       |       |
 |nickName           |string<br/>`length<=50`    |This is the nickname the merchant has for the card holder. |
@@ -1722,9 +1762,10 @@ This is an authorization that is approved for an amount lower than the requested
 |amount                 |number<br/>`max=99999999999` |This is the amount of the request, in minor units.<br/>**Note:** This field is mandatory if *transactionType* is included. <br/>The *amount* specified in the Payment Handle request must match the *amount* specified in the Payments API request the *paymentHandleToken* is used for. |
 |currencyCode           |string<br/>`length=3`      |This is the currency of the merchant account, e.g., USD or CAD. See [Currency Codes](#currencycodes). <br/>The *currencyCode* specified in the Payment Handle request must match the *currencyCode* specified in the Payments API request the *paymentHandleToken* is used for.|
 |paymentHandleToken     |string                     |This is the payment token generated by Paysafe that will be used by merchants for Payment API requests.|
-|card \| paysafecard \| paysafecash               | [card](#cardobject) \| [paysafecard](#paysafecardobject)\ | [paysafecash](#paysafecashobject)        |These are details of the payment instrument used in the request. |
+|card \| paysafecard \| paysafecash               | [card](#cardobject) \| [paysafecard](#paysafecardobject)\| [paysafecash](#paysafecashobject)        |These are details of the payment instrument used in the request. |
 |billingDetails         |[billingDetails](#billingdetailsobject)         |These are billing details for the request.<br/>**Note:** For single-use Payment Handles, this address information will be ignored if the *paymentHandleTokenFrom* parameter is included and there is already address information associated with that customer.|
 |profile                |[profile](#profileobject)  |This is the customer's profile. |
+|merchantDescriptor     |[merchantDescriptor](#merchantdescriptorobject) |This is the merchant descriptor that will be displayed on the customer's card or bank statement.<br/>**Note:** Not all processing gateways support this parameter. Contact your account manager for more information.|
 |returnLinks            |[returnLinks](#returnlinksobject)         |These are links to which to redirect the customer, where applicable. |
 |customerIp             |string<br/>`length<=39`    |This is the customer's IP address. |
 |timeToLiveSeconds      |number<br/>`length<=899`   |This is the period of time, in seconds, the *paymentHandleToken* is valid before expiration.|
@@ -2254,7 +2295,7 @@ The *storedCredential* object is used to identify [authorization requests](#auth
 
 ## Existing Merchants
 
-If you are an existing merchant with access to the Paysafe Business Portal, 
+If you are an existing merchant with access to the Paysafe [Business Portal](https://merchant.paysafe.com/portal), 
 you can use the portal to open a service request for all your technical and integration-related queries.
 For example, the following steps show you how to open a service request to set up webhooks.
 
@@ -4685,7 +4726,7 @@ Click on **Delete an Address** above to see how delete an Address.
 
 Click on **Create a Payment Handle for a Customer** above to create a Payment Handle for a [Customer you have already created](#createcustomerequest).
 
-The *paymentHandleToken* returned in the response can be used for [payment requests in the Payments API](#paymentrequest).
+The *paymentHandleToken* returned in the response can be used for [payment requests in the Payments API](#paymentrequest), once it has the *status* of PAYABLE.
 Currently, only CARD is supported as a *paymentType* parameter.
 
 Once the *paymentHandleToken* in the response to this request is [used successfully in a Payment request](#paymentrequest), its *status* will become PAYABLE.
@@ -4728,11 +4769,11 @@ If you do not include it when creating the customer Payment Handle, you should t
                         "month": "12",
                         "year": "2021"
                     },
-                    "cvv": "111",
-                    "merchantDescriptor": {
-                        "dynamicDescriptor": "Casino slots payin",
-                        "phone": "189134336"
-                    }
+                    "cvv": "111"
+                },
+                "merchantDescriptor": {
+                    "dynamicDescriptor": "Casino slots payin",
+                    "phone": "189134336"
                 }
             }
 
@@ -4740,59 +4781,60 @@ If you do not include it when creating the customer Payment Handle, you should t
     
     + Body
 
-            {
-                "id": "218d68c7-77c8-4d37-9d06-0a4bb5272adb",
-                "merchantRefNum": "ad9c23c2-509b-43ae-bf5d-64554c9fc378",
-                "status": "INITIATED",
-                "usage": "MULTI_USE",
-                "paymentType": "CARD",
-                "action": "NONE",
-                "paymentHandleToken": "Cy4WEGJ9IWIkcUn",
-                "billingDetails": {
-                    "street": "Andhra bank lane",
-                    "street2": "Manikonda",
-                    "city": "Hyderabad",
-                    "state": "TS",
-                    "country": "IN",
-                    "zip": "500089"
-                },
-                "billingDetailsId": "786cf0cd-4296-43ce-8a57-5f4675e3fafd",
+             {
+                 "id": "218d68c7-77c8-4d37-9d06-0a4bb5272adb",
+                 "merchantRefNum": "ad9c23c2-509b-43ae-bf5d-64554c9fc378",
+                 "status": "INITIATED",
+                 "usage": "MULTI_USE",
+                 "paymentType": "CARD",
+                 "action": "NONE",
+                 "paymentHandleToken": "Cy4WEGJ9IWIkcUn",
+                 "billingDetails": {
+                     "street": "Andhra bank lane",
+                     "street2": "Manikonda",
+                     "city": "Hyderabad",
+                     "state": "TS",
+                     "country": "IN",
+                     "zip": "500089"
+                 },
+                 "billingDetailsId": "786cf0cd-4296-43ce-8a57-5f4675e3fafd",
             
-                "card": {
-                    "lastDigits": "2222",
-                    "cardBin": "422222",
-                    "cardExpiry": {
-                        "month": "12",
-                        "year": "2021"
-                    },
-                    "merchantDescriptor": {
-                        "dynamicDescriptor": "Casino slots payin",
-                        "phone": "189134336"
-                    }
-                }
-            }
+                 "card": {
+                     "lastDigits": "2222",
+                     "cardBin": "422222",
+                     "cardExpiry": {
+                         "month": "12",
+                         "year": "2021"
+                     }
+                 },
+                 "merchantDescriptor": {
+                     "dynamicDescriptor": "Casino slots payin",
+                     "phone": "189134336"
+                 }
+             }
 
-## Create a Customer Payment Handle Using a Single-Use Payment Handle Token [POST /v1/customers/{customer_id}/paymenthandles]
+## Create a Multi-Use Payment Handle Using a Single-Use Payment Handle Token [POST /v1/customers/{customer_id}/paymenthandles]
 <a name="createpaymenthandlerequestsut" title="Create a Payment Handle Using a Single-Use Payment Handle Token"></a>
 
-Click on **Create a Customer Payment Handle Using a Single-Use Payment Handle Token** above to create a Payment Handle using a regular [single-use Payment Handle Token](#paymenthandlerequest) that 
+Click on **Create a Multi-Use Payment Handle Using a Single-Use Payment Handle Token** above to create a Payment Handle using a regular [single-use Payment Handle Token](#paymenthandlerequest) that 
 you created in order [to process a Payment request](#paymentrequest). The single-use Payment Handle Token must still be valid - i.e., the *timeToLiveSeconds* has not expired.
 
 Once the Payment request you have used the single-use Payment Handle Token for is successfully processed, 
 the *status* of the *paymentHandleToken* in the response to this request will become PAYABLE.
 
 
-The *paymentHandleToken* returned in the response can be used for [payment requests in the Payments API](#paymentrequest).
+The *paymentHandleToken* returned in the response can be used for [payment requests in the Payments API](#paymentrequest), once it has the *status* of PAYABLE.
 
 + Parameters
     + customer_id:`a5f1889d-f1be-4bbf-941d-fd9b8d09d5b1` (string,required) - This is the [ID of the customer](#createcustomerrequest) to which you are adding the Payment Handle.
 
 + Attributes 
 
-    + `paymentHandleTokenFrom`:`SC7nLsLzHWVqI62i` (string, required) - This is 
+    + `paymentHandleTokenFrom`:`SC7nLsLzHWVqI62i` (string, required) - This is the *paymentHandleToken* returned in the response to [a single-use Payment Handle Token creation request](#paymenthandlerequest).
         _length<=36_
+    + Include PaymentHandleRequest Customer SUT Response
 
-+ Request Create a Customer Payment Handle Using Single-Use Payment Handle Token (application/json)
++ Request Create a Multi-Use Payment Handle Using Single-Use Payment Handle Token (application/json)
 
     + Headers
 
@@ -4819,14 +4861,15 @@ The *paymentHandleToken* returned in the response can be used for [payment reque
                 "paymentHandleToken": "Cy4WEGJ9IWIkcUn",
                 "card": {
                     "lastDigits": "2222",
+                    "cardBin": "422222",
                     "cardExpiry": {
                         "month": "12",
                         "year": "2021"
-                    },
-                    "merchantDescriptor": {
-                        "dynamicDescriptor": "Casino slots payin",
-                        "phone": "189134336"
                     }
+                },
+                "merchantDescriptor": {
+                    "dynamicDescriptor": "Casino slots payin",
+                    "phone": "189134336"
                 },
                 "billingDetailsId": "786cf0cd-4296-43ce-8a57-5f4675e3fafd",
                 "billingDetails": {
@@ -4874,11 +4917,11 @@ Click on **Get Customer Payment Handle** above to see how to look up a Customer 
                     "cardExpiry": {
                         "month": "12",
                         "year": "2021"
-                    },
-                    "merchantDescriptor": {
-                        "dynamicDescriptor": "Casino slots payin",
-                        "phone": "189134336"
                     }
+                },
+                "merchantDescriptor": {
+                    "dynamicDescriptor": "Casino slots payin",
+                    "phone": "189134336"
                 },
                 "billingDetailsId": "786cf0cd-4296-43ce-8a57-5f4675e3fafd",
                 "billingDetails": {
@@ -4937,11 +4980,11 @@ with the exception of the *cardNum* element.
                         "month": "12",
                         "year": "2021"
                     },
-                    "cvv": "111",
-                    "merchantDescriptor": {
-                        "dynamicDescriptor": "Casino slots payin",
-                        "phone": "189134336"
-                    }
+                    "cvv": "111"
+                },
+                "merchantDescriptor": {
+                    "dynamicDescriptor": "Casino slots payin",
+                    "phone": "189134336"
                 }
             }
 
@@ -4971,11 +5014,11 @@ with the exception of the *cardNum* element.
                     "cardExpiry": {
                         "month": "12",
                         "year": "2021"
-                    },
-                    "merchantDescriptor": {
-                        "dynamicDescriptor": "Casino slots payin",
-                        "phone": "189134336"
                     }
+                },
+                "merchantDescriptor": {
+                    "dynamicDescriptor": "Casino slots payin",
+                    "phone": "189134336"
                 }
             }
 
@@ -5029,11 +5072,11 @@ the *paymentHandleToken* returned in that response as the value for the *payment
                     "cardExpiry": {
                         "month": "01",
                         "year": "2032"
-                    },
-                    "merchantDescriptor": {
-                        "dynamicDescriptor": "Casino slots payin",
-                        "phone": "189134336"
                     }
+                },
+                "merchantDescriptor": {
+                    "dynamicDescriptor": "Casino slots payin",
+                    "phone": "189134336"
                 }
             }
 
@@ -5066,8 +5109,6 @@ The *singleUseCustomerToken* returned in the response is then used in the Paymen
 Any addresses and/or payment details that have been saved for this *customer_id* would then be displayed in the Payments Checkout.
 
 **Note:** The *customer_id* used in this request must be taken from [a Customer created using a single-use Payment Handle Token](#createpaymenthandlerequestsut).
-
-The *paymentHandleToken* returned in the response can be [used for payment requests](#paymentrequest). 
 
 + Parameters
     + customer_id:`a5f1889d-f1be-4bbf-941d-fd9b8d09d5b1` (string,required) - This is the [ID of the customer](#createcustomerrequest) for which you are creating the single-use token.
@@ -5241,19 +5282,6 @@ Use the *singleUseCustomerToken* returned in the response in the Payments Checko
         + `term`:`12` (number) - This is the number of payments, in months, for equal payment transactions.
             _max=99_
 
-## `Acquirer Data`
-
-+ `acquirerData` (object) - This is additional information about your card acquirer, required **only when** you are using Credorax (CRX) as your acquirer. Contact your account manager for more information.
-
-    _Read Only_
-    
-    + Properties
-    - `authId`:`f06bccd6-de90-4b73-b10f-30266763bc60` (string) - This is the ID returned in the response to a previous successful Authorization or Settlement request.
-        _length<=36_
-    - `code`:`CRX` (enum) - This is the code for your card acquirer.
-        _length<=10_
-    - `externalSubMerchantId`:`ID123` (string) - This is the external merchant ID of the acquirer data.
-
 ## Address
 + `id`:`5d4db3bc-34c9-417f-a051-0d992ad9284e` (string) - This is the ID of request, returned in the response.
     _Read Only, length<=36_
@@ -5342,7 +5370,7 @@ Use the *singleUseCustomerToken* returned in the response in the Payments Checko
         + `error`:`Contain invalid characters` (string)  - Error associated with the field name.
 
 ## Billing Details
-+ billingDetails (object) - These are the customer's billing details. **Note:** **Note:** For single-use Payment Handles, this address information will be ignored if the *paymentHandleTokenFrom* parameter is included in the Payment Handle creation request and there is already address information associated with that customer.
++ billingDetails (object) - These are the customer's billing details. **Note:** For single-use Payment Handles, this address information will be ignored if the *paymentHandleTokenFrom* parameter is included in the Payment Handle creation request and there is already address information associated with that customer.
     + street:`100 Queen` (string)  - This is the first line of the street address in the billing address.
         _length<=50_
     + street2:`Unit 201` (string) - This is the second line of the street address in the billing address, if required (e.g., apartment number).
@@ -5359,6 +5387,29 @@ Use the *singleUseCustomerToken* returned in the response in the Payments Checko
         _length<=40_
     + `nickName`:`Home` (string) - This is the nickname the merchant has for the billing address.
         _length<=50_
+
+## Billing Details Response
++ billingDetails (object) - These are the customer's billing details.
+     _Read Only_
+     
+     + Properties
+    
+        + street:`100 Queen` (string)  - This is the first line of the street address in the billing address.
+            _length<=50_
+        + street2:`Unit 201` (string) - This is the second line of the street address in the billing address, if required (e.g., apartment number).
+            _length<=50_
+        + city:`Toronto` (string) - This is the city in the billing address.
+            _length<=40_
+        + zip:`MSH 2N2` (string) - This is the postal/zip code in the billing address.
+            _length<=10_
+        + country:`CA` (string) - This is the country where the address is located. See [Country Codes](#countrycodes).
+            _length=2_
+        + state:`ON` (string) - This is the state or province of the billing address. For Canada see [Province Codes](#provincecodes). For the United States see [State Codes](#statecodes). Other countries have no restrictions.
+            _length<=40_
+        + phone:`444-9999` (string) - This is the customer's telephone number.
+            _length<=40_
+        + `nickName`:`Home` (string) - This is the nickname the merchant has for the billing address.
+            _length<=50_
 
 ## `Card`
 
@@ -5378,15 +5429,27 @@ Use the *singleUseCustomerToken* returned in the response in the Payments Checko
             _length=3-4_
         + lastDigits:`1111` (string) - These are the last four digits of the card used for the request.
             _Read Only, length=4_
-        + `merchantDescriptor` (object) - This is the merchant descriptor that will be displayed on the customer's card statement.
-            + `dynamicDescriptor`:`OnlineStore` (string) - This is a merchant descriptor that will be displayed on a customer’s statement.
-                _length<=20_
-            + `phone`:`999-8888` (string) - This is the merchant’s phone number, which will be appended to the merchant descriptor on a customer’s statement.
-                _length<=13_
         + holdername:`Jane Smith` (string) - This is the name of the card holder.
             _Read Only_
         + nickName:`Jane's Card` (string) - This is the nickname the merchant has for the card holder.
             _length<=50_
+        + cardBin:`411111` (string) - This is the card BIN (typically the first 6 digits).
+            _Read Only, length=6_
+
+## `Card Response`
+
++ card (object) - These are the details of the [card](#cardobject) used for the request.
+    _Read Only_
+
+    + Properties
+
+        + cardExpiry (object, required) - This is the card's [expiry date](#cardexpiryobject).
+            + month:12 (number, required) - This is the card expiry month.
+                _length=2_
+            + year:2020 (number, required) - This is the card expiry year.
+                _length=4_
+        + lastDigits:`1111` (string) - These are the last four digits of the card used for the request.
+            _Read Only, length=4_
         + cardBin:`411111` (string) - This is the card BIN (typically the first 6 digits).
             _Read Only, length=6_
 
@@ -5539,6 +5602,25 @@ Use the *singleUseCustomerToken* returned in the response in the Payments Checko
     + totalAmount:504000 (number) - This is the total amount of the line item, typically calculated as price multiplied by quantity, in minor units.
         _length<=99999999999_
 
+## Merchant Descriptor
++ merchantDescriptor (object)
+
+    + Properties
+        + `dynamicDescriptor`:`OnlineStore` (string) - This is a merchant descriptor that will be displayed on a customer’s statement.
+            _length<=20_
+        + `phone`:`999-8888` (string) - This is the merchant’s phone number, which will be appended to the merchant descriptor on a customer’s statement.
+            _length<=13_
+
+## Merchant Descriptor Response
++ merchantDescriptor (object)
+    _Read Only_
+
+    + Properties
+        + `dynamicDescriptor`:`OnlineStore` (string) - This is a merchant descriptor that will be displayed on a customer’s statement.
+            _length<=20_
+        + `phone`:`999-8888` (string) - This is the merchant’s phone number, which will be appended to the merchant descriptor on a customer’s statement.
+            _length<=13_
+
 ## Metadata Object
 + metadata (object) 
     _Read Only_
@@ -5651,7 +5733,9 @@ Use the *singleUseCustomerToken* returned in the response in the Payments Checko
 + `paymentHandleToken`:`SCO3wKcIyLoQbQvw` (string) - This is the payment token generated by Paysafe that will be used by merchants for Payment API requests.
     _Read Only, length<=36_
 + Include Payment Instrument
++ Include Profile
 + Include Billing Details
++ Include Merchant Descriptor
 + `returnLinks` (object) - The URL endpoints to redirect the customer to after a redirection to an alternative payment or 3D Secure site. You can customize the return URL based on the transaction status. 
     + `rel`(enum) -This is the link type, allowing different endpoints to be targeted depending on the end state of the transaction. The link relation describes how this link relates to the previous call. 
         + default (string, required) - The default return URL that will be used if specific status return URL is not defined.
@@ -5665,7 +5749,7 @@ Use the *singleUseCustomerToken* returned in the response in the Payments Checko
     + `method`:`GET`
 + `customerIp`:`111.111.111.111` (string) - This is the customer's IP address.
     _length<=39_
-+ `timeToLiveSeconds`:`1212121212` (number) - This is the period of time, in seconds, the *paymentHandleToken* is valid before expiration. 
++ `timeToLiveSeconds`:`899` (number) - This is the period of time, in seconds, the *paymentHandleToken* is valid before expiration. 
     _Read Only, length<=899_
 
 ## PaymentHandleRequest Customer
@@ -5698,7 +5782,7 @@ Use the *singleUseCustomerToken* returned in the response in the Payments Checko
     _Max =99999999999_
 + `currencyCode`:`CAD` (string) - This is the [currency of the merchant account](#currencycodes), e.g., USD or CAD.
     _Read Only, max=3_
-+ `paymentHandleToken`:`842778a0-03a2-11e9-8eb2-f2801f1b9fd1` (string) - This is the payment token generated by Paysafe that will be used by merchants for Payment API requests.
++ `paymentHandleToken`:`842778a0-03a2-11e9-8eb2-f2801f1b9fd1` (string) - This is the payment token generated by Paysafe that will be used by merchants for Payment API requests, provided its *status* is PAYABLE.
     _Read Only, length<=36_
 + Include Card
 + Include Billing Details
@@ -5715,8 +5799,52 @@ Use the *singleUseCustomerToken* returned in the response in the Payments Checko
     + `method`:`GET`
 + `customerIp`:`111.111.111.111` (string) - This is the customer's IP address.
     _length<=39_
-+ `timeToLiveSeconds`:`1212121212` (number) - This is the period of time, in seconds, the *paymentHandleToken* is valid before expiration. 
++ `timeToLiveSeconds`:`899` (number) - This is the period of time, in seconds, the *paymentHandleToken* is valid before expiration. 
     _Read Only, length<=899_
++ `singleUseCustomerToken`:`SPFAB1cA5iwdu48H` (string) - This token can be [used in the Payments Checkout](#paymentscheckout) to populate the checkout with customer information.
+    _Read Only, length<=16_
+
+## PaymentHandleRequest Customer SUT Response
++ `id`:`26359efd-7cfb-4014-a13d-1724e3ff17fa` (string) - This is the ID returned in the response. This ID can be used for future associated requests, e.g., to look up the Payment Handle. 
+    _Read Only, length<=36_
++ `merchantRefNum`:`merchantRefNum-101` (string) - This is the merchant reference number created by the merchant and submitted as part of the request. It must be unique for each request.
+    _Read Only, length<=255_
++ `status`:`INITIATED` (enum) - This is the status of the transaction request.
+    _Read Only_
+    
+    + Members
+        + INITIATED - The transaction was initiated with the downstream provider.
+        + PAYABLE - The merchant can use the Payment Handle for a Payment request.
+        + PROCESSING - The Payment Handle was authorized by customer, awaiting PSP response.
+        + FAILED - The transaction failed due to either an error or being declined. 
+        + EXPIRED - The Payment Handle expired because the merchant did not proceed with the Payment request. 
+        + COMPLETED - The Payment request was initiated successfully using the Payment Handle.
++ `usage`:`MULTI_USE` (enum) - This specifies how the Payment Handle will be used for Payments.
+    _Read Only_
+    
+    + Members
+        + MULTI_USE - The Payment Handle can be used multiple times.
++ `paymentType`:`CARD` (enum, required) - This is the payment type associated with this Payment Handle.
+    _Read Only_
+    
+    + Members
+        + CARD
++ `action`:`NONE` (enum) - This specifies the next step of the user journey once they proceed to the Payment.
+    _Read Only_
+    
+    + Members
+        + NONE
+        + REDIRECT
++ `paymentHandleTokenFrom`:`7576835c-0396-11e9-8eb2-f2801f1b9fd1` (string) - This is an existing [Payment Handle token created for a customer](#createcustomerpaymenthandlerequest).
+    _Read Only_
++ `paymentHandleToken`:`842778a0-03a2-11e9-8eb2-f2801f1b9fd1` (string) - This is the payment token generated by Paysafe that will be used by merchants for Payment API requests, provided its *status* is PAYABLE.
+    _Read Only, length<=36_
++ Include Card Response
++ Include Merchant Descriptor Response
++ `billingDetailsId`:`786cf0cd-4296-43ce-8a57-5f4675e3fafd` (string) - This is the *id* returned in [the Address creation request](#createaddressrequest).
+    _Read Only_
++ Include Billing Details Response
+
 
 ## PaymentHandleRequest Object
 + paymentHandleRequest (object)
@@ -5803,11 +5931,6 @@ Use the *singleUseCustomerToken* returned in the response in the Payments Checko
                     _length=4_
             + cvv:`123` (string) - This is the 3- or 4-digit security code that appears on the card following the card number.
                 _length=3-4_
-            + `merchantDescriptor` (object) - This is the merchant descriptor that will be displayed on the customer's card statement.
-                + `dynamicDescriptor`:`OnlineStore` (string) - This is a merchant descriptor that will be displayed on a customer’s statement.
-                    _length<=20_
-                + `phone`:`999-8888` (string) - This is the merchant’s phone number, which will be appended to the merchant descriptor on a customer’s statement.
-                    _length<=13_
             + holdername:`Jane Smith` (string) - This is the name of the card holder.
                 _Read Only_
             + type (enum) - This is type of card used for the request.
@@ -5889,7 +6012,6 @@ Use the *singleUseCustomerToken* returned in the response in the Payments Checko
 + Include Splitpay
 + Include Stored Credential
 + settlements (array) - This is the list of all Settlements. This will be returned only if *settleWithAuth* = *true* in the request.
-+ Include Acquirer Data
 + Include Error Attributes
 + Include Metadata Object
 + `statusReason` - This is reason for the status. This is present in case of ERROR, FAILURE, HELD status.
