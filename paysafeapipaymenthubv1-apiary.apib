@@ -388,7 +388,7 @@ The overlay contains a payment button that creates a payment handle for the data
 
  
     <body>
-        <button onclick="checkout()"> Pay 25$ </button>
+        <button onclick="checkout()"> Pay $25 </button>
     </body>
 
     <script>
@@ -564,16 +564,26 @@ Invoked when the checkout overlay is closed by the customer. This function has t
 
 <a name="usingsavedcardscheckout" title="Using Saved Cards and Addresses in Checkout"></a>
 ## Using Saved Cards and Addresses in Checkout
-The Paysafe Checkout provides the functionality for a customer to use their saved cards and addresses for their future transactions. 
+You can use Payments Checkout to store your customer's credit card and address information, which you can then use for their future transactions. 
+This involves two easy steps:
+ 1. Create a profile for your customer.
+ 2. Using the *customerId* in the Payments Checkout response (or the *id*, if you use an API call), create a single-use customer token.
+ When you then use the single-use customer token as the *singleUseCustomerToken* parameter in the Payments Checkout, any card and address information associated with the customer can be displayed on your Checkout page.
 
 ### Creating a Customer Profile
 To use this functionality, the merchant needs to first create a customer profile with Paysafe. There are two ways to create a customer profile:
+ 1. Create a profile in a Payments Checkout request
+ 2. Create a profile using the API request to create a customer
 
-1. Create the Profile in the Payments Call
+> **Note:** Paysafe recommends that you use the Payments Checkout request to create a customer profile if you are integrating with Paysafe Payments Checkout.
 
-   On creation of a successful payment handle, the *resultCallback* is invoked, which contains the parameter *customerOperation*. If the value of *customerOperation* is 
-   ADD (the value of the *customerOperation* is ADD when the customer selects the *saveCard* while doing the payment), then the merchant
-   needs to pass an additional *merchantCustomerId* field in the body when [processing a Payment request using a payment handle token](#paymentrequest). 
+#### Create the Profile in the Payments Checkout Request
+
+When you create a payment handle with the Payments Checkout, the *resultCallback* is invoked, which contains the *customerOperation* parameter. If the value of *customerOperation* is set as 
+ADD, then the merchant needs to pass an additional *merchantCustomerId* field in the body when [processing a Payment request using a payment handle token](#paymentrequest). 
+   
+>**Note:** The value of the *customerOperation* is set to ADD when the customer selects the *saveCard* option while doing the payment.
+   
    ```json
    Request Body :
         {
@@ -582,35 +592,34 @@ To use this functionality, the merchant needs to first create a customer profile
         }
    ```
    
-   When the payment request is successful, a customer profile and a multi-use payment handle also get created. 
-   The merchant needs to store the equivalent Paysafe customer ID for their provided *merchantCustomerId* in their database for that particular user. 
-   The equivalent customer ID with Paysafe and the multi-use payment handle will be returned in the response to the payments request itself.
+In the case of a successful payment request, a customer profile and a multi-use payment handle also get created and returned in the response. 
+The merchant needs to store the equivalent Paysafe customer ID for their provided *merchantCustomerId* in their database for that particular user. 
+The equivalent customer ID with Paysafe and the multi-use payment handle will be returned in the response to the payments request itself.
    
    ```json
-   Request Body :
+   Response Body :
         {
             ...
             "customerId": "ccb24e28-6e38-47ce-8815-94706c5b608c",
             "multiUsePaymentHandleToken": "uyfiuewyrw273uw"
         }
    ```
-   This is the preferred way of creating a customer profile if you are integrating with Paysafe Checkout.
    
-2. Create the Profile Using the Customer API
+#### Create the Profile Using the Customer API
    
-    The second way to create a customer profile is by using the request to [Create a Customer](#createcustomerrequest).
-    The merchant should then store the unique ID provided in Paysafe's response for that particular user.
+The second way to create a customer profile is by using the API request to [Create a Customer](#createcustomerrequest). 
+The merchant should then store the unique ID provided in Paysafe's response for that particular user.
     ```json
     Response body: {
         "id": "ccb24e28-6e38-47ce-8815-94706c5b608c"
     }
     ```
 
-Either of these methods allow you to create a customer profile for a user ndash; just save the corresponding
+Either of these methods allow you to create a customer profile for a user &ndash; just save the corresponding
 customer ID in your database for that user.
 
 ### Creating a Single-Use Customer Token
-The Checkout can show existing cards and addresses for a user. To use this functionality,
+The Checkout can display existing cards and addresses for a user. To use this functionality,
 the merchant needs to make use of the customer ID and make an API call to [create a single-use customer token](#createcustomersut). 
 This single-use customer token in the response should then be provided as the value for *singleUseCustomerToken* in the [Checkout options](#options)
 while invoking the Checkout. In this case, when the checkout is loaded, the user would be able
@@ -4726,10 +4735,13 @@ Click on **Delete an Address** above to see how delete an Address.
 
 Click on **Create a Payment Handle for a Customer** above to create a Payment Handle for a [Customer you have already created](#createcustomerequest).
 
-The *paymentHandleToken* returned in the response can be used for [payment requests in the Payments API](#paymentrequest), once it has the *status* of PAYABLE.
-Currently, only CARD is supported as a *paymentType* parameter.
+>**Note:** Currently, only CARD is supported as a *paymentType* parameter.
 
-Once the *paymentHandleToken* in the response to this request is [used successfully in a Payment request](#paymentrequest), its *status* will become PAYABLE.
+The *paymentHandleToken* returned in the response can be used for [payment requests in the Payments API](#paymentrequest), once it has the *status* of PAYABLE.
+
+To modify its *status* to PAYABLE, include this *paymentHandleToken* as the value for the *paymentHandleTokenFrom* parameter in a request to [create a regular Payment Handle](#paymenthandlerequest).  
+That response in turn contains a *paymentHandleToken* with a status of PAYABLE, with the *usage* parameter set to SINGLE_USE. Once you use this single-use *paymentHandleToken* 
+in a [successful payment request](#paymentrequest), then the *status* of the Customer *paymentHandleToken* created here will change to PAYABLE. 
 
 **Note:** Although the *billingDetails* parameter is optional, it is recommended that you include it when you create the customer Payment Handle 
 because a Payment request that uses the *paymentHandleToken* in the response will fail AVS checks unless there is a billing address associated with it. 
@@ -4820,10 +4832,7 @@ Click on **Create a Multi-Use Payment Handle Using a Single-Use Payment Handle T
 you created in order [to process a Payment request](#paymentrequest). The single-use Payment Handle Token must still be valid - i.e., the *timeToLiveSeconds* has not expired.
 
 Once the Payment request you have used the single-use Payment Handle Token for is successfully processed, 
-the *status* of the *paymentHandleToken* in the response to this request will become PAYABLE.
-
-
-The *paymentHandleToken* returned in the response can be used for [payment requests in the Payments API](#paymentrequest), once it has the *status* of PAYABLE.
+the *status* of the *paymentHandleToken* in the response to this request will become PAYABLE, at which point it can be used for [payment requests in the Payments API](#paymentrequest).
 
 + Parameters
     + customer_id:`a5f1889d-f1be-4bbf-941d-fd9b8d09d5b1` (string,required) - This is the [ID of the customer](#createcustomerrequest) to which you are adding the Payment Handle.
