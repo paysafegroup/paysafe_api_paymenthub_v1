@@ -150,9 +150,9 @@ The possible values are:
 In this case, merchant can immediately make a Payments call to capture the payment, since the *status* of the Payment Handle token will immediately be set to *PAYABLE*.
    
 * REDIRECT – The customer is required to authorize the payment on a redirected page. This is typically the case, e.g., with a 3D Secure card transaction where the customer must authenticate their card on the issuing bank's website. 
-In this case, you must redirect the customer to a link that Paysafe returns in the the response to the Payment Handle creation request. Once the customer has completed the authentication successfully, the *status* of the Payment Handle token will be modified to *PAYABLE*. 
+In this case, you must redirect the customer to a link that Paysafe returns in the response to the Payment Handle creation request. Once the customer has completed the authentication successfully, the *status* of the Payment Handle token will be modified to *PAYABLE*. 
 
-Once the status of the Payment Handle token is *PAYABLE*, the merchant has to [make a Payment request](#paymentrequest) using the Payment Handle token within 15 minutes to capture the payment. Otherwise, the the Payment Handle will expire.
+Once the status of the Payment Handle token is *PAYABLE*, the merchant has to [make a Payment request](#paymentrequest) using the Payment Handle token within 15 minutes to capture the payment. Otherwise, the Payment Handle will expire.
 
 #### Usage
 
@@ -516,7 +516,7 @@ The result callback is invoked when the Payment Handle is successfully created a
 
 Using the functions provided in the *instance* object, the merchant can control the checkout experience.
 
-The signature is as follows:
+The *resultCallback* contains the following elements.
 
 |Parameter|Type|Required|Description|
 |---------|-------|---------------|-----------|
@@ -549,11 +549,13 @@ The signature is as follows:
 |paymentHandleToken|string|yes|The Payment Handle token to be passed to the Payments API call.|
 |paymentMethod|string|yes|The payment method used by the customer.|
 |customerOperation|string|yes|The customer operation for the card. Values: ADD, EDIT or DELETE.|
-|amount|number|yes|The amount used to create the Payment Handle. This is required because the user might change the the amount in the Checkout.|
+|amount|number|yes|The amount used to create the Payment Handle. This is required because the user might change the amount in the Checkout.|
 
 <a name="closecallback"></a>
 #### closeCallback
-Invoked when the checkout overlay is closed by the customer. This function has the following signature:
+Invoked when the checkout overlay is closed by the customer. 
+
+The *closeCallback* contains the following elements.
 
 |Parameter|Type|Required|Description|
 |---------|-------|---------------|-----------|
@@ -579,10 +581,13 @@ To use this functionality, the merchant needs to first create a customer profile
 
 #### Create the Profile in the Payments Checkout Request
 
-When you create a payment handle with the Payments Checkout, the *resultCallback* is invoked, which contains the *customerOperation* parameter. If the value of *customerOperation* is set as 
-ADD, then the merchant needs to pass an additional *merchantCustomerId* field in the body when [processing a Payment request using a payment handle token](#paymentrequest). 
-   
->**Note:** The value of the *customerOperation* is set to ADD when the customer selects the *saveCard* option while doing the payment.
+When you create a payment handle with the Payments Checkout, the *resultCallback* is returned, which contains the *customerOperation* parameter. 
+
+If the customer selected the *saveCard* option in the Checkout while doing their payment, then the *customerOperation* parameter returned in the *resultCallback* will have the value set to *ADD*. 
+Note that the *saveCard* option is presented by default by Paysafe in the Checkout.
+
+In the case where *customerOperation* has the value of ADD, then the merchant must include an additional parameter along with the rest of the request payload when [processing a Payment request using a payment handle token](#paymentrequest) &ndash; the *merchantCustomerId* parameter. 
+ 
    
    ```json
    Request Body :
@@ -592,9 +597,12 @@ ADD, then the merchant needs to pass an additional *merchantCustomerId* field in
         }
    ```
    
-In the case of a successful payment request, a customer profile and a multi-use payment handle also get created and returned in the response. 
-The merchant needs to store the equivalent Paysafe customer ID for their provided *merchantCustomerId* in their database for that particular user. 
-The equivalent customer ID with Paysafe and the multi-use payment handle will be returned in the response to the payments request itself.
+ - If the merchant has never [created a customer entity for this customer](#createcustomerrequest), the value for *merchantCustomerId* would just be some identifier the merchant has stored for that customer.
+ - If the merchant has already [created a customer entity for this customer](#createcustomerrequest), the value for *merchantCustomerId* would be the unique *id* returned in the response to the customer creation request. 
+
+In the case of a successful payment request that contains the *merchantCustomerId* parameter, two new parameters are then included in the response:
+ - *customerId* &ndash; a customer profile
+ - *multiUsePaymentHandleToken* &ndash; a multi-use payment handle
    
    ```json
    Response Body :
@@ -604,6 +612,13 @@ The equivalent customer ID with Paysafe and the multi-use payment handle will be
             "multiUsePaymentHandleToken": "uyfiuewyrw273uw"
         }
    ```
+
+If the merchant provided their own customer information for the *merchantCustomerId* parameter (and not a unique *id* from a customer creation request), then they need store 
+the value for the *customerId* parameter in order to use it as the *customer_id* value in customer-related
+requests that required it, like [updating a customer](#updatecustomerrequest) or [adding an address to a customer](#createaddressrequest).
+
+The *multiUsePaymentHandleToken* returned in the response to this payment request would be the equivalent of the *paymentHandleToken* returned in the response when you [create a payment handle for a customer](#createcustomerpaymenthandlerequest), 
+and used for the same purposes.
    
 #### Create the Profile Using the Customer API
    
@@ -5794,7 +5809,29 @@ Use the *singleUseCustomerToken* returned in the response in the Payments Checko
 + `paymentHandleToken`:`842778a0-03a2-11e9-8eb2-f2801f1b9fd1` (string) - This is the payment token generated by Paysafe that will be used by merchants for Payment API requests, provided its *status* is PAYABLE.
     _Read Only, length<=36_
 + Include Card
-+ Include Billing Details
++ One Of
+    + billingDetails (object) - These are the customer's billing details.
+    
+        + Properties
+    
+            + street:`100 Queen` (string)  - This is the first line of the street address in the billing address.
+                _length<=50_
+            + street2:`Unit 201` (string) - This is the second line of the street address in the billing address, if required (e.g., apartment number).
+                _length<=50_
+            + city:`Toronto` (string) - This is the city in the billing address.
+                _length<=40_
+            + zip:`MSH 2N2` (string) - This is the postal/zip code in the billing address.
+                _length<=10_
+            + country:`CA` (string) - This is the country where the address is located. See [Country Codes](#countrycodes).
+                _length=2_
+            + state:`ON` (string) - This is the state or province of the billing address. For Canada see [Province Codes](#provincecodes). For the United States see [State Codes](#statecodes). Other countries have no restrictions.
+                _length<=40_
+            + phone:`444-9999` (string) - This is the customer's telephone number.
+                _length<=40_
+            + `nickName`:`Home` (string) - This is the nickname the merchant has for the billing address.
+                _length<=50_
+    
+    + `billingAddressId`:`5d4db3bc-34c9-417f-a051-0d992ad9284e` (string) - This is the ID returned in the response to the [address creation request](#createaddressrequest).
 + `returnLinks` (object) - The URL endpoints to redirect the customer to after a redirection to an alternative payment or 3D Secure site. You can customize the return URL based on the transaction status. 
     + `rel`(enum) -This is the link type, allowing different endpoints to be targeted depending on the end state of the transaction. The link relation describes how this link relates to the previous call. 
         + default (string, required) - The default return URL that will be used if specific status return URL is not defined.
@@ -5808,8 +5845,6 @@ Use the *singleUseCustomerToken* returned in the response in the Payments Checko
     + `method`:`GET`
 + `customerIp`:`111.111.111.111` (string) - This is the customer's IP address.
     _length<=39_
-+ `timeToLiveSeconds`:`899` (number) - This is the period of time, in seconds, the *paymentHandleToken* is valid before expiration. 
-    _Read Only, length<=899_
 + `singleUseCustomerToken`:`SPFAB1cA5iwdu48H` (string) - This token can be [used in the Payments Checkout](#paymentscheckout) to populate the checkout with customer information.
     _Read Only, length<=16_
 
