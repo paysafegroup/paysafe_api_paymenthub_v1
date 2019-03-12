@@ -96,7 +96,7 @@ To retrieve your Secret API key from the Business Portal:
  2. Under **Secret Key**, click on **Authenticate Now**.
  ![](https://github.com/paysafegroup/paysafe_api_paymenthub_v1/raw/master/images/Secret_Key1.png)
  3. Enter your Business Portal password and click **Authenticate**.
- 4. You can now access your Secret API key 
+ 4. You can now access your Secret API key. 
  ![](https://github.com/paysafegroup/paysafe_api_paymenthub_v1/raw/master/images/Secret_Key2.png)
  
  > **Note:** All your payment methods will be set up to use the same API key.
@@ -569,26 +569,31 @@ The *closeCallback* contains the following elements.
 You can use Payments Checkout to store your customer's credit card and address information, which you can then use for their future transactions. 
 This involves two easy steps:
  1. Create a profile for your customer.
- 2. Using the *customerId* in the Payments Checkout response (or the *id*, if you use an API call), create a single-use customer token.
- When you then use the single-use customer token as the *singleUseCustomerToken* parameter in the Payments Checkout, any card and address information associated with the customer can be displayed on your Checkout page.
+ 2. Create a single-use customer token, using the *customerId* in the Payments Checkout response (or the *id*, if you use an API call).
+
+When you use this single-use customer token as the *singleUseCustomerToken* parameter in the Payments Checkout, any 
+card and address information associated with the customer will be displayed on the Checkout page.
 
 ### Creating a Customer Profile
 To use this functionality, the merchant needs to first create a customer profile with Paysafe. There are two ways to create a customer profile:
- 1. Create a profile in a Payments Checkout request
- 2. Create a profile using the API request to create a customer
+ 1. Create a profile in a Payment request
+ 2. Create a profile in a Customer creation request 
 
-> **Note:** Paysafe recommends that you use the Payments Checkout request to create a customer profile if you are integrating with Paysafe Payments Checkout.
+> **Note:** Paysafe recommends that you use the Payment request to create a customer profile if you are integrating with Paysafe Payments Checkout.
 
-#### Create the Profile in the Payments Checkout Request
+#### Create the Profile in a Payment Request
 
 When you create a payment handle with the Payments Checkout, the *resultCallback* is returned, which contains the *customerOperation* parameter. 
 
 If the customer selected the *saveCard* option in the Checkout while doing their payment, then the *customerOperation* parameter returned in the *resultCallback* will have the value set to *ADD*. 
-Note that the *saveCard* option is presented by default by Paysafe in the Checkout.
 
-In the case where *customerOperation* has the value of ADD, then the merchant must include an additional parameter along with the rest of the request payload when [processing a Payment request using a payment handle token](#paymentrequest) &ndash; the *merchantCustomerId* parameter. 
- 
+>**Note:** The *saveCard* option is presented by default by Paysafe in the Checkout.
+
+In the case where *customerOperation* has the value of ADD, then the merchant must include an additional parameter along with the rest of the request payload 
+when [processing a Payment request](#paymentrequest) &ndash; either the *merchantCustomerId* parameter or the *customerId* parameter.
    
+If the merchant has never [created a customer entity for this customer](#createcustomerrequest), they would include *merchantCustomerId* with a value the merchant has stored for that customer.
+
    ```json
    Request Body :
         {
@@ -596,11 +601,18 @@ In the case where *customerOperation* has the value of ADD, then the merchant mu
             "merchantCustomerId": "user1"
         }
    ```
-   
- - If the merchant has never [created a customer entity for this customer](#createcustomerrequest), the value for *merchantCustomerId* would just be some identifier the merchant has stored for that customer.
- - If the merchant has already [created a customer entity for this customer](#createcustomerrequest), the value for *merchantCustomerId* would be the unique *id* returned in the response to the customer creation request. 
+If the merchant has already [created a customer entity for this customer](#createcustomerrequest), they would include *merchantId*, for which the value 
+would be the unique *id* returned in the response to the customer creation request. 
 
-In the case of a successful payment request that contains the *merchantCustomerId* parameter, two new parameters are then included in the response:
+   ```json
+   Request Body :
+        {
+            ...
+            "customerId": "ccb24e28-6e38-47ce-8815-94706c5b608c"
+        }
+   ```
+
+In the case of a successful payment request with either of these added parameters, two new parameters are then returned in the response:
  - *customerId* &ndash; a customer profile
  - *multiUsePaymentHandleToken* &ndash; a multi-use payment handle
    
@@ -613,14 +625,14 @@ In the case of a successful payment request that contains the *merchantCustomerI
         }
    ```
 
-If the merchant provided their own customer information for the *merchantCustomerId* parameter (and not a unique *id* from a customer creation request), then they need store 
-the value for the *customerId* parameter in order to use it as the *customer_id* value in customer-related
-requests that required it, like [updating a customer](#updatecustomerrequest) or [adding an address to a customer](#createaddressrequest).
+If the merchant provided the *merchantCustomerId* parameter, then they need store 
+the value for the *customerId* parameter in the response in order to use it as the *customer_id* value in customer-related
+requests that require it, like [updating a customer](#updatecustomerrequest) or [adding an address to a customer](#createaddressrequest).
 
 The *multiUsePaymentHandleToken* returned in the response to this payment request would be the equivalent of the *paymentHandleToken* returned in the response when you [create a payment handle for a customer](#createcustomerpaymenthandlerequest), 
 and used for the same purposes.
    
-#### Create the Profile Using the Customer API
+#### Create the Profile in a Customer Creation Request
    
 The second way to create a customer profile is by using the API request to [Create a Customer](#createcustomerrequest). 
 The merchant should then store the unique ID provided in Paysafe's response for that particular user.
@@ -635,16 +647,15 @@ customer ID in your database for that user.
 
 ### Creating a Single-Use Customer Token
 The Checkout can display existing cards and addresses for a user. To use this functionality,
-the merchant needs to make use of the customer ID and make an API call to [create a single-use customer token](#createcustomersut). 
+the merchant needs to make use of the *customerId* (to use as the value for *customer_id* in the endpoint URL) and make an API call to [create a single-use customer token](#createcustomersut). 
 This single-use customer token in the response should then be provided as the value for *singleUseCustomerToken* in the [Checkout options](#options)
-while invoking the Checkout. In this case, when the checkout is loaded, the user would be able
-to see their saved payment details. 
+while invoking the Checkout. In this case, when the checkout is loaded, the user would be able to see their saved payment details. 
 
 The following are the 2 steps are involved.
 
 1. Create a Single-Use Customer Token
 
-   Make an API call to [create a single-use customer token](#createcustomersut), using the customer ID for that user.
+   Make an API call to [create a single-use customer token](#createcustomersut), using the *customerId* for that user.
    This generates a single-use customer token &ndash; the field *singleUseCustomerToken* in the response &ndash; which is valid for 15 minutes.
    ```json
    Response Body: {
@@ -697,8 +708,7 @@ The following are the 2 steps are involved.
 </html>
 ```
 
->**Note:** In the case where a customer ID already exists for a customer, then the parameter *merchantCustomerId* should not be passed in the 
-[Payment request](#paymentrequest). 
+When the Checkout is loaded, the customer will be able to see their saved payment details.
 
 <a name="paymentswebhooks" title="Payments Webhooks"></a>
 # Using Webhooks
@@ -723,7 +733,7 @@ You can trigger webhooks for the following events:
 |PAYMENT_COMPLETED | The payment request has been completed|
 |PAYMENT_HELD | The payment request has been placed on hold due to risk considerations.|
 |PAYMENT_FAILED | The payment request failed, due to either an error or being declined.|
-|PAYMENT_CANCELLED | The payment request has been fully voided (reversed)|
+|PAYMENT_CANCELLED | The payment request has been fully voided (reversed).|
 |SETTLEMENT_RECEIVED | Our system has received the settlement request and is waiting for the downstream processor’s response.|
 |SETTLEMENT_PENDING | Our system has received the settlement request but it has not yet been batched.|
 |SETTLEMENT_PROCESSING | The settlement batch has started.|
@@ -1922,9 +1932,6 @@ This is an authorization that is approved for an amount lower than the requested
 
 |Element            |Type                               |Description    |
 |---                |---                                |---            |
-|id                 |string <br/>`length<=36`           |This is the ID returned in the response.|
-|status             |enum                               |This is the status of the customer profile. Possible values are:<br/><ul><li>ACTIVE &ndash; The temporary profile ID can be used to retrieve the saved payment instrument.</li></ul> |
-|merchantCustomerId |string <br/>`length<=100`          |This is a customer ID that the merchant provides with the request for their own internal customer identification.|
 |locale             |enum                               |This indicates the language of the profile. Possible values are:<ul><li>en_US</li><li>fr_CA</li><li>en_GB</li></ul>|
 |firstName          |string <br/>`length<=80`           |This is the customer’s first name. |
 |lastName           |string <br/>`length<=80`           |This is the customer’s last name. |
@@ -1934,7 +1941,6 @@ This is an authorization that is approved for an amount lower than the requested
 
 ```apib
             {
-              "merchantCustomerId":"mycustomer10",
               "locale" : "en_US",
               "firstName" : "John",
               "lastName" : "Smith",
@@ -4261,7 +4267,8 @@ You can create a customer in order to store credit card information to the custo
 
 Click on **Create a Customer Using a Single-Use Payment Handle Token** above to see how to create a customer using a single-use Payment Handle Token. 
 
-You can create a customer in order to store credit card information to the customer profile by [adding a Customer Payment Handle](#createcustomerpaymenthandlerequest) to that customer.
+**Note:** If the single-use Payment Handle Token you use for this request has profile-related information associated with it (e.g., *firstName*, *lastName*, *email*, etc.), 
+then if you include those same fields in this request, your values included here will override the values from the Payment Handle Token.
 
 + Attributes
     + Include Customer Base
@@ -4781,14 +4788,7 @@ If you do not include it when creating the customer Payment Handle, you should t
                 "paymentType": "CARD",
                 "currencyCode": "GBP",
                 "customerIp": "10.10.12.64",
-                "billingDetails": {
-                    "street": "Andhra bank lane",
-                    "street2": "Manikonda",
-                    "city": "Hyderabad",
-                    "state": "TS",
-                    "country": "IN",
-                    "zip": "500089"
-                },
+                "billingDetailsId": "786cf0cd-4296-43ce-8a57-5f4675e3fafd",
                 "card": {
                     "cardNum": "4222222222222",
                     "lastDigits": "2222",
@@ -4895,7 +4895,6 @@ the *status* of the *paymentHandleToken* in the response to this request will be
                     "dynamicDescriptor": "Casino slots payin",
                     "phone": "189134336"
                 },
-                "billingDetailsId": "786cf0cd-4296-43ce-8a57-5f4675e3fafd",
                 "billingDetails": {
                     "street": "Andhra bank lane",
                     "street2": "Manikonda",
@@ -4947,15 +4946,7 @@ Click on **Get Customer Payment Handle** above to see how to look up a Customer 
                     "dynamicDescriptor": "Casino slots payin",
                     "phone": "189134336"
                 },
-                "billingDetailsId": "786cf0cd-4296-43ce-8a57-5f4675e3fafd",
-                "billingDetails": {
-                    "street": "Andhra bank lane",
-                    "street2": "Manikonda",
-                    "city": "Hyderabad",
-                    "state": "TS",
-                    "country": "IN",
-                    "zip": "500089"
-                }
+                "billingDetailsId": "786cf0cd-4296-43ce-8a57-5f4675e3fafd"
             }
 
 
@@ -5127,7 +5118,7 @@ Click on **Delete a Customer Payment Handle** above to see how delete a Customer
 ## Create a Single-Use Customer Token [POST /v1/customers/{customer_id}/singleusecustomertokens]
 <a name="createcustomersut" title="Create a Single-Use Customer Token"></a>
 
-Click on **Create a Single-Use Customer Token** above to create a Payment Handle for a [Customer you have already created](#createcustomerequest).
+Click on **Create a Single-Use Customer Token** above to create a single-use token for a [Customer you have already created](##createpaymenthandlerequestsut).
 
 The *singleUseCustomerToken* returned in the response is then used in the Payments Checkout SDK (for the *singleUseCustomerToken* parameter) when you want to [use saved cards and addresses](#usingsavedcardscheckout). 
 Any addresses and/or payment details that have been saved for this *customer_id* would then be displayed in the Payments Checkout.
@@ -5437,17 +5428,17 @@ Use the *singleUseCustomerToken* returned in the response in the Payments Checko
 
 ## `Card`
 
-+ card (object, required) - These are the details of the [card](#cardobject) used for the request. Only one payment instrument object (e.g., *card* or *paysafecash*) can be included in the request.
++ card (object) - These are the details of the [card](#cardobject) used for the request.
 
     + Properties
 
-        + cardNum:`4111111111111111` (string, required) - This is the card number used for the request.
+        + cardNum:`4111111111111111` (string) - This is the card number used for the request.
             _length=8-20_
                 
-        + cardExpiry (object, required) - This is the card's [expiry date](#cardexpiryobject).
-            + month:12 (number, required) - This is the card expiry month.
+        + cardExpiry (object) - This is the card's [expiry date](#cardexpiryobject).
+            + month:12 (number) - This is the card expiry month.
                 _length=2_
-            + year:2020 (number, required) - This is the card expiry year.
+            + year:2020 (number) - This is the card expiry year.
                 _length=4_
         + cvv:`123` (string) - This is the 3- or 4-digit security code that appears on the card following the card number.
             _length=3-4_
@@ -5809,29 +5800,7 @@ Use the *singleUseCustomerToken* returned in the response in the Payments Checko
 + `paymentHandleToken`:`842778a0-03a2-11e9-8eb2-f2801f1b9fd1` (string) - This is the payment token generated by Paysafe that will be used by merchants for Payment API requests, provided its *status* is PAYABLE.
     _Read Only, length<=36_
 + Include Card
-+ One Of
-    + billingDetails (object) - These are the customer's billing details.
-    
-        + Properties
-    
-            + street:`100 Queen` (string)  - This is the first line of the street address in the billing address.
-                _length<=50_
-            + street2:`Unit 201` (string) - This is the second line of the street address in the billing address, if required (e.g., apartment number).
-                _length<=50_
-            + city:`Toronto` (string) - This is the city in the billing address.
-                _length<=40_
-            + zip:`MSH 2N2` (string) - This is the postal/zip code in the billing address.
-                _length<=10_
-            + country:`CA` (string) - This is the country where the address is located. See [Country Codes](#countrycodes).
-                _length=2_
-            + state:`ON` (string) - This is the state or province of the billing address. For Canada see [Province Codes](#provincecodes). For the United States see [State Codes](#statecodes). Other countries have no restrictions.
-                _length<=40_
-            + phone:`444-9999` (string) - This is the customer's telephone number.
-                _length<=40_
-            + `nickName`:`Home` (string) - This is the nickname the merchant has for the billing address.
-                _length<=50_
-    
-    + `billingAddressId`:`5d4db3bc-34c9-417f-a051-0d992ad9284e` (string) - This is the ID returned in the response to the [address creation request](#createaddressrequest).
++ `billingAddressId`:`5d4db3bc-34c9-417f-a051-0d992ad9284e` (string) - This is the ID returned in the response to the [address creation request](#createaddressrequest).
 + `returnLinks` (object) - The URL endpoints to redirect the customer to after a redirection to an alternative payment or 3D Secure site. You can customize the return URL based on the transaction status. 
     + `rel`(enum) -This is the link type, allowing different endpoints to be targeted depending on the end state of the transaction. The link relation describes how this link relates to the previous call. 
         + default (string, required) - The default return URL that will be used if specific status return URL is not defined.
@@ -5885,8 +5854,6 @@ Use the *singleUseCustomerToken* returned in the response in the Payments Checko
     _Read Only, length<=36_
 + Include Card Response
 + Include Merchant Descriptor Response
-+ `billingDetailsId`:`786cf0cd-4296-43ce-8a57-5f4675e3fafd` (string) - This is the *id* returned in [the Address creation request](#createaddressrequest).
-    _Read Only_
 + Include Billing Details Response
 
 
@@ -6065,13 +6032,6 @@ Use the *singleUseCustomerToken* returned in the response in the Payments Checko
 ## Profile
 
 + `profile` (object) 
-    + `id`:`de39b080-03aa-11e9-8eb2-f2801f1b9fd1` (string) -  This is the ID returned in the response. **Note:** If you do not include the profile ID, you must provide other customer details like firstName, lastName, and email. 
-        _length<=36_
-    + `status`:`ACTIVE` (enum) - This is the status of the customer profile, returned in the response.
-        + Members
-            + ACTIVE
-    + `merchantCustomerId`:`mycustomer10` (string) - This is the reference number for the customer created by the merchant and submitted as part of the request. It must be unique for each customer.
-        _length<=255_
     + `firstName`:`Jane` (string) - This is the customer’s first name.
         _length<=80_
     + `lastname`:`Smyth` (string) - This is the customer's last name.
