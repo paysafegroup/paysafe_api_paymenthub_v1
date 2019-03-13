@@ -727,7 +727,7 @@ You can trigger webhooks for the following events:
 |PAYMENT_HANDLE_INITIATED | Our system has received the payment handle request and is waiting for the downstream processor’s response.|
 |PAYMENT_HANDLE_PROCESSING | The payment handle request is waiting for the authentication.|
 |PAYMENT_HANDLE_PAYABLE | The payment handle has the status of PAYABLE and can be used for a payments call. |
-|PAYMENT_HANDLE_COMPLETED | Payments call associated with payment handle is complete.|
+|PAYMENT_HANDLE_COMPLETED | Payments call associated with payment handle has been initiated.|
 |PAYMENT_HANDLE_FAILED | The payment handle request failed, due to either an error or being declined.|
 |PAYMENT_RECEIVED | Our system has received the payment request and is waiting for the downstream processor’s response.|
 |PAYMENT_COMPLETED | The payment request has been completed|
@@ -831,8 +831,6 @@ With the Paysafe Payments API you can test the following:
 ## Applying for a Test Account
 For access to Test accounts and credentials, please contact your business relationship manager or reach out to <integrations@paysafe.com>. 
 Your Test account will provide you with access to a Test version of the Paysafe [Business Portal](#https://merchant.test.paysafe.com/portal#/login), where you can view the status of your Test transactions. 
-
-## Supported Currencies and Payment Types
 
 ## Test Cards
 
@@ -4791,7 +4789,6 @@ If you do not include it when creating the customer Payment Handle, you should t
                 "billingDetailsId": "786cf0cd-4296-43ce-8a57-5f4675e3fafd",
                 "card": {
                     "cardNum": "4222222222222",
-                    "lastDigits": "2222",
                     "cardExpiry": {
                         "month": "12",
                         "year": "2021"
@@ -4816,19 +4813,10 @@ If you do not include it when creating the customer Payment Handle, you should t
                  "paymentType": "CARD",
                  "action": "NONE",
                  "paymentHandleToken": "Cy4WEGJ9IWIkcUn",
-                 "billingDetails": {
-                     "street": "Andhra bank lane",
-                     "street2": "Manikonda",
-                     "city": "Hyderabad",
-                     "state": "TS",
-                     "country": "IN",
-                     "zip": "500089"
-                 },
                  "billingDetailsId": "786cf0cd-4296-43ce-8a57-5f4675e3fafd",
             
                  "card": {
                      "lastDigits": "2222",
-                     "cardBin": "422222",
                      "cardExpiry": {
                          "month": "12",
                          "year": "2021"
@@ -4844,10 +4832,14 @@ If you do not include it when creating the customer Payment Handle, you should t
 <a name="createpaymenthandlerequestsut" title="Create a Payment Handle Using a Single-Use Payment Handle Token"></a>
 
 Click on **Create a Multi-Use Payment Handle Using a Single-Use Payment Handle Token** above to create a Payment Handle using a regular [single-use Payment Handle Token](#paymenthandlerequest) that 
-you created in order [to process a Payment request](#paymentrequest). The single-use Payment Handle Token must still be valid - i.e., the *timeToLiveSeconds* has not expired.
+you created in order [to process a Payment request](#paymentrequest). The single-use Payment Handle Token must still be valid &ndash; i.e., the *timeToLiveSeconds* has not expired.
 
-Once the Payment request you have used the single-use Payment Handle Token for is successfully processed, 
-the *status* of the *paymentHandleToken* in the response to this request will become PAYABLE, at which point it can be used for [payment requests in the Payments API](#paymentrequest).
+This request is used when you have created a Customer and want to add a payment instrument that has been included as part of a regular request to [Create a Payment Handle](#paymenthandlerequest).
+
+To use the saved payment instrument, use the multi-use Payment Handle token returned in the response to this request to create another [single-use Payment Handle Token](#paymenthandlerequest) and then use the *paymentHandleToken* in that response to 
+[process a Payment request](#paymentrequest). Once that Payment request is successful, the *status* of the multi-use *paymentHandleToken* will become PAYABLE.
+
+>**Note:** Currently, single-use Payment Handle tokens that have CARD as the *paymentType* are supported.
 
 + Parameters
     + customer_id:`a5f1889d-f1be-4bbf-941d-fd9b8d09d5b1` (string,required) - This is the [ID of the customer](#createcustomerrequest) to which you are adding the Payment Handle.
@@ -4885,7 +4877,6 @@ the *status* of the *paymentHandleToken* in the response to this request will be
                 "paymentHandleToken": "Cy4WEGJ9IWIkcUn",
                 "card": {
                     "lastDigits": "2222",
-                    "cardBin": "422222",
                     "cardExpiry": {
                         "month": "12",
                         "year": "2021"
@@ -4895,14 +4886,7 @@ the *status* of the *paymentHandleToken* in the response to this request will be
                     "dynamicDescriptor": "Casino slots payin",
                     "phone": "189134336"
                 },
-                "billingDetails": {
-                    "street": "Andhra bank lane",
-                    "street2": "Manikonda",
-                    "city": "Hyderabad",
-                    "state": "TS",
-                    "country": "IN",
-                    "zip": "500089"
-                }
+                "billingDetailsId": "786cf0cd-4296-43ce-8a57-5f4675e3fafd"
             }
 
 
@@ -5015,14 +4999,6 @@ with the exception of the *cardNum* element.
                 "paymentType": "CARD",
                 "action": "NONE",
                 "paymentHandleToken": "Cy4WEGJ9IWIkcUn",
-                "billingDetails": {
-                    "street": "Andhra bank lane",
-                    "street2": "Manikonda",
-                    "city": "Hyderabad",
-                    "state": "TS",
-                    "country": "IN",
-                    "zip": "500089"
-                },
                 "billingDetailsId": "786cf0cd-4296-43ce-8a57-5f4675e3fafd",
                 "card": {
                     "lastDigits": "2222",
@@ -5451,6 +5427,24 @@ Use the *singleUseCustomerToken* returned in the response in the Payments Checko
         + cardBin:`411111` (string) - This is the card BIN (typically the first 6 digits).
             _Read Only, length=6_
 
+## `Card Customer`
+
++ card (object, required) - These are the details of the [card](#cardobject) used for the request.
+
+    + Properties
+
+        + cardNum:`4111111111111111` (string, required) - This is the card number used for the request.
+            _length=8-20_
+        + cardExpiry (object, required) - This is the card's [expiry date](#cardexpiryobject).
+            + month:12 (number) - This is the card expiry month.
+                _length=2_
+            + year:2020 (number, required) - This is the card expiry year.
+                _length=4_
+        + cvv:`123` (string) - This is the 3- or 4-digit security code that appears on the card following the card number.
+            _length=3-4_
+        + lastDigits:`1111` (string) - These are the last four digits of the card used for the request.
+            _Read Only, length=4_
+
 ## `Card Response`
 
 + card (object) - These are the details of the [card](#cardobject) used for the request.
@@ -5799,7 +5793,7 @@ Use the *singleUseCustomerToken* returned in the response in the Payments Checko
     _Read Only, max=3_
 + `paymentHandleToken`:`842778a0-03a2-11e9-8eb2-f2801f1b9fd1` (string) - This is the payment token generated by Paysafe that will be used by merchants for Payment API requests, provided its *status* is PAYABLE.
     _Read Only, length<=36_
-+ Include Card
++ Include Card Customer
 + `billingAddressId`:`5d4db3bc-34c9-417f-a051-0d992ad9284e` (string) - This is the ID returned in the response to the [address creation request](#createaddressrequest).
 + `returnLinks` (object) - The URL endpoints to redirect the customer to after a redirection to an alternative payment or 3D Secure site. You can customize the return URL based on the transaction status. 
     + `rel`(enum) -This is the link type, allowing different endpoints to be targeted depending on the end state of the transaction. The link relation describes how this link relates to the previous call. 
