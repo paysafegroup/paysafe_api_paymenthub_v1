@@ -4831,10 +4831,8 @@ If you do not include it when creating the customer Payment Handle, you should t
 ## Create a Multi-Use Payment Handle Using a Single-Use Payment Handle Token [POST /v1/customers/{customer_id}/paymenthandles]
 <a name="createpaymenthandlerequestsut" title="Create a Payment Handle Using a Single-Use Payment Handle Token"></a>
 
-Click on **Create a Multi-Use Payment Handle Using a Single-Use Payment Handle Token** above to create a Payment Handle using a regular [single-use Payment Handle Token](#paymenthandlerequest) that 
-you created in order [to process a Payment request](#paymentrequest). The single-use Payment Handle Token must still be valid &ndash; i.e., the *timeToLiveSeconds* has not expired.
-
-This request is used when you have created a Customer and want to add a payment instrument that has been included as part of a regular request to [Create a Payment Handle](#paymenthandlerequest).
+Click on **Create a Multi-Use Payment Handle Using a Single-Use Payment Handle Token** above to save a payment instrument that was created using a regular [single-use Payment Handle Token](#paymenthandlerequest) to a customer. 
+The single-use Payment Handle Token must still be valid &ndash; i.e., the *timeToLiveSeconds* has not expired.
 
 To use the saved payment instrument, use the multi-use Payment Handle token returned in the response to this request to create another [single-use Payment Handle Token](#paymenthandlerequest) and then use the *paymentHandleToken* in that response to 
 [process a Payment request](#paymentrequest). Once that Payment request is successful, the *status* of the multi-use *paymentHandleToken* will become PAYABLE.
