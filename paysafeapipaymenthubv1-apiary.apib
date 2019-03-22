@@ -298,7 +298,7 @@ In this scenario, you would do the following:
 ### Scenario 3: Card Payment with Delayed Settlement
 
 This is another common scenario, where a merchant obtains an authorization for a purchase amount and then settles it later once the service is fulfilled. 
-A common example would be a merchant who ships goods &ndash; they might take your online order on day 1, when the do the authorization, but then settle it on day 3 when they ship the goods you have purchased. 
+A common example would be a merchant who ships goods &ndash; they might take your online order on day 1, when they do the authorization, but then settle it on day 3 when they ship the goods you have purchased. 
 In this scenario, you would do the following:
  1. Create a Payment Handle, which should immediately have the *status* of PAYABLE.
  2. Use the *paymentHandleToken* returned in the response to process the Payment request &ndash; the *settleWithAuth* parameter must be set to *false* in this case.
@@ -1602,6 +1602,7 @@ This is a read-only raw response returned by an acquirer.
 |--------------------|--------|-----------------------------------------------------------------------------------------------------|
 | code               | string | This is acquirer identification code, such as DJN, CRX, etc.                                        |
 | responseCode       | string | This is the raw response returned by the acquirer.                                                  |
+| avsResponse        | enum   | This is the AVS response returned from the card issuer. Possible values are:<ul><li>MATCH</li><li>MATCH_ADDRESS_ONLY</li><li>MATCH_ZIP_ONLY</li><li>NO_MATCH</li><li>NOT_PROCESSED</li><li>UNKNOWN</li></ul> |
 | avsCode            | string | This is the raw AVS code returned by the acquirer.                                                  |
 | balanceResponse    | string | This is the balance remaining on a gift card, if a gift card was used for the original transaction. |
 | mid                | string | This is the acquirer MID that was sent to the clearing house.                                       |
@@ -1620,6 +1621,7 @@ This is a read-only raw response returned by an acquirer.
 | txnDateTime        | string | This is the transaction date and time.                                                              |
 | referenceNbr       | string | This is the Bank net transaction ID/Merch Tran Ref                                                  |
 | responseReasonCode | string | This is the raw response reason code returned by Credorax.                                          |
+| cvvVerification    | enum   | This is the response to the cvv submitted with the transaction request. Possible values are:<ul><li>MATCH</li><li>NO_MATCH</li><li>NO_MATCH</li><li>NOT_PROCESSED</li><li>UNKNOWN</li></ul> |
 | cvv2Result         | string | This is the raw cvv2 result code.                                                                   |
 
 <a name="level2level3object" title="level2level3 Object"></a>
@@ -1855,7 +1857,7 @@ This is an authorization that is approved for an amount lower than the requested
 |partialAuth        |[partialAuth](#partialauthobject)      |This is an authorization that is approved for an amount lower than the requested amount. The remainder of the amount could be paid by other means.|
 |paymentHandleToken |string<br/>`length<=36`                |This is the Payment Handle token that represents the payment instrument to be used in the Payment request. |
 |authCode           |string<br/>`length<=50`                |This is the Authorization code assigned by the issuing bank and returned in the response.|
-|availableToSettle  |number                                 |This is the amount of of the Authorization remaining to settle, in minor units.|
+|availableToSettle  |number                                 |This is the amount of the Authorization remaining to settle, in minor units.|
 |childAccountNum    |string<br/>`length<=10`                |This is the child merchant account number. It is returned only if the transaction was processed via a master account.|
 |customerIp         |string<br/>`length<=39`                |This is the customer's IP address.|
 |description        |string<br/>`length<=255`               |This is a description of the transaction, provided by the merchant.|
@@ -3244,23 +3246,21 @@ Click on **Get Verification Using Merchant Reference Number** above to see how t
    + Body
 
             {
-              "verifications": [
-                {
-              "id": "71aea8ae-e801-4df3-9436-c5a61c88d3ad",
-              "paymentHandleToken": "SCUgzJL5jlRIKCiX",
-              "merchantRefNum": "20095817730019123",
-              "customerIp": "10.10.12.64",
-              "currencyCode": "USD",
-              "description": "Verify card for payment request",
-              "txnTime": 2018-12-11T16:33:49Z,
-              "gatewayResponse" : {
-              "authCode": "XXXXXX",
-              "avsResponse" : "MATCH",
-              "cvvVerification": "NOT_PROCESSED"
-              },
-              "status": "COMPLETED"
-            }
-              ]
+                "verifications": [{
+                    "id": "71aea8ae-e801-4df3-9436-c5a61c88d3ad",
+                    "paymentHandleToken": "SCUgzJL5jlRIKCiX",
+                    "merchantRefNum": "20095817730019123",
+                    "customerIp": "10.10.12.64",
+                    "currencyCode": "USD",
+                    "description": "Verify card for payment request",
+                    "txnTime": "2018-12-11T16:33:49Z",
+                    "gatewayResponse": {
+                        "authCode": "XXXXXX",
+                        "avsResponse": "MATCH",
+                        "cvvVerification": "NOT_PROCESSED"
+                    },
+                    "status": "COMPLETED"
+                }]
             }
 
 # Group Payments
@@ -3305,23 +3305,23 @@ Click on **Process Payment** above to see two examples of how to create a Paymen
     + Body
 
             {
-              "id": "3aeb9c63-6386-46a3-9f8e-f452e722228a",
-              "amount": 1900,
-              "merchantRefNum": "merchantRefNum-108",
-              "settleWithAuth": false,
-              "paymentHandleToken": "SCZJg09GWSv36NLB",
-              "txnTime": "2018-12-14T15:12:18Z", 
-              "customerIp": "10.10.12.64",
-              "dupCheck": true,
-              "description": "Magazine subscription",
-              "currencyCode": "GBP",
-              "status": "COMPLETED",
-              "availableToSettle": 1900,
-              "gatewayResponse": {
-                "authCode": "135880",
-                "avsResponse": "MATCH",
-                "cvvVerification": "MATCH"
-              }
+                "id": "3aeb9c63-6386-46a3-9f8e-f452e722228a",
+                "amount": 1900,
+                "merchantRefNum": "merchantRefNum-108",
+                "settleWithAuth": false,
+                "paymentHandleToken": "SCZJg09GWSv36NLB",
+                "txnTime": "2018-12-14T15:12:18Z",
+                "customerIp": "10.10.12.64",
+                "dupCheck": true,
+                "description": "Magazine subscription",
+                "currencyCode": "GBP",
+                "status": "COMPLETED",
+                "availableToSettle": 1900,
+                "gatewayResponse": {
+                    "authCode": "135880",
+                    "avsResponse": "MATCH",
+                    "cvvVerification": "MATCH"
+                }
             }
 
 + Request Process a Card Payment Including Settlement (application/json)
@@ -4794,10 +4794,6 @@ If you do not include it when creating the customer Payment Handle, you should t
                         "year": "2021"
                     },
                     "cvv": "111"
-                },
-                "merchantDescriptor": {
-                    "dynamicDescriptor": "Casino slots payin",
-                    "phone": "189134336"
                 }
             }
 
@@ -4821,10 +4817,6 @@ If you do not include it when creating the customer Payment Handle, you should t
                          "month": "12",
                          "year": "2021"
                      }
-                 },
-                 "merchantDescriptor": {
-                     "dynamicDescriptor": "Casino slots payin",
-                     "phone": "189134336"
                  }
              }
 
@@ -5103,10 +5095,8 @@ Any addresses and/or payment details that have been saved for this *customer_id*
     + customer_id:`a5f1889d-f1be-4bbf-941d-fd9b8d09d5b1` (string,required) - This is the [ID of the customer](#createcustomerrequest) for which you are creating the single-use token.
 
 + Attributes
-    + Include PaymentHandleRequest Customer
-    + paymentTypes:`["CARD"]` (array, required) - This specifies the payment type for which you are creating the single-use token.
-        + Members
-            + CARD 
+    + paymentTypes:`[CARD]` (array, required) - This specifies the payment type for which you are creating the single-use token.
+    + Include PaymentHandleRequest SUT
     
 + Request Create a Single-Use Customer Token (application/json)
 
@@ -5117,6 +5107,7 @@ Any addresses and/or payment details that have been saved for this *customer_id*
     + Body
 
             {
+                "merchantRefNum":"Ref123",
                 "paymentTypes": ["CARD"]
             }
         
@@ -5126,6 +5117,7 @@ Any addresses and/or payment details that have been saved for this *customer_id*
 
              {
                  "id": "f39ebd23-e203-498f-9981-dfbc49882959",
+                 "merchantRefNum":"Ref123",
                  "profileId": "59cce04e-e429-4016-9d3f-1e579f3aa2ad",
                  "timeToLiveSeconds": 899,
                  "status": "ACTIVE",
@@ -5201,6 +5193,7 @@ Use the *singleUseCustomerToken* returned in the response in the Payments Checko
 
              {
                  "id": "f39ebd23-e203-498f-9981-dfbc49882959",
+                 "merchantRefNum":"Ref123",
                  "profileId": "59cce04e-e429-4016-9d3f-1e579f3aa2ad",
                  "timeToLiveSeconds": 899,
                  "status": "ACTIVE",
@@ -5288,9 +5281,13 @@ Use the *singleUseCustomerToken* returned in the response in the Payments Checko
     _length=2_
 + state:`ON` (string) - This is the state/province/region in which the customer lives.
     _length<=40_
-+ phone:`647-788-3901` (string) - This is the recipient's phone number.
++ phone:`647-788-3901` (string) - This is the customer's phone number.
     _length<=40_
 + defaultShippingAddressIndicator:`true` (boolean) - Flag to mark this address as the default shipping address.
++ status:`ACTIVE` (enum) - This is the status of the address.
+    _Read Only_
+    + Members
+            + ACTIVE
 
 ## Addresses
 + addresses (array)
@@ -5312,7 +5309,7 @@ Use the *singleUseCustomerToken* returned in the response in the Payments Checko
                 _length=2_
             + state:`ON` (string) - This is the state/province/region in which the customer lives.
                 _length<=40_
-            + phone:`647-788-3901` (string) - This is the recipient's phone number.
+            + phone:`647-788-3901` (string) - This is the customer's phone number.
                 _length<=40_
             + defaultShippingAddressIndicator:`true` (boolean) - Flag to mark this address as the default shipping address.
 
@@ -5534,6 +5531,8 @@ Use the *singleUseCustomerToken* returned in the response in the Payments Checko
             _Read Only_
         + avsCode (string) - This is the raw AVS code returned by the acquirer.
             _Read Only_
+        + avsResponse (string) - This is the AVS response returned from the card issuer.
+            _Read Only_
         + balanceResponse (string) - This is the balance remaining on a gift card, if a gift card was used for the original transaction.
             _Read Only_
         + mid (string) - This is the acquirer MID that was sent to the clearing house.
@@ -5567,6 +5566,8 @@ Use the *singleUseCustomerToken* returned in the response in the Payments Checko
         + referenceNbr (string) - This is the bank net transaction Id/Merch Tran Ref
             _Read Only_
         + responseReasonCode (string) - This is the raw response reason code returned by Credorax.
+            _Read Only_
+        + cvvVerification (string) - This is the response to the cvv submitted with the transaction request.
             _Read Only_
         + cvv2Result (string) - This is the raw cvv2 result code.
             _Read Only_
@@ -5792,7 +5793,8 @@ Use the *singleUseCustomerToken* returned in the response in the Payments Checko
 + `paymentHandleToken`:`842778a0-03a2-11e9-8eb2-f2801f1b9fd1` (string) - This is the payment token generated by Paysafe that will be used by merchants for Payment API requests, provided its *status* is PAYABLE.
     _Read Only, length<=36_
 + Include Card Customer
-+ `billingAddressId`:`5d4db3bc-34c9-417f-a051-0d992ad9284e` (string) - This is the ID returned in the response to the [address creation request](#createaddressrequest).
++ `billingDetailsId`:`5d4db3bc-34c9-417f-a051-0d992ad9284e` (string) - This is the ID returned in the response to the [address creation request](#createaddressrequest).
+    _length<=36_
 + `returnLinks` (object) - The URL endpoints to redirect the customer to after a redirection to an alternative payment or 3D Secure site. You can customize the return URL based on the transaction status. 
     + `rel`(enum) -This is the link type, allowing different endpoints to be targeted depending on the end state of the transaction. The link relation describes how this link relates to the previous call. 
         + default (string, required) - The default return URL that will be used if specific status return URL is not defined.
@@ -5808,6 +5810,54 @@ Use the *singleUseCustomerToken* returned in the response in the Payments Checko
     _length<=39_
 + `singleUseCustomerToken`:`SPFAB1cA5iwdu48H` (string) - This token can be [used in the Payments Checkout](#paymentscheckout) to populate the checkout with customer information.
     _Read Only, length<=16_
+
+## PaymentHandleRequest SUT
+
++ `id`:`26359efd-7cfb-4014-a13d-1724e3ff17fa` (string) - This is the ID returned in the response. This ID can be used for future associated requests, e.g., to look up the Payment Handle. 
+    _Read Only, length<=36_
++ `profileId`:`59cce04e-e429-4016-9d3f-1e579f3aa2ad` (string) - This is the ID of the customer profile used for this request.
+    _Read Only, length<=36_
++ `timeToLiveSeconds`:`899` (number) - This is the period of time, in seconds, the *singleUseCustomerToken* is valid before expiration. 
+    _Read Only, length<=899_
++ `merchantRefNum`:`merchantRefNum-101` (string, required) - This is the merchant reference number created by the merchant and submitted as part of the request. It must be unique for each request.
+    _length<=255_
++ `status`:`ACTIVE` (enum) - This is the status of the transaction request.
+    _Read Only_
+    + Members
+        + INITIATED - The transaction was initiated with the downstream provider.
+        + PAYABLE - The merchant can use the Payment Handle for a Payment request.
+        + PROCESSING - The Payment Handle was authorized by customer, awaiting PSP response.
+        + FAILED - The transaction failed due to either an error or being declined. 
+        + EXPIRED - The Payment Handle expired because the merchant did not proceed with the Payment request. 
+        + COMPLETED - The Payment request was initiated successfully using the Payment Handle.
++ `singleUseCustomerToken`:`SPFAB1cA5iwdu48H` (string) - This token can be [used in the Payments Checkout](#paymentscheckout) to populate the checkout with customer information.
+    _Read Only, length<=16_
++ `locale`:`ca_en` (enum) - This indicates the customer's locale.
+    _Read Only_
+    + Members
+        + en_US
+        + fr_CA
+        + en_GB
+
++ `firstName`:`Jane` (string) - This is the customer’s first name.
+    _Read Only, length<=80_
++ `middleName`:`Joan` (string) - This is the customer’s middle name.
+    _Read Only, length<=80_
++ `lastname`:`Smyth` (string) - This is the customer's last name.
+    _Read Only, length<=80_
++ Include Date of Birth
++ `email`:`jane.smyth@email.com` (string) - This is the customer's email address.
+    _Read Only, length<=255_
++ `phone`:`12345678` (string) - This is the customer's phone number.
+    _Read Only, length<=40_
++ `ip`:`192.0.126.111` (string) - This is the customer’s IP address.
+    _Read Only, length<=46_
++ `nationality`:`American` (string) - This is the customer’s nationality.
+    _Read Only, length<=30_
++ `addresses`:`addresses` (array) - This is an array of addresses associated with the customer.
+    _Read Only_
++ `paymentHandles`:`paymentHandles` (array) - This is an array of payment handles associated with the customer.
+    _Read Only_
 
 ## PaymentHandleRequest Customer SUT Response
 + `id`:`26359efd-7cfb-4014-a13d-1724e3ff17fa` (string) - This is the ID returned in the response. This ID can be used for future associated requests, e.g., to look up the Payment Handle. 
@@ -5984,9 +6034,9 @@ Use the *singleUseCustomerToken* returned in the response in the Payments Checko
     + Default: true
 + `preAuth`:`false`  (boolean) - This indicates whether the Authorization request should be sent as a Pre-Authorization. You should use the *preAuth* element in cases where you are not sure that you can fully settle the Authorization within 4 days. Contact your account manager for more information.
 + Include Partial Auth
-+ `paymentHandleToken`:`842778a0-03a2-11e9-8eb2-f2801f1b9fd1` (string) - This is the payment token generated by Paysafe that will be used for the Payment request.
++ `paymentHandleToken`:`842778a0-03a2-11e9-8eb2-f2801f1b9fd1` (string, required) - This is the payment token generated by Paysafe that will be used for the Payment request.
     _length<=36_
-+ `availableToSettle`:`0` (number) -This is the amount of of the Authorization remaining to settle, in minor units.
++ `availableToSettle`:`0` (number) -This is the amount of the Authorization remaining to settle, in minor units.
     _Read Only_
 + `childAccountNum`:`3216549877` (string) - This is the child merchant account number. It is returned only if the transaction was processed via a master account.
     _length<=10_
@@ -6003,7 +6053,7 @@ Use the *singleUseCustomerToken* returned in the response in the Payments Checko
         + COMPLETED - The request was completed.
         + HELD - The request has been placed on hold due to risk considerations.
         + FAILED - The transaction failed, due to either an error or being declined.
-        + CANCELLED - The request authorization request has been reversed.
+        + CANCELLED - The request has been reversed.
         + PENDING - The transaction awaiting payment service provider's response.
 + `currencyCode`:`CAD` (string, required) - This is the [currency of the merchant account](#currencycodes), e.g., USD or CAD. **Note:** The *currencyCode* specified in the Payment request must match the *currencyCode* specified in the Payment Handle request from which the *paymentHandleToken* is taken.
     _max=3_
@@ -6096,7 +6146,7 @@ Use the *singleUseCustomerToken* returned in the response in the Payments Checko
     _max=99999999999_
 + `dupCheck`: `true` (boolean) - This validates that this request is not a duplicate. A request is considered a duplicate if the merchantRefNum has already been used in a previous request within the past 90 days.
     + Default: true
-+ `availableToRefund`:`25` (number) - This is the amount of of the Authorization remaining to refund, in minor units.
++ `availableToRefund`:`25` (number) - This is the amount of the Authorization remaining to refund, in minor units.
     _Read Only, max=99999999999_
 + `childAccountNum` : `1234567898` (string) - This is the child merchant account number. It is returned only when the transaction is processed via a master account.
     _length<=10`
