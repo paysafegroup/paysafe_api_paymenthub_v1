@@ -3413,7 +3413,7 @@ Click on **Get Payment Using Merchant Reference Number** above to see how to loo
 
 + Parameter
 
-   + merchant_ref_num : `merchantRefNum-145` -This is the merchant reference number created by the merchant and submitted as part of the Payments request.
+   + merchant_ref_num : `merchantRefNum-145` - This is the merchant reference number created by the merchant and submitted as part of the Payments request.
 
 + Request Look Up Payment Using Merchant Reference Number (application/json)
 
@@ -3701,7 +3701,7 @@ Click on **Get Settlements Using Merchant Reference Number** above to see how to
 
 + Parameter
 
-   + merchant_ref_num : `merchantRefNum-144` -This is the merchant reference number created by the merchant and submitted as part of the request.
+   + merchant_ref_num : `merchantRefNum-144` - This is the merchant reference number created by the merchant and submitted as part of the request.
 
 + Request Look Up Settlement Using Merchant Reference Number (application/json)
 
@@ -3870,7 +3870,7 @@ Click on **Get Refunds Using Merchant Reference Number** above to see how to loo
 
 + Parameter
 
-   + merchant_ref_num : `merchantRefNum-118` -This is the merchant reference number created by the merchant and submitted as part of the request.
+   + merchant_ref_num : `merchantRefNum-118` - This is the merchant reference number created by the merchant and submitted as part of the request.
 
 + Request Look Up Refund Using Merchant Reference Number (application/json)
 
@@ -5323,7 +5323,7 @@ Use the *singleUseCustomerToken* returned in the response in the Payments Checko
         _length<=80_
     + `xid`:`aWg4N1ZZOE53TkFrazJuMmkyRDA=` (string) - This is the transaction identifier returned by the card issuer.
         _length<=40_
-    + `status`:`COMPLETED` (enum) -This is the status of authentication request.
+    + `status`:`COMPLETED` (enum) - This is the status of authentication request.
         _Read Only_
         + Members
             + COMPLETED
@@ -5349,7 +5349,7 @@ Use the *singleUseCustomerToken* returned in the response in the Payments Checko
     + Include Authentication Errors
 
 ## Authentication Errors
-+ error (object) -This is the error details of authentication.
++ error (object) - This is the error details of authentication.
     + `code`:`5016` (string) - This is the error code.
     + `message`:`Account not found.` (string) - This is the description of the error.
     + `fieldErrors` (array) - This is a list of fields that have issues.
@@ -5741,7 +5741,7 @@ Use the *singleUseCustomerToken* returned in the response in the Payments Checko
 + Include Billing Details
 + Include Merchant Descriptor
 + `returnLinks` (object) - The URL endpoints to redirect the customer to after a redirection to an alternative payment or 3D Secure site. You can customize the return URL based on the transaction status. 
-    + `rel`(enum) -This is the link type, allowing different endpoints to be targeted depending on the end state of the transaction. The link relation describes how this link relates to the previous call. 
+    + `rel`(enum) - This is the link type, allowing different endpoints to be targeted depending on the end state of the transaction. The link relation describes how this link relates to the previous call. 
         + default (string, required) - The default return URL that will be used if specific status return URL is not defined.
         + on_completed (string) - Will be returned to this URL if the payment is completed.
         + on_failed (string) - Will be returned to this URL if the payment fails.
@@ -5792,7 +5792,7 @@ Use the *singleUseCustomerToken* returned in the response in the Payments Checko
 + `billingDetailsId`:`5d4db3bc-34c9-417f-a051-0d992ad9284e` (string) - This is the ID returned in the response to the [address creation request](#createaddressrequest).
     _length<=36_
 + `returnLinks` (object) - The URL endpoints to redirect the customer to after a redirection to an alternative payment or 3D Secure site. You can customize the return URL based on the transaction status. 
-    + `rel`(enum) -This is the link type, allowing different endpoints to be targeted depending on the end state of the transaction. The link relation describes how this link relates to the previous call. 
+    + `rel`(enum) - This is the link type, allowing different endpoints to be targeted depending on the end state of the transaction. The link relation describes how this link relates to the previous call. 
         + default (string, required) - The default return URL that will be used if specific status return URL is not defined.
         + on_completed (string) - Will be returned to this URL if the payment is completed.
         + on_failed (string) - Will be returned to this URL if the payment fails.
@@ -5943,7 +5943,7 @@ Use the *singleUseCustomerToken* returned in the response in the Payments Checko
     + Include Profile
     + Include Billing Details
     + `returnLinks` (object) - The URL endpoints to redirect the customer to after a redirection to an alternative payment or 3D Secure site. You can customize the return URL based on the transaction status. 
-        + `rel` (enum) -This is the link type, allowing different endpoints to be targeted depending on the end state of the transaction. The link relation describes how this link relates to the previous call. 
+        + `rel` (enum) - This is the link type, allowing different endpoints to be targeted depending on the end state of the transaction. The link relation describes how this link relates to the previous call. 
             + default (string, required) - The default return URL that will be used if specific status return URL is not defined.
             + on_completed (string) - Will be returned to this URL if the payment is completed.
             + on_failed (string) - Will be returned to this URL if the payment fails.
@@ -6028,7 +6028,7 @@ Use the *singleUseCustomerToken* returned in the response in the Payments Checko
 + Include Partial Auth
 + `paymentHandleToken`:`842778a0-03a2-11e9-8eb2-f2801f1b9fd1` (string, required) - This is the payment token generated by Paysafe that will be used for the Payment request.
     _length<=36_
-+ `availableToSettle`:`0` (number) -This is the amount of the Authorization remaining to settle, in minor units.
++ `availableToSettle`:`0` (number) - This is the amount of the Authorization remaining to settle, in minor units.
     _Read Only_
 + `childAccountNum`:`3216549877` (string) - This is the child merchant account number. It is returned only if the transaction was processed via a master account.
     _length<=10_
