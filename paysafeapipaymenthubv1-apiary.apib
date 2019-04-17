@@ -4,7 +4,7 @@ HOST: https://api.test.paysafe.com/paymenthub/
 # Paysafe Payments API 
 
 >**IMPORTANT:**  Because the Paysafe Payments API uses its [own unique API keys for request authentication](#apikey) and provides its own [Test and Production accounts](#goinglive), you should never click the **SIGN UP** or **LOGIN** buttons at the top right of the 
-Developer Center navigation, as these are used strictly for the other APIs on the Developer Center.
+Developer Center navigation, as these are used strictly for the other APIs on the Developer Center. Please contact your business relationship manager or reach out to <integrations@paysafe.com> for API keys and Test/Production accounts.
 
 <a name="paymentsoverview" title="Payments API Overview"></a>
 # Overview
@@ -5318,7 +5318,7 @@ Use the *singleUseCustomerToken* returned in the response in the Payments Checko
 + authentication (object) - These are the 3D Secure authentication details.
     + `id`:`5d4db3bc-34c9-417f-a051-0d992ad9284e` (string) - This is the ID of authentication, returned in the response.
         _Read Only, length<=36_
-    + `eci`:`5` (number) - This is the [e-commerce indicator](#authenticationobject).
+    + `eci`:`5` (number) - This is the [E-Commerce Indicator](#authenticationobject).
     + `cavv`:`AAABBhkXYgAAAAACBxdiENhf7A+=` (string) - This is the Cardholder Authentication Verification Value, indicating that the transaction has been authenticated.
         _length<=80_
     + `xid`:`aWg4N1ZZOE53TkFrazJuMmkyRDA=` (string) - This is the transaction identifier returned by the card issuer.
