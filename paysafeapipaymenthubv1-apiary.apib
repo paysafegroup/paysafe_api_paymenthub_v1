@@ -2881,6 +2881,8 @@ Click on **Process Settlement** above to see two examples of how to process a Se
 
 Click on **Cancel Settlement** above to see how to cancel a Settlement. You must include the *status* parameter set to *CANCELLED*.
 
+> **Note:** You can cancel a Settlement only if it has the status of PENDING.
+
 + Parameter
 
     + settlement_id : `d9bcfd85-8aa6-469d-80a3-e2ca196544da` - This is the ID returned in the response to the Settlement request. 
@@ -3052,6 +3054,8 @@ Click on **Process Refund** above to see two examples of how to process a Refund
 
 Click on **Cancel Refund** above to see how to cancel a Refund. You must include the *status* parameter set to *CANCELLED*.
 
+> **Note:** You can cancel a Refund only if it has the status of PENDING.
+
 + Parameter
 
     + refund_id : `c7ef07b2-0069-4f58-b9e2-0f4cdbc6c725` - This is the ID returned in the response to the Refund request
@@ -3191,6 +3195,8 @@ Click on **Process Standalone Credit** above to see how to process a Standalone 
 <a name="cancelstandalonecredit" title="Cancel a Standalone Credit"></a>
 
 Click on **Cancel Standalone Credit** above to see how to cancel a Standalone Credit. You must include the *status* parameter set to *CANCELLED*.
+
+> **Note:** You can cancel a Standalone Credit only if it has the status of PENDING.
 
 + Parameter
 
@@ -3345,6 +3351,8 @@ Click on **Process Original Credit** above to see how to process an Original Cre
 <a name="canceloriginalcredit" title="Cancel an Original Credit"></a>
 
 Click on **Cancel Original Credit** above to see how to cancel an Original Credit. You must include the *status* parameter set to *CANCELLED*.
+
+> **Note:** You can cancel an Original Credit only if it has the status of PENDING.
 
 + Parameter
 
@@ -3677,7 +3685,12 @@ Click on **Get Customer Using Merchant Reference Number** above to see how to lo
                 "nationality": "Canadian",
                 "cellPhone": "777-555-8888",
                 "paymentToken":"P0zPDqggWESaktW",
-                "status": "ACTIVE"
+                "status": "ACTIVE",
+                "meta": {
+                    "numberOfRecords": 1,
+                    "limit": 10,
+                    "page": 1
+                }
             }
 
 ### Get Customer Including Subcomponents [GET /v1/customers/{customer_id}?fields={fields}]
@@ -3703,6 +3716,7 @@ Click on **Get Customer Including Subcomponents** above to see how to look up a 
 
             {
                 "id": "326d6b3b-3c47-4ee2-9b6b-3801ec97a09d",
+                "status": "ACTIVE",
                 "merchantCustomerId": "mycustomer1",
                 "locale": "en_US",
                 "firstName": "John",
@@ -3749,9 +3763,9 @@ Click on **Get Customer Including Subcomponents** above to see how to look up a 
                         },
                         "cardBin": "400344",
                         "cardType": "VI",
-                        "singleUseToken": "SCR37YxqciqpGeKF",
-                        "billingDetailsId": "3722476e-4891-426b-8dcd-a25ad3d14ffe"
+                        "singleUseToken": "SCR37YxqciqpGeKF"
                     },
+                    "billingDetailsId": "3722476e-4891-426b-8dcd-a25ad3d14ffe",
                     "paymentHandleTokenFrom": "SCR37YxqciqpGeKF"
                 }]
             }
@@ -4743,6 +4757,7 @@ Use the *singleUseCustomerToken* returned in the response in the Payments Checko
     + Members
         + INITIAL
         + ACTIVE
++ Include Metadata Object
 
 ## Date of Birth
 + `dateOfBirth` (object, required) - This is the customer's date of birth. 
