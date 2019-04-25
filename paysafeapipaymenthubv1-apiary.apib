@@ -12,32 +12,17 @@ Developer Center navigation, as these are used strictly for the other APIs on th
 The Paysafe Payments API allows merchants to accept payments via multiple payment methods while using a single endpoint integration.
 
  * Choose your preferred mode of integration based on your PCI DSS compliance level.
- * Transaction analysis and account management are made simple with our all-in-one [Business Portal](https://merchant.paysafe.com/portal). 
- * Enjoy the flexibility of adding new payment methods to your merchant account later with minimal integration effort.
+ * Access your transaction analytics and manage accounts with our all-in-one [Business Portal](https://merchant.paysafe.com/portal). 
+ * Enjoy the flexibility of adding payment methods to your merchant account later on with minimal integration effort.
 
 <a name="paymentsgettingstarted" title="Payments API Getting Started"></a>
 # Getting Started
 
-The Paysafe Payments API currently supports the following payment methods: 
-
-- Card
-- Paysafecard
-- Paysafecash
-
-**Here is a step-by-step guide to get you started:**
-
- 1. Apply for a sandbox account &ndash; See [Applying for a Test Account](#applytestaccount) for information on how to get Test credentials.
- 2. Get your API keys &ndash; See [Authentication](#apikey) for information on how to retrieve your Public and Secret API keys from the Business Portal. 
- 3. Know the API endpoints &ndash; Check out our [API Endpoints](#apiendpoints) to see the endpoints that you need to use for different request types.
- 4. Choose your preferred type of integration &ndash; [Pick an integration type](#choosingintegration) based on your PCI compliance level.
- 5. Understand Payment Handles and some common Payments API scenarios &ndash; [Read about Payment Handles](#paymenthandleoverview) and 
- preview [some of the most common scenarios](#typicalscenarios).
- 6. Integrate and test in our Sandbox &ndash; Access all test data and instructions on how to [proceed with your testing](#testinginstructions).
- 7. Go live &ndash; See our instructions on [how to go live](#goinglive).
+[Click here](https://developer.paysafe.com/en/rest-apis/igaming/payments-api/getting-started/overview/) for an overview of the Payments API and a step-by-step guide to help get you started.
 
 
 <a name="apikey" title="Authentication"></a>
-## Authentication
+# Authentication
 
 In order for you to use the Paysafe Payments RESTful API, Paysafe must first set you up on their system
 and provide you with an API key. Your API key will have the following format:
@@ -62,50 +47,13 @@ For additional details, please refer to [http://en.wikipedia.org/wiki/Basic_acce
 
 > **IMPORTANT:** The API key that you will use for the Paysafe Payments API is **different from** the API key used for all the other Developer Center APIs.
 
-### Getting Your API Keys
-The Payments API uses two distinct API keys:
- 1. The **Secret Key** &ndash; used for all server-to-server Payments API requests.
- 2. The **Public Key** &ndash; used as the value for the *apiKey* parameter when using the [Payments Checkout SDK option](#paymentscheckout).
-
-You will require a Secret key and a Public key for each of the two Paysafe environments: Test and Production (live).
-
-You will receive separate emails from Paysafe that will provide you with the credentials to sign in to the corresponding versions of the Paysafe [Business Portal](https://merchant.paysafe.com/portal) (Test and Production), where you can retrieve 
-the API keys as required.
-
-<a name="publicapikey" title="Public API Key"></a>
-#### Getting Your Public API Key
-You use the Public API key if you are using the [Payments Checkout SDK](#paymentscheckout) to process payment requests. 
-
- > **Note:** You must Base64 Encode your Public API key before using it in the Payments Checkout SDK.
-
-To retrieve your Public API key from the Business Portal:
- 1. Go to **Integrate>API Keys**. 
-![](https://github.com/paysafegroup/paysafe_api_paymenthub_v1/raw/master/images/API_Key.png)
- 2. For *Public Key*, click on the icon in the **Copy** column to copy the API key to your clipboard.  
-
-The default Test account can be used for processing Card, PaysafeCash, and Paysafecard payments with the processing currency (*currencyCode*) set to USD. 
-
-<a name="secretapikey" title="Secret API Key"></a>
-#### Getting Your Secret API Key
-You use the Secret API key in all your server-to-server Payments API requests. 
-
- > **Note:** You must Base64 Encode your Secret API key before using it in your API requests.
-
-To retrieve your Secret API key from the Business Portal: 
- 1. Go to **Integrate>API Keys**.
- 2. Under **Secret Key**, click on **Authenticate Now**.
- ![](https://github.com/paysafegroup/paysafe_api_paymenthub_v1/raw/master/images/Secret_Key1.png)
- 3. Enter your Business Portal password and click **Authenticate**.
- 4. You can now access your Secret API key. 
- ![](https://github.com/paysafegroup/paysafe_api_paymenthub_v1/raw/master/images/Secret_Key2.png)
- 
- > **Note:** All your payment methods will be set up to use the same API key.
+[Click here](https://developer.paysafe.com/en/rest-apis/igaming/payments-api/getting-started/getting-your-api-keys/) for details on how to get your API keys from Paysafe.
 
 
 <a name="urls" title="URLs"></a>
-## URLs
+# URLs
 
-###  Test URL
+##  Test URL
 In order to test your integration with Paysafe, use the following Test URL:
 
 `https://api.test.paysafe.com`
@@ -114,7 +62,7 @@ For example:
 
 `https://api.test.paysafe.com/paymenthub/v1/payments/{payment_id}`
 
-### Production URL
+## Production URL
 In order to process live requests with Paysafe, use the following Production URL:
 
 `https://api.paysafe.com`
@@ -123,81 +71,40 @@ For example:
 
 `https://api.paysafe.com/paymenthub/v1/payments/{payment_id}`
 
-<a name="paymenthandleoverview" title="Payment Handle Overview"></a>
-## Payment Handle Overview
+<a name="pagination" title="Pagination"></a>
+# Pagination
 
-A Payment Handle is a token that represents a payment method that you set up for a customer. 
-When you create the payment handle, you can include information like the credit card number and expiry date, the card holder's name, the type of transaction request it will be used for, some profile information about the customer, and some billing address information. 
+In the case where an API GET request returns multiple results, Paysafe returns the first 10 records by default and uses HATEOAS links to provide page navigation. In addition to the default behavior, it is also possible to control the number of results and starting point by passing in query parameters as follows:
 
-When you create the Payment Handle, Paysafe returns a *paymentHandleToken* in the response. That token represents all the customer payment information you need to include in, for example, a [credit card payment request](#paymentrequest).
+|    Name       | Description   |
+|---            |---            |
+| limit         | This is the total number of records to return. Max = 50. Default = 10. |
+| offset        | This is the starting position, where 0 is the first record. Default = 0. |
+| startDate     | This is the start date in UTC. Default = 30 days before the *endDate*.|
+| endDate       | This is the end date in UTC. Default = current date and time. |
 
-You have to have to create a separate Payment Handle for each transaction type/payment type combination you need to use &ndash; e.g., one for credit card Payments, one for credit card Standalone Credits,  etc. 
-Payment Handles typically have a lifespan of 15 minutes and can be used only once.
+<a name="globalinvalidcharacters" title="Global Invalid Characters"></a>
+# Global Invalid Characters
 
-### Some Important Parameters
-When you create a Payment Handle, there are a few additional parameters that are important to be aware of because they have a significant impact on how you will use the payment token (*paymentHandleToken*) that's created.
- * action
- * usage
- * executionMode
+You must not include any of the characters in the following table as values in any of your request parameters. If you do, your request will result in an error.
 
-#### Action
-
-The *action* parameter is a read-only value that Paysafe returns in the response to the Payment Handle creation request, regardless of the payment method selected by the customer. It tells you what additional action, if any, you must take to allow the customer to complete the payment request. 
-
-The possible values are: 
-
-* NONE – No further action is required from the customer. This is typically the case for a card transaction where no further 3D Secure authentication is required from the customer after having entered valid card details. 
-In this case, merchant can immediately make a Payments call to capture the payment, since the *status* of the Payment Handle token will immediately be set to *PAYABLE*.
-   
-* REDIRECT – The customer is required to authorize the payment on a redirected page. This is typically the case, e.g., with a 3D Secure card transaction where the customer must authenticate their card on the issuing bank's website. 
-In this case, you must redirect the customer to a link that Paysafe returns in the response to the Payment Handle creation request. Once the customer has completed the authentication successfully, the *status* of the Payment Handle token will be modified to *PAYABLE*. 
-
-Once the status of the Payment Handle token is *PAYABLE*, the merchant has to [make a Payment request](#paymentrequest) using the Payment Handle token within 15 minutes to capture the payment. Otherwise, the Payment Handle will expire.
-
-#### Usage
-
-The *usage* parameter is a read-only value that Paysafe returns in the response to the Payment Handle creation request that specifies whether the Payment Handle token (*paymentHandleToken*) can be used once only or multiple times. 
-
-Typically, when you [create a regular Payment Handle Token](#paymenthandlerequest), its *usage* will be SINGLE_USE and it will expire after a specified time.
-When you create a [Customer Payment Handle Token](#createcustomerpaymenthandlerequest), its *usage* will be MULTI-USE and will not expire.
-
-The possible values are:
-* SINGLE_USE – In this case, the Payment Handle token can be used only once for a subsequent Payments API request.
-* MULTI USE - In this case, the Payment Handle token can be used multiple times for a Payments API request. This would be used, e.g., for recurring transactions like subscriptions or saved cards.
-
-#### Execution Mode
-
-The *executionMode* parameter is a read-only value that Paysafe returns in the response to the Payment Handle creation request that indicates whether the payment request will be completed immediately or after a delay of some length. 
-Merchants can use this information to determine whether they can receive the payment status synchronously or if instead they need to [rely on the use of webhooks](#paymentswebhooks).
-
-The possible values are:
-* SYNCHRONOUS – The Payment status can be received by the merchant synchronously. In this case the merchant can poll the PROCESSING/PENDING Payments at regular intervals to retrieve the Payment status. 
-* ASYNCHRONOUS – The Payment is expected to be completed after a significant time delay (e.g., after hours or days, as in the case of PaysafeCash). In this case, the merchant must [use webhooks to retrieve the Payment status](#paymentswebhooks).
-
-<a name="choosingintegration" title="Choosing Your Integration"></a>
-## Choosing Your Integration
-
-The Paysafe Payments API supports two integration types: 
- 1. [Direct API Integration](#paysafeapi) &ndash; This method is recommended for merchants who are  PCI-DSS compliant to level SAQ-D. 
- This method allows you to collect user payment information in your website while processing payments and other transactions using secure server-to-server requests sent to Paysafe.
- 2. [Paysafe Payments Checkout](#paymentscheckout) &ndash; This method is perfect for merchants with the least demanding level of PCI compliance: SAQ-A.
- This method allows you to take payments from credit cards and other supported payment methods using a secure overlay that is hosted by Paysafe. 
- The user input and storage of credit card and other PII information (Personally Identifiable Information) are handled by Paysafe. 
-
-## Testing 
-
-See [Testing Instructions](#testinginstructions)
-
-## Going Live
-
-See [Going Live](#goinglive)
+|    Character    |    HEX    |    Description                     |
+|-----------------|-----------|------------------------------------|
+| "               | 22        | Double quotes (or speech marks)    |
+| ;               | 3B        | Semicolon                          |
+| ^               | 5E        | Caret, circumflex                  |
+| *               | 2A        | Asterisk                           |
+| <               | 3C        | Less than (or open angled bracket) |
+| /               | 2F        | Slash or divide                    |
+| [               | 5B        | Opening bracket                    |
+| ]               | 5D        | Closing bracket                    |
+| \               | 5C        | Backslash                          |
 
 <a name="paysafeapi" title="Paysafe API"></a>
 # API
 
 The Payments API allows merchants to process payment-related requests across a wide variety of payment methods with a simple integration a single API using the REST protocol. The protocol uses JSON for all requests and responses.
 
-## Request Types Supported
 The following request types are supported:
 
   * [Payment Methods](#getpaymentmethods)
@@ -215,12 +122,11 @@ The following request types are supported:
   * [Customer Single-Use Tokens](#createcustomersut)
   
 
-<a name="apiendpoints" title="API Endpoints"></a>
-## API Endpoints
+**API Endpoint**
 
 `https://api.paysafe.com/paymenthub/v1/payments/{payment_id}`
 
-### Resource Patterns
+**Resource Patterns**
 
 |Endpoint URL                                   |Description                            |Action |
 |---                                            |---                                    |---    |
@@ -260,666 +166,11 @@ The following request types are supported:
 |/customers/{customer_id}/singleusetokens       |Create a Single-Use Customer Token     |POST   |
 |/singleusecustomertokens/[singleusecustomertoken_id}   |Look Up a Single-Use Customer Token    |GET    |
 
-
-<a name="typicalscenarios" title="Typical Scenarios"></a>
-## Typical Scenarios
-When you use the Paysafe Payments API for payments and credits, you have to collect a variety of customer details on your platform/website, including card number, expiry date, and CVV/CVC code, among other items. 
-You must then and send this information to Paysafe with your API request.
-
-The scenarios below describe some of the common ways by which merchants can set up some Payment and Credit requests using the Paysafe Payments API.
-
-### Scenario 1: Card Payment with Settlement
-
-This is a common scenario, where the Authorization and Settlement of a credit card payment are completed in a single request. 
-This type of request is typically used by merchants who provide immediate delivery of the service, e.g., a gaming merchant where a customer deposits money in to their player account. 
-In this scenario, you would do the following: 
- 1. Create a Payment Handle, which should immediately have the *status* of PAYABLE.
- 2. Use the *paymentHandleToken* returned in the response to process the Payment request &ndash; the *settleWithAuth* parameter must be set to *true* in this case.
- 3. Once the Payment request is successfully completed, the funds are immediately requested from the card issuer with the next Paysafe batch Settlement run.
-
-**API Requests to Use:** [Payment Handles](#paymenthandlerequest) + [Payments](#paymentrequest)
-
-### Scenario 2: Card Payment with Settlement with 3D Secure Authentication
-
-In this scenario, the Authorization and Settlement of a credit card payment are completed in a single request, but in addition the card holder is authenticated via 3D Secure by the card issuer prior to Payment authorization.
-In this scenario, you would do the following:
- 1. Create a Payment Handle. 
- 2. Since the card is enabled for 3D Secure, Paysafe returns a response with the following:
-    * The *action* parameter is set to REDIRECT
-    * A *payment_redirect* link points to the 3D Secure authentication URL
- 3. Redirect the customer to the 3D Secure authentication URL so they can authenticate the credit card.
- 4. Upon successful customer authentication, the merchant gets notified at the URL specified in the *on_completed* parameter included with their request.
- 5. At this point, the *status* of the Payment Handle becomes PAYABLE. 
- 6. Use the *paymentHandleToken* returned in the response to process the Payment request &ndash; the *settleWithAuth* parameter must be set to *true*.
- 7. Once the Payment request is successfully completed, the funds are immediately requested from the card issuer with the next Paysafe batch Settlement run.
-
-**API Requests to Use:** [Payment Handles](#paymenthandlerequest) + [Payments](#paymentrequest)
-
-### Scenario 3: Card Payment with Delayed Settlement
-
-This is another common scenario, where a merchant obtains an authorization for a purchase amount and then settles it later once the service is fulfilled. 
-A common example would be a merchant who ships goods &ndash; they might take your online order on day 1, when they do the authorization, but then settle it on day 3 when they ship the goods you have purchased. 
-In this scenario, you would do the following:
- 1. Create a Payment Handle, which should immediately have the *status* of PAYABLE.
- 2. Use the *paymentHandleToken* returned in the response to process the Payment request &ndash; the *settleWithAuth* parameter must be set to *false* in this case.
- 3. Once you have shipped the goods, use the same *paymentHandleToken* to process a Settlement request. The *payment_id* to include in the Settlement request URL is the *id* that was returned in the response to the Payment request.
- 4. Once the Settlement request is successfully completed, the funds are immediately requested from the card issuer with the next Paysafe batch Settlement run.
-
-> **Note:** You can make multiple Settlement requests to complete the initial Payment request, up to the full amount on the original authorization.
-
-**API Requests to Use:** [Payment Handles](#paymenthandlerequest) + [Payments](#paymentrequest) + [Settlements](#settlementrequest)
-
-### Scenario 4: Card Original Credit
-
-The Original Credit request allows the merchant to issue a credit to a customer in the case where there is no previous Payment to tie it to, as is the case with a regular [Refund](#refundrequest). 
-For example, an online gaming merchant may want to perform a payout using an Original Credit. In this scenario, you would do the following: 
- 1. Create a Payment Handle, with the *transactionType* parameter set to ORIGINAL_CREDIT. This Payment Handle should immediately have the *status* of PAYABLE.
- 2. Use the *paymentHandleToken* returned in the response to process the Original Credit.
- 3. Once the Original Credit request is successfully completed, the funds are transferred to the customer's card with the next Paysafe batch run.
-
->**Note:** Only merchants with [specific Merchant Category Codes](#originalcreditmccs) can process Original Credit requests. Merchants with all other Merchant Category Codes must process [Standalone Credit requests](#standalonecreditrequest).
-
-**API Requests to Use:** [Payment Handles](#paymenthandlerequest) + [Original Credits](#originalcreditrequest)
-
-### Scenario 5: Paysafecard Payment
-
-For a Paysafecard request, the merchant wants to process a payment request using Paysafecard as the payment type. In this scenario, you would do the following:
- 1. Create a Payment Handle with the *transactionType* parameter set to PAYMENT and the *paymentType* parameter set to PAYSAFECARD. 
- 2. Since the customer has to complete payment authentication by providing Paysafecard details, Paysafe returns a response with the following:
-    * The *action* parameter is set to REDIRECT
-    * A *payment_redirect* link points to the Paysafecard redirect URL
- 3. Redirect the customer to the Paysafecard redirect URL so they can provide the PIN/Voucher details to complete the money transfer.
- 4. Upon successful customer authentication, the merchant gets notified at the URL specified in the *on_completed* parameter included with their request.
- 5. At this point, the *status* of the Payment Handle becomes PAYABLE. 
- 6. Use the *paymentHandleToken* returned in the response to process the Payment request.
- 7. Once the Payment request is successfully completed, the funds are immediately transferred to the merchant's account.
-
-**API Requests to Use:** [Payment Handles](#paymenthandlerequest) + [Payments](#paymentrequest)
-
-### Scenario 6: Paysafecash Payment
-
-For a Paysafecash request, the merchant wants to process a payment request using Paysafecash as the payment type. 
-In this scenario, you would do the following:
- 1. Create a Payment Handle with the *transactionType* parameter set to PAYMENT and the *paymentType* parameter set to PAYSAFECASH. 
- 2. Since the customer has to complete payment authentication by providing Paysafecash details, Paysafe returns a response with the following:
-    * The *action* parameter is set to REDIRECT
-    * A *payment_redirect* link points to the Paysafecash redirect URL
- 3. Redirect the customer to the Paysafecash redirect URL so they can generate a bar code.
- 4. Upon successful bar-code generation, the *status* of the Payment Handle becomes PAYABLE. The merchant gets [notified of this status change via webhooks](paymentswebhooks) that have been configured.
- 5. Use the *paymentHandleToken* returned in the response to process the Payment request. The Payment will have a *status* of PENDING until the customer has made the payment.
- 6. Once the Payment request is successfully completed, the merchant [gets notified via webhooks](#paymentswebhooks) and the funds are immediately transferred to the merchant's account.
-
-**API Requests to Use:** [Payment Handles](#paymenthandlerequest) + [Payments](#paymentrequest)
-
-<a name="paymentscheckout" title="Payments Checkout"></a>
-# Payments Checkout
-
-Paysafe Payments Checkout is an SDK that allows merchants to take payment from credit cards and other alternate payment methods &ndash; like Paysafecash and Paysafecard &ndash; using a secure overlay that requires the least demanding level of PCI compliance: SAQ-A. 
-The entry and storage of payment information is handled by Paysafe and the checkout uses Paysafe's Payment APIs for payment and credit processing.
-
-## How to Use the SDK
-
-1. Include the Paysafe Checkout SDK in your HTML payment form.
-2. Call the checkout setup function with your Public API key, [which you retrieve from the Business Portal](#publicapikey). 
-The setup function creates an iframe overlay containing the secure payment form hosted on Paysafe's servers. 
-You will need to pass a callback function as part of the setup to handle successful payment handle success and failure.
-3. The callback should use AJAX to send the payment handle representing the customer's payment details to your merchant server to [make payment using the Paysafe Payments API](#paymentrequest).
-
-## Including the SDK 
-
-The SDK is located here: `https://hosted.paysafe.com/checkout/v2/paysafe.checkout.min.js`
-
-You need to include it in your HTML form by adding a `<script>` element in either the header or body.
-
-<head>
-    <script src="https://hosted.paysafe.com/checkout/v2/paysafe.checkout.min.js"></script>
-</head>
-
-## Example Payment Form
-
-The following code sample shows a minimal Paysafe Checkout example for card payments that creates a payment overlay for the user to enter their card number, expiry date, and CVV. 
-The overlay contains a payment button that creates a payment handle for the data entered by the user and displays the payment handle token (if successful) in the browser console.
-
-```html
-<html>
-    <head>
-        <script src="https://hosted.paysafe.com/checkout/v2/paysafe.checkout.min.js"></script>
-    </head>
-
- 
-    <body>
-        <button onclick="checkout()"> Pay $25 </button>
-    </body>
-
-    <script>
-        function checkout() {
-            paysafe.checkout.setup("API Key", {
-                amount: 2500,
-                currency: "USD",
-                locale: "en_US",
-                merchantRefNum: "10231231311",
-                canEditAmount: true,
-                environment: "TEST"
-            }, function(instance, error, result) {
-                if (result && result.paymentHandleToken) {
-                    console.log(result.paymentHandleToken);
-                    // make AJAX call to Payments API
-                } else {
-                    console.error(error);
-                    // Handle the error
-                }
-            }, function(stage, expired) {
-                switch(stage) {
-                    case "BeforePayment": // Handle the scenario
-                    case "DuringPayment": // Handle the scenario
-                    case "AfterPayment": // Handle the scenario
-                    default: // Handle the scenario
-                }
-            });
-        }
-    </script>
-</html>
-```
-
-## Setup Function
-
-The setup function creates and initializes the Paysafe Checkout in an overlay. It has the following parameters:
-+ The [Public API key](#publicapikey) provided in the Business Portal. Note that this key can only be used to generate payment handle tokens for use with payments, and has no other API access rights, such as those required for taking payments. Consequently, this key can be exposed publicly in the user's browser.
-+ An *options* object containing the environment to use (Test or Live), the payment amount, currency, and several parameters to show additional features in the payment form.
-+ A *resultCallback* function you provide to receive the Paysafe checkout instance, handle successful payment handle (by sending the payment handle to your merchant server), or respond to any errors caused by a failed payment handle creation.
-+ An optional *closeCallback* function you provide to handle the customer closing the payment overlay.
-
-The function signature is as follows:
-```
-paysafe.checkout.setup(apiKey, options, resultCallback, closeCallback?)
-```
-
-### Setup Function and Objects
-
-|Parameter|Type|Required|Validations|Description|
-|---------|-------|---------------|-----------|------------------|
-|apiKey|string|yes||This is your [Public API key](#publicapikey), available in the Business Portal.|
-|[options](#options)|object|yes||This is the merchant's configuration for rendering the Checkout.|
-|[resultCallback](#resultcallback)|function|yes||The function to be invoked when the payment handle needs to be passed to the merchant, who then uses it to make the payment.|
-|[closeCallback](#closecallback)|function|optional||The function to be invoked when the user closes the Checkout without making a payment.|
-
-<a name="options"></a>
-**options**
-|Parameter|Type|Required|Validations|Description|
-|---------|-------|---------------|-----------|------------------|
-|currency|string|yes|`length=3`<br/>`Regex:[A-Z]`|This is the [currency of the merchant account](#currencycodes), e.g., USD or CAD.|
-|merchantRefNum|string|yes|`length<=255`|A unique identifier provided by the merchant for every transaction from Checkout. |
-|amount|number|optional|`length=1-9`|Payment amount in minor units to process the transaction. Use the correct minor units amount for the *currency* passed to *options*. For example, to process US $10.99, this value should be 1099. To process 1000 Japanese yen, this value should be 1000. To process 10.139 Tunisian dinar, this value should be 10139. The merchant can choose not to pass an amount when the Checkout is loaded. In that case, the *canEditAmount* parameter should be set to *true*. However, before clicking the Pay button, the user would have to enter the desired amount in the Checkout.|
-|environment|string|optional|Possible values: LIVE or TEST|The environment to be used for making the API calls and loading the Checkout. Default value is LIVE, if not specified. |
-|locale|string|optional|Possible values: en_US|Language locale for the checkout.|
-|[billingAddress](#billingaddress)|object|conditional||This is the billing address of the customer that will be displayed to the customer at checkout. The merchant should include this object if this is a first-time customer with no customer profile. If the *customer* entity has been created with the Payments API, then address information from the *singleUseCustomerToken* will be used and the merchant does not have to include the *billingAddress* object.<br>**Note:** The address information from this object will be displayed in place of the address information from the *singleUseCustomerToken*, if both are included.|
-|singleUseCustomerToken|string|optional||This is the *singleUseCustomerToken* that the merchant generated using the [Create a Single-Use Customer Token request](#createcustomersut). Any saved addresses and/or payment details would be displayed in the Checkout.|
-|canEditAmount|boolean|optional||If *true*, the customer can edit the amount in the Checkout before clicking Pay. If false, the amount is not editable.|
-|[customer](#customer)|object|optional||In case the customer is a first-time user and has no customer profile, the merchant can choose to pass an existing customer profile in the call to create a payment handle.|
-|[paymentMethodDetails](#paymentmethoddetails)|object|optional||Required for Paysafecash and Paysafecard payment types.|
-
-<a name="billingaddress"></a>
-**billingAddress**
-|Parameter|Type|Required|Validations|Description|
-|---------|-------|---------------|-----------|------------------|
-|nickName|string|optional|`length<=50`|An identifier to identify the type of address, e.g., Work or Home.|
-|street|string|yes|`length<=50`|The first line of the address.|
-|street2|string|optional|`length<=50`|The second line of the address.|
-|city|string|yes|`length<=40`|The city name in the address.|
-|zip|string|yes|`length<=10`|The zip code of the address.|
-|country|string|yes|`length=2`|The country of the address, e.g., US. See [Country Codes](#countrycodes).|
-|state|string|yes|`length<=40`|The state of the address. See [State Codes](#statecodes).|
-
-
-<a name="customer"></a>
-**customer**
-|Parameter|Type|Required|Validations|Description|
-|---------|-------|---------------|-----------|------------------|
-|firstName|string|yes|`length<=80`|The first name of the customer.|
-|lastName|string|yes|`length<=80`|The last name of the customer.|
-|[dateOfBirth](#dateofbirth)|object|yes||The date of birth of the customer.|
-|email|string|yes|`length<=255`|The email address of the customer.|
-
-<a name="dateofbirth"></a>
-**dateOfBirth**
-|Parameter|Type|Required|Validations|Description|
-|---------|-------|---------------|-----------|------------------|
-|year|number|yes|`length=4 min=1900`|This is the year of birth.|
-|month|number|yes|`length=2 max=12`|This is the month of birth.|
-|day|number|yes|`length=2 max=31`|This is the day of birth.|
-
-<a name="paymentmethoddetails"></a>
-**paymentMethodDetails**
-|Parameter|Type|Required|Validations|Description|
-|---------|-------|---------------|-----------|------------------|
-|[paysafecard](#paysafecard)|object|optional||Required for Paysafecard payment type.|
-|[paysafecash](#paysafecash)|object|optional||Required for Paysafecash payment type.|
-
-<a name="paysafecard"></a>
-**paysafecard**
-|Parameter|Type|Required|Validations|Description|
-|---------|-------|---------------|-----------|------------------|
-|consumerId|string|yes|`length<=50`|This is a consumer ID that the merchant has stored for Paysafecard payments.|
-
-<a name="paysafecash"></a>
-**paysafecash**
-|Parameter|Type|Required|Validations|Description|
-|---------|-------|---------------|-----------|------------------|
-|consumerId|string|yes|`length<=50`|This is a consumer ID that the merchant has stored for Paysafecash payments.|
-
-The Paysafe Checkout is displayed when the configuration provided in *options* is correctly validated.
-
-<a name="resultcallback"></a>
-#### resultCallback
-
-The result callback is invoked when the Payment Handle is successfully created and is in the PAYABLE state or when there is an error in the Checkout. It also passes in an instance of the Checkout object.
-
-Using the functions provided in the *instance* object, the merchant can control the checkout experience.
-
-The *resultCallback* contains the following elements.
-
-|Parameter|Type|Required|Description|
-|---------|-------|---------------|-----------|
-|[instance](#instance)|object|yes|The Paysafe checkout instance.|
-|[error](#error)|object|optional|Object containing information for the error. This field is present if payment handle creation fails. The contents of this object are described below.|
-|[result](#result)|object|yes|Result containing payment token. The contents of this object are described below.|
-|{return}|undefined|false||
-
-<a name="instance"></a>
-**instance**
-|Parameter|Type|Required|Description|
-|---------|-------|---------------|-----------|
-|isOpen|function|yes|Checks if the overlay is still open.|
-|close|function|yes|Closes the overlay without displaying payment result.|
-|showSuccessScreen|function|yes|Changes Checkout layout to success screen.|
-|showFailureScreen|function|yes|Changes Checkout layout to failure screen.|
-
-<a name="error"></a>
-**error**
-|Parameter|Type|Required|Description|
-|---------|-------|---------------|-----------|
-|message|string|yes|Provides an error message that can be displayed to users.|
-|detailedMessage|string|yes|Provides a detailed error message that can be logged.|
-|correlationId|string|yes|Unique ID that can be provided to the Paysafe Support team as a reference for investigation.|
-
-<a name="result"></a>
-**result**
-|Parameter|Type|Required|Description|
-|---------|-------|---------------|-----------|
-|paymentHandleToken|string|yes|The Payment Handle token to be passed to the Payments API call.|
-|paymentMethod|string|yes|The payment method used by the customer.|
-|customerOperation|string|yes|The customer operation for the card. Values: ADD, EDIT or DELETE.|
-|amount|number|yes|The amount used to create the Payment Handle. This is required because the user might change the amount in the Checkout.|
-
-<a name="closecallback"></a>
-#### closeCallback
-Invoked when the checkout overlay is closed by the customer. 
-
-The *closeCallback* contains the following elements.
-
-|Parameter|Type|Required|Description|
-|---------|-------|---------------|-----------|
-|stage|string|yes|Stage during which the Checkout overlay is closed. Possible values are: *BeforePayment*, *DuringPayment*, *AfterPayment*|
-|expired|boolean|yes|Indicates whether the *close* event was triggered after the Checkout expired.|
-|{return}|undefined|false|
-
-
-<a name="usingsavedcardscheckout" title="Using Saved Cards and Addresses in Checkout"></a>
-## Using Saved Cards and Addresses in Checkout
-You can use Payments Checkout to store your customer's credit card and address information, which you can then use for their future transactions. 
-This involves two easy steps:
- 1. Create a profile for your customer.
- 2. Create a single-use customer token, using the *customerId* in the Payments Checkout response (or the *id*, if you use an API call).
-
-When you use this single-use customer token as the *singleUseCustomerToken* parameter in the Payments Checkout, any 
-card and address information associated with the customer will be displayed on the Checkout page.
-
-### Creating a Customer Profile
-To use this functionality, the merchant needs to first create a customer profile with Paysafe. There are two ways to create a customer profile:
- 1. Create a profile in a Payment request
- 2. Create a profile in a Customer creation request 
-
-> **Note:** Paysafe recommends that you use the Payment request to create a customer profile if you are integrating with Paysafe Payments Checkout.
-
-#### Create the Profile in a Payment Request
-
-When you create a payment handle with the Payments Checkout, the *resultCallback* is returned, which contains the *customerOperation* parameter. 
-
-If the customer selected the *saveCard* option in the Checkout while doing their payment, then the *customerOperation* parameter returned in the *resultCallback* will have the value set to *ADD*. 
-
->**Note:** The *saveCard* option is presented by default by Paysafe in the Checkout.
-
-In the case where *customerOperation* has the value of ADD, then the merchant must include an additional parameter along with the rest of the request payload 
-when [processing a Payment request](#paymentrequest) &ndash; either the *merchantCustomerId* parameter or the *customerId* parameter.
-   
-If the merchant has never [created a customer entity for this customer](#createcustomerrequest), they would include *merchantCustomerId* with a value the merchant has stored for that customer.
-
-   ```json
-   Request Body :
-        {
-            ...
-            "merchantCustomerId": "user1"
-        }
-   ```
-If the merchant has already [created a customer entity for this customer](#createcustomerrequest), they would include *merchantId*, for which the value 
-would be the unique *id* returned in the response to the customer creation request. 
-
-   ```json
-   Request Body :
-        {
-            ...
-            "customerId": "ccb24e28-6e38-47ce-8815-94706c5b608c"
-        }
-   ```
-
-In the case of a successful payment request with either of these added parameters, two new parameters are then returned in the response:
- - *customerId* &ndash; a customer profile
- - *multiUsePaymentHandleToken* &ndash; a multi-use payment handle
-   
-   ```json
-   Response Body :
-        {
-            ...
-            "customerId": "ccb24e28-6e38-47ce-8815-94706c5b608c",
-            "multiUsePaymentHandleToken": "uyfiuewyrw273uw"
-        }
-   ```
-
-If the merchant provided the *merchantCustomerId* parameter, then they need store 
-the value for the *customerId* parameter in the response in order to use it as the *customer_id* value in customer-related
-requests that require it, like [updating a customer](#updatecustomerrequest) or [adding an address to a customer](#createaddressrequest).
-
-The *multiUsePaymentHandleToken* returned in the response to this payment request would be the equivalent of the *paymentHandleToken* returned in the response when you [create a payment handle for a customer](#createcustomerpaymenthandlerequest), 
-and used for the same purposes.
-   
-#### Create the Profile in a Customer Creation Request
-   
-The second way to create a customer profile is by using the API request to [Create a Customer](#createcustomerrequest). 
-The merchant should then store the unique ID provided in Paysafe's response for that particular user.
-    ```json
-    Response body: {
-        "id": "ccb24e28-6e38-47ce-8815-94706c5b608c"
-    }
-    ```
-
-Either of these methods allow you to create a customer profile for a user &ndash; just save the corresponding
-customer ID in your database for that user.
-
-### Creating a Single-Use Customer Token
-The Checkout can display existing cards and addresses for a user. To use this functionality,
-the merchant needs to make use of the *customerId* (to use as the value for *customer_id* in the endpoint URL) and make an API call to [create a single-use customer token](#createcustomersut). 
-This single-use customer token in the response should then be provided as the value for *singleUseCustomerToken* in the [Checkout options](#options)
-while invoking the Checkout. In this case, when the checkout is loaded, the user would be able to see their saved payment details. 
-
-The following are the 2 steps are involved.
-
-1. Create a Single-Use Customer Token
-
-   Make an API call to [create a single-use customer token](#createcustomersut), using the *customerId* for that user.
-   This generates a single-use customer token &ndash; the field *singleUseCustomerToken* in the response &ndash; which is valid for 15 minutes.
-   ```json
-   Response Body: {
-        ...
-        "singleUseCustomerToken": "SPFAB1cA5iwdu48H"
-   }
-   ```
-
-2. Use the *singleUseCustomerToken* field from the response in step 1 above and provide this value for the *singleUseCustomerToken* parameter in the [Checkout options](#options).
-
-```
-<html>
-    <head>
-        <script src="https://hosted.test.paysafe.com/checkout/v2/paysafe.checkout.min.js"></script>
-    </head>
-
- 
-    <body>
-        <button onclick="checkout()"> Pay $25 </button>
-    </body>
-
-    <script>
-        function checkout() {
-            paysafe.checkout.setup("API Key", {
-                amount: 2500,
-                currency: "USD",
-                locale: "en_US",
-                merchantRefNum: "10231231311",
-                canEditAmount: true,
-                environment: "TEST",
-                singleUseCustomerToken: "SPFAB1cA5iwdu48H"
-            }, function(instance, error, result) {
-                if (result && result.paymentHandleToken) {
-                    console.log(result.paymentHandleToken);
-                    // make AJAX call to Payments API
-                } else {
-                    console.error(error);
-                    // Handle the error
-                }
-            }, function(stage, expired) {
-                switch(stage) {
-                    case "BeforePayment": // Handle the scenario
-                    case "DuringPayment": // Handle the scenario
-                    case "AfterPayment": // Handle the scenario
-                    default: // Handle the scenario
-                }
-            });
-        }
-    </script>
-</html>
-```
-
-When the Checkout is loaded, the customer will be able to see their saved payment details.
-
-<a name="paymentswebhooks" title="Payments Webhooks"></a>
-# Using Webhooks
-
-A webhook allows you to define an HTTP callback to which a request will be posted when an event occurs that you want to be notified about. 
-To configure webhooks, you need to [open a service request](#support) with Paysafe in the Business Portal.
-
-> **Note:** In order to receive webhooks from Paysafe, you must create a callback URL to receive the webhook that is triggered. 
-You are responsible for ensuring its continued availability.
-
-## Webhooks Events
-You can trigger webhooks for the following events: 
-
-|Event Type|Description|
-|----------|-----------|
-|PAYMENT_HANDLE_INITIATED | Our system has received the payment handle request and is waiting for the downstream processor’s response.|
-|PAYMENT_HANDLE_PROCESSING | The payment handle request is waiting for the authentication.|
-|PAYMENT_HANDLE_PAYABLE | The payment handle has the status of PAYABLE and can be used for a payments call. |
-|PAYMENT_HANDLE_COMPLETED | Payments call associated with payment handle has been initiated.|
-|PAYMENT_HANDLE_FAILED | The payment handle request failed, due to either an error or being declined.|
-|PAYMENT_RECEIVED | Our system has received the payment request and is waiting for the downstream processor’s response.|
-|PAYMENT_COMPLETED | The payment request has been completed|
-|PAYMENT_HELD | The payment request has been placed on hold due to risk considerations.|
-|PAYMENT_FAILED | The payment request failed, due to either an error or being declined.|
-|PAYMENT_CANCELLED | The payment request has been fully voided (reversed).|
-|SETTLEMENT_RECEIVED | Our system has received the settlement request and is waiting for the downstream processor’s response.|
-|SETTLEMENT_PENDING | Our system has received the settlement request but it has not yet been batched.|
-|SETTLEMENT_PROCESSING | The settlement batch has started.|
-|SETTLEMENT_COMPLETED | The settlement request has been completed.|
-|SETTLEMENT_FAILED | The settlement request failed, due to either an error or being declined.|
-|SETTLEMENT_CANCELLED | The settlement request has been cancelled.|
-|REFUND_RECEIVED | Our system has received the refund request and is waiting for the downstream processor’s response.|
-|REFUND_COMPLETED | The refund request has been completed.|
-|REFUND_PENDING | Our system has received the refund request but it has not yet been batched.|
-|REFUND_FAILED | The refund request failed, due to either an error or being declined.|
-|REFUND_CANCELLED | The refund request has been cancelled. |
-|VOIDAUTH_RECEIVED | Our system has received the void authorization request and is waiting for the downstream processor’s response.|
-|VOIDAUTH_COMPLETED | The void authorization request has been completed.|
-|VOIDAUTH_PENDING | Our system has received the void authorization request but it has not yet been batched.|
-|VOIDAUTH_FAILED | The void authorization request failed, due to either an error or being declined.|
-|VOIDAUTH_CANCELLED | The void authorization request has been cancelled.|
-|SA_CREDIT_RECEIVED | Our system has received the credit request and is waiting for the downstream processor’s response.|
-|SA_CREDIT_COMPLETED | The credit request has been completed.|
-|SA_CREDIT_HELD | The credit request has been placed on hold due to risk considerations.|
-|SA_CREDIT_FAILED | The credit request failed, due to either an error or being declined.|
-|SA_CREDIT_CANCELLED | The credit request has been cancelled.|
-
-
-## Sample Webhooks Payload
-This is an example of a typical webhooks payload you would receive from Paysafe.
-In this case, the merchant is receiving a callback notifying them that a Payments call associated with a payment handle has been completed.
-
-```
-{
-    "accountId": "1009688230",
-    "id": "a49ba790-9cc5-4502-9f4a-dccc72460cf1",
-    "merchantRefNum": "2e568da7c4643d567d60",
-    "amount": 500,
-    "usage": "SINGLE_USE",
-    "executionMode": "SYNCHRONOUS",
-    "currencyCode": "USD",
-    "type": "PAYMENT_HANDLE",
-    "status": "COMPLETED",
-    "paymentType": "CARD"
-}
-```
-
-## Some Notes on Webhooks
-
-+ When the status of one of your transaction requests changes, Paysafe immediately sends a callback to your webhooks endpoint URL to inform you of the status change.
-+ To acknowledge the receipt of a webhook, Paysafe expects to get an HTTP status of 200 from your endpoint. 
-In case we receive any other HTTP status code, we will assume that you have not received the webhook and will attempt to resend it at a later time.
-+ If the callback for that transaction request status change event fails (i.e., Paysafe does not get an acknowledgment of receipt with an HTTP Status Code of 200), 
-Paysafe will make a maximum of 10 additional attempts to send a callback to that URL until successfully received – twice daily for 5 days.
-+ Because Paysafe does not have a notification method to alert you when callbacks are not reaching your endpoint URL, you should make sure that there is sustained availability of your endpoint.
-+ All endpoint URLs should use HTTPS/SSL to ensure security.
-
-<a name="globalinvalidcharacters" title="Global Invalid Characters"></a>
-# Global Invalid Characters
-
-You must not include any of the characters in the following table as values in any of your request parameters. If you do, your request will result in an error.
-
-|    Character    |    HEX    |    Description                     |
-|-----------------|-----------|------------------------------------|
-| "               | 22        | Double quotes (or speech marks)    |
-| ;               | 3B        | Semicolon                          |
-| ^               | 5E        | Caret, circumflex                  |
-| *               | 2A        | Asterisk                           |
-| <               | 3C        | Less than (or open angled bracket) |
-| /               | 2F        | Slash or divide                    |
-| [               | 5B        | Opening bracket                    |
-| ]               | 5D        | Closing bracket                    |
-| \               | 5C        | Backslash                          |
-
-<a name="pagination" title="Pagination"></a>
-# Pagination
-
-In the case where an API GET request returns multiple results, Paysafe returns the first 10 records by default and uses HATEOAS links to provide page navigation. In addition to the default behavior, it is also possible to control the number of results and starting point by passing in query parameters as follows:
-
-|    Name       | Description   |
-|---            |---            |
-| limit         | This is the total number of records to return. Max = 50. Default = 10. |
-| offset        | This is the starting position, where 0 is the first record. Default = 0. |
-| startDate     | This is the start date in UTC. Default = 30 days before the *endDate*.|
-| endDate       | This is the end date in UTC. Default = current date and time. |
-
 <a name="testinginstructions" title="Testing Instructions"></a>
 # Testing Instructions
 
-The Paysafe Test environment can be used to test websites or applications without running transactions through the Production (live) processing platform. 
-Payment transactions processed in the Test environment (e.g., credit card payments) are not sent to the banking network, but through a simulator. 
-Depending on the information provided with the transaction request, the simulator returns either a successful (approved) or failed (declined) response.
-
-With the Paysafe Payments API you can test the following:
-- Verify support for all the operation types that you require.
-- Review all common errors as well as errors that may occur for each operation, and ensure your application can handle them.
-- Verify the lengths and format for all attributes you send.
-
-<a name="applytestaccount" title="Applying for a Test Account"></a>
-## Applying for a Test Account
-For access to Test accounts and credentials, please contact your business relationship manager or reach out to <integrations@paysafe.com>. 
-Your Test account will provide you with access to a Test version of the Paysafe [Business Portal](https://merchant.test.paysafe.com/portal#/login), where you can view the status of your Test transactions. 
-
-## Test Cards
-
-You can use any of the following test card numbers to test the Paysafe Payments API.
-
- >**Note:** Do not use real card numbers or other payment instrument details in the Test environment as it is not compliant with Payment Card Industry Data Security Standards (PCI-DSS), 
- and does not protect cardholder/payee information. Any upload of real cardholder data is strictly prohibited, as described in the [Terms of Use](#legal).
-
-| Card Type     |Card Number            |3D Secure Enabled      |Issuing Country    |
-|---            |---                    |---                    |---                |
-|Visa           |4530910000012345       |No                     |Canada             |
-|Visa           |4510150000000321       |No                     |Canada             |
-|Visa           |4500030000000004       |Yes                    |Canada             |
-|Visa           |4003440000000007       |Yes                    |Canada             |
-|Visa           |4515031000000005       |Yes                    |Canada             |
-|Visa           |4538261230000003       |Yes                    |Canada             |
-|Visa           |4037112233000001       |No                     |US                 |
-|Visa           |4037111111000000       |Yes                    |US                 |
-|Mastercard     |5191330000004415       |No                     |Canada             |
-|Mastercard     |5457490000008763       |No                     |Canada             |
-|Mastercard     |5258110000000005       |Yes                    |Canada             |
-|Mastercard     |5192810000000009       |Yes                    |Canada             |
-|Mastercard     |5100400000000000       |No                     |US                 |
-|Mastercard     |5200400000000009       |Yes                    |US                 |
-
-### Expiry Date
-When using the test card numbers, you can use any date in the future for the expiry date (e.g., 11/22).
-
-### CVV
-You can use any 3-digit number for the CVV in the merchant Test environment. However, if you wish to generate a specific CVV match response, you will need to use the following values.
-
-| CVV Value | CVV Response Code | Description      |
-|-----------|-------------------|------------------|
-| 111       | MATCH             | Match            |
-| 222       | NOT_PROCESSED     | Not processed    |
-| 555       | UKNOWN            | Unknown response |
-| 666       | NO_MATCH          | No match         |
-
-## Simulating Authorization Responses
-
-You can simulate the response to a card authorization request by specifying different amounts under $1.00 in the request. 
-For regular testing, do not use amounts less than $1.00 (100 in minor units) as this will trigger different decline or delay cases.
-
-| Amount (Minor Units) | HTTP Status Code | Error Code | Response                                                                                                           |
-|------------------|------------------|------------|--------------------------------------------------------------------------------------------------------------------|
-| 1                | 200              |            | Approved                                                                                                           |
-| 4                | 402              | 3015       | The bank has requested that you process the transaction manually by calling the card holder's credit card company. |
-| 5                | 402              | 3009       | Your request has been declined by the issuing bank.                                                                |
-| 6                | 500              | 1007       | Clearing house timeout (although the simulator returns immediately; if delay is desired, see amount 96).           |
-| 11               | 402              | 3022       | The card has been declined due to insufficient funds.                                                              |
-| 12               | 402              | 3023       | Your request has been declined by the issuing bank due to its proprietary card activity regulations.               |
-| 13               | 402              | 3024       | Your request has been declined because the issuing bank does not permit the transaction for this card.             |
-| 20               | 500              | 1007       | An internal error occurred.                                                                                        |
-| 23               | 402              | 4002       | The transaction was declined by our Risk Management department.                                                    |
-| 24               | 402              | 3007       | Your request has failed the AVS check.                                                                             |
-| 25               | 402              | 4001       | The card number or email address associated with this transaction is in our negative database.                     |
-| 90               | 200              |            | Approved with 5-second delay                                                                                       |
-| 91               | 200              |            | Approved with 10-second delay                                                                                      |
-| 92               | 200              |            | Approved with 15-second delay                                                                                      |
-| 93               | 200              |            | Approved with 20-second delay                                                                                      |
-| 94               | 200              |            | Approved with 25-second delay                                                                                      |
-| 95               | 200              |            | Approved with 30-second delay                                                                                      |
-| 96               | 500              | 1007       | Declined with 35-second delay. Transaction timed out after 30 seconds.                                             |
-| 100              | 200              |            | Approved                                                                                                           |
-
-## 3D Secure Results and Liability Shift
-
-When 3D Secure is used in conjunction with an authorization request through the Payments API — requiring the customer to authenticate the card used in the transaction — a major advantage to the merchant is that 
-with disputed payments the financial liability can shift from the merchant to the card issuer. 
-Many factors affect whether this liability shift occurs, so merchants should contact their account manager for advice.
-
-| PARes status code | Description                | Recommendation                                                  | Note                             |
-|-------------------|----------------------------|-----------------------------------------------------------------|----------------------------------|
-| Y                 | Authentication successful  | Proceed with authorization                                      | Cardholder passed authentication |
-| A                 | Authentication attempted   | Proceed with authorization                                      | Liability shift in most cases    |
-| N                 | Authentication failed      | Do not proceed with authorization                               | Cardholder failed authentication |
-| U                 | Authentication unavailable | Decision to proceed with authorization at merchant's discretion | No liability shift               |
-| E                 | Error                      | Do not proceed with authorization                               | No liability shift               |
-
-<a name="goinglive" title="Going Live Payments API"></a>
-# Going Live
-## Test and Production Accounts
-Test accounts enable you to process API transactions that mirror the functionality on the Production environment. 
-Once you are satisfied with your integration to the Test environment, you will need to repeat any configuration changes made to your Test account on your Production account.
-
-You can choose to enable any payment method/currency combination in your Production account by completing the onboarding application form, which you can get from your business relationship manager.
-
-> **Note:** You will need to use [different API endpoints](#urls) and [authentication credentials](#apikey) to connect to each Paysafe environment &ndash; Test and Production.
-You will not be able to use your Test credentials to process transaction requests in the Production environment, and vice versa.
+The Paysafe Test environment can be used to test websites or applications without actually running transactions through the payment processing engine. 
+It is important to make sure that your systems are working correctly before going into a live environment. [Click here](https://developer.paysafe.com/en/rest-apis/igaming/payments-api/testing/testing-instructions/) for details of how to use the test environment.
 
 <a name="isostandards" title="ISO Standards"></a>
 # ISO Standards
@@ -1727,7 +978,7 @@ merchants who provide more detailed information when processing card-not-present
 
 |Element            |Type                       |Description                        |
 |---                |---                        |---                                |
-|key                |string <br/>`length<=50`   |This is a description of the data being added to the order.|
+|key                |string <br/>`length<=50`   |This is a description of the data being added to the request.|
 |value              |string <br/>`length<=100`  |This is the value for the key/value pair.|
 
 <a name="originalcreditsobject" title="originalcredits Object"></a>
@@ -2323,31 +1574,7 @@ The *storedCredential* object is used to identify [authorization requests](#auth
 <a name="support" title="Help and Support"></a>
 # Help and Support
 
-## Existing Merchants
-
-If you are an existing merchant with access to the Paysafe [Business Portal](https://merchant.paysafe.com/portal), 
-you can use the portal to open a service request for all your technical and integration-related queries.
-For example, the following steps show you how to open a service request to set up webhooks.
-
-**To raise a service request:**
- 1. Sign in to the Paysafe Business Portal.
- 2. Navigate to **Support** in the left menu.
- ![](https://github.com/paysafegroup/paysafe_api_paymenthub_v1/raw/master/images/Help1.png)
- 3. Click on **New Request**.
- ![](https://github.com/paysafegroup/paysafe_api_paymenthub_v1/raw/master/images/Help2.png)
- 4. Select **Integrations** from the **Category** drop-down list and enter *Webhooks Setup* in the **Subject** field.  
- ![](https://github.com/paysafegroup/paysafe_api_paymenthub_v1/raw/master/images/Help3.png)
- 5. In the **Message** section, enter your callback URL and the list of events about which you want to be notified. See [Using Webhooks](#paymentswebhooks) for details.
- 6. Enter your company name in the **Company Name** field and click **Create New Request**.
-![](https://github.com/paysafegroup/paysafe_api_paymenthub_v1/raw/master/images/Help4.png) 
-
-
-## New Merchants
-
-If you are new to the Paysafe Payments API and want to integrate or if you have a sales enquiry, please contact your sales manager, if you already have one.
-You can also reach out to us at <integrations@paysafe.com>.
-
- >**Note:** Merchants who have previously integrated to either the Paysafe Card Payments API or the Alternate Payments API are still considered new to the Paysafe Payments API.
+[Click here](#https://developer.paysafe.com/en/rest-apis/igaming/payments-api/help-and-support/) for details on getting help and/or support for the Payments API.
 
 # Using the Example API Calls (Console Window)
 
@@ -3110,47 +2337,54 @@ Click on **Get Payment Handle Using Merchant Reference Number** above to see how
     + Body
 
             {
-              "id": "cc719995-59ed-4146-a936-b54db72bcaa8",
-              "amount": 1900,
-              "merchantRefNum": "merchantRefNum-130",
-              "action": "NONE",
-              "currencyCode": "GBP",
-              "usage": "SINGLE_USE",
-              "status": "EXPIRED",
-              "timeToLiveSeconds": 0,
-              "transactionType": "PAYMENT",
-              "paymentType": "CARD",
-              "executionMode": "SYNCHRONOUS",
-              "customerIp": "172.0.0.1",
-              "paymentHandleToken": "SC0YsGIIgFksiOsQ",
-              "billingDetails": {
-                "street": "100 Queen",
-                "street2": "Unit 201",
-                "city": "Toronto",
-                "country": "CA",
-                "zip": "M5H 2N2"
-              },
-              "card": {
-                "cardExpiry": {
-                  "month": "12",
-                  "year": "2034"
+                "meta": {
+                    "numberOfRecords": 1,
+                    "limit": 10,
+                    "page": 1
                 },
-                "holderName": "poorna",
-                "cardType": "MC",
-                "cardBin": "519133",
-                "lastDigits": "4415"
-              },
-              "returnLinks": [{
-                        "rel": "on_completed",
-                        "href": "https://US_commerce_site/payment/return/success",
-                        "method": "GET"
+                "paymentHandles": [{
+                    "id": "cc719995-59ed-4146-a936-b54db72bcaa8",
+                    "amount": 1900,
+                    "merchantRefNum": "merchantRefNum-130",
+                    "action": "NONE",
+                    "currencyCode": "GBP",
+                    "usage": "SINGLE_USE",
+                    "status": "EXPIRED",
+                    "timeToLiveSeconds": 0,
+                    "transactionType": "PAYMENT",
+                    "paymentType": "CARD",
+                    "executionMode": "SYNCHRONOUS",
+                    "customerIp": "172.0.0.1",
+                    "paymentHandleToken": "SC0YsGIIgFksiOsQ",
+                    "billingDetails": {
+                        "street": "100 Queen",
+                        "street2": "Unit 201",
+                        "city": "Toronto",
+                        "country": "CA",
+                        "zip": "M5H 2N2"
                     },
-                    {
-                        "rel": "on_failed",
-                        "href": "https://US_commerce_site/payment/return/failed",
-                        "method": "GET"
-                    }
-                ]
+                    "card": {
+                        "cardExpiry": {
+                            "month": "12",
+                            "year": "2034"
+                        },
+                        "holderName": "poorna",
+                        "cardType": "MC",
+                        "cardBin": "519133",
+                        "lastDigits": "4415"
+                    },
+                    "returnLinks": [{
+                            "rel": "on_completed",
+                            "href": "https://US_commerce_site/payment/return/success",
+                            "method": "GET"
+                        },
+                        {
+                            "rel": "on_failed",
+                            "href": "https://US_commerce_site/payment/return/failed",
+                            "method": "GET"
+                        }
+                    ]
+                }]
             }
 
 # Group Verifications 
@@ -3192,6 +2426,7 @@ Click on **Verification** above to see how to submit a Verification request usin
                 "merchantRefNum": "20095817730019123",
                 "customerIp": "10.10.12.64",
                 "currencyCode": "USD",
+                "paymentType": "CARD",
                 "description": "Verify card for payment request",
                 "txnTime": "2018-12-11T16:33:49Z",
                 "gatewayResponse": {
@@ -3222,6 +2457,7 @@ Click on **Get Verification** above to see how to look up a Verification request
                 "merchantRefNum": "20095817730019123",
                 "customerIp": "10.10.12.64",
                 "currencyCode": "USD",
+                "paymentType": "CARD",
                 "description": "Verify card for payment request",
                 "txnTime": "2018-12-11T16:33:49Z",
                 "gatewayResponse": {
@@ -3246,12 +2482,18 @@ Click on **Get Verification Using Merchant Reference Number** above to see how t
    + Body
 
             {
+                "meta": {
+                    "numberOfRecords": 1,
+                    "limit": 10,
+                    "page": 1
+                },
                 "verifications": [{
                     "id": "71aea8ae-e801-4df3-9436-c5a61c88d3ad",
                     "paymentHandleToken": "SCUgzJL5jlRIKCiX",
                     "merchantRefNum": "20095817730019123",
                     "customerIp": "10.10.12.64",
                     "currencyCode": "USD",
+                    "paymentType": "CARD",
                     "description": "Verify card for payment request",
                     "txnTime": "2018-12-11T16:33:49Z",
                     "gatewayResponse": {
@@ -3639,6 +2881,8 @@ Click on **Process Settlement** above to see two examples of how to process a Se
 
 Click on **Cancel Settlement** above to see how to cancel a Settlement. You must include the *status* parameter set to *CANCELLED*.
 
+> **Note:** You can cancel a Settlement only if it has the status of PENDING.
+
 + Parameter
 
     + settlement_id : `d9bcfd85-8aa6-469d-80a3-e2ca196544da` - This is the ID returned in the response to the Settlement request. 
@@ -3810,6 +3054,8 @@ Click on **Process Refund** above to see two examples of how to process a Refund
 
 Click on **Cancel Refund** above to see how to cancel a Refund. You must include the *status* parameter set to *CANCELLED*.
 
+> **Note:** You can cancel a Refund only if it has the status of PENDING.
+
 + Parameter
 
     + refund_id : `c7ef07b2-0069-4f58-b9e2-0f4cdbc6c725` - This is the ID returned in the response to the Refund request
@@ -3883,15 +3129,18 @@ Click on **Get Refunds Using Merchant Reference Number** above to see how to loo
     + Body
 
             {
-              "refunds": [
-                {
-                  "id": "c7ef07b2-0069-4f58-b9e2-0f4cdbc6c725",
-                  "merchantRefNum": "merchantRefNum-118",
-                  "amount": 190,
-                  "txnTime": "2018-12-11T16:33:49Z",
-                  "status": "PENDING"
-                }
-              ]
+                "meta": {
+                    "numberOfRecords": 1,
+                    "limit": 10,
+                    "page": 1
+                },
+                "refunds": [{
+                    "id": "c7ef07b2-0069-4f58-b9e2-0f4cdbc6c725",
+                    "merchantRefNum": "merchantRefNum-118",
+                    "amount": 190,
+                    "txnTime": "2018-12-11T16:33:49Z",
+                    "status": "PENDING"
+                }]
             }
          
 # Group Standalone Credits 
@@ -3946,6 +3195,8 @@ Click on **Process Standalone Credit** above to see how to process a Standalone 
 <a name="cancelstandalonecredit" title="Cancel a Standalone Credit"></a>
 
 Click on **Cancel Standalone Credit** above to see how to cancel a Standalone Credit. You must include the *status* parameter set to *CANCELLED*.
+
+> **Note:** You can cancel a Standalone Credit only if it has the status of PENDING.
 
 + Parameter
 
@@ -4100,6 +3351,8 @@ Click on **Process Original Credit** above to see how to process an Original Cre
 <a name="canceloriginalcredit" title="Cancel an Original Credit"></a>
 
 Click on **Cancel Original Credit** above to see how to cancel an Original Credit. You must include the *status* parameter set to *CANCELLED*.
+
+> **Note:** You can cancel an Original Credit only if it has the status of PENDING.
 
 + Parameter
 
@@ -4257,7 +3510,8 @@ You can create a customer in order to store credit card information to the custo
                 "gender": "M",
                 "nationality": "Canadian",
                 "cellPhone": "777-555-8888",
-                "paymentToken":"P0zPDqggWESaktW"
+                "paymentToken":"P0zPDqggWESaktW",
+                "status": "ACTIVE"
             }
 
 ### Create a Customer Using a Single-Use Payment Handle Token [POST]
@@ -4273,7 +3527,7 @@ then if you include those same fields in this request, your values included here
     + `paymentHandleTokenFrom`:`SCURPCc6nEwXcdBQ` (string, required) - This is the *paymentHandleToken* that is present in the response to a [single-use Payment Handle creation request](#paymenthandlerequest).
         _length<=36_
 
-+ Request Create a Customer (application/json)
++ Request Create a Customer Using a Single-Use Payment Handle Token (application/json)
         
     + Headers
     
@@ -4324,6 +3578,7 @@ then if you include those same fields in this request, your values included here
                 "cellPhone": "777-555-8888",
                 "paymentToken": "P0zPDqggWESaktW",
                 "paymentHandleTokenFrom": "SCURPCc6nEwXcdBQ",
+                "status": "ACTIVE",
                 "addresses": [{
                     "id": "3722476e-4891-426b-8dcd-a25ad3d14ffe",
                     "street": "Andhra bank lane",
@@ -4396,7 +3651,8 @@ Click on **Get Customer** above to see how to look up a Customer using the ID re
                 "gender": "M",
                 "nationality": "Canadian",
                 "cellPhone": "777-555-8888",
-                "paymentToken":"P0zPDqggWESaktW"
+                "paymentToken":"P0zPDqggWESaktW",
+                "status": "ACTIVE"
             }
 
 ### Get Customer Using Merchant Customer ID [GET /v1/customers?merchantCustomerId={merchant_customer_id}]
@@ -4428,7 +3684,13 @@ Click on **Get Customer Using Merchant Reference Number** above to see how to lo
                 "gender": "M",
                 "nationality": "Canadian",
                 "cellPhone": "777-555-8888",
-                "paymentToken":"P0zPDqggWESaktW"
+                "paymentToken":"P0zPDqggWESaktW",
+                "status": "ACTIVE",
+                "meta": {
+                    "numberOfRecords": 1,
+                    "limit": 10,
+                    "page": 1
+                }
             }
 
 ### Get Customer Including Subcomponents [GET /v1/customers/{customer_id}?fields={fields}]
@@ -4454,6 +3716,7 @@ Click on **Get Customer Including Subcomponents** above to see how to look up a 
 
             {
                 "id": "326d6b3b-3c47-4ee2-9b6b-3801ec97a09d",
+                "status": "ACTIVE",
                 "merchantCustomerId": "mycustomer1",
                 "locale": "en_US",
                 "firstName": "John",
@@ -4500,9 +3763,9 @@ Click on **Get Customer Including Subcomponents** above to see how to look up a 
                         },
                         "cardBin": "400344",
                         "cardType": "VI",
-                        "singleUseToken": "SCR37YxqciqpGeKF",
-                        "billingDetailsId": "3722476e-4891-426b-8dcd-a25ad3d14ffe"
+                        "singleUseToken": "SCR37YxqciqpGeKF"
                     },
+                    "billingDetailsId": "3722476e-4891-426b-8dcd-a25ad3d14ffe",
                     "paymentHandleTokenFrom": "SCR37YxqciqpGeKF"
                 }]
             }
@@ -5489,6 +4752,12 @@ Use the *singleUseCustomerToken* returned in the response in the Payments Checko
     _length<=40_
 + paymentToken:`P0zPDqggWESaktW` (string) - This is a token generated by Paysafe that represents the customer and returned in the response to the customer creation request. It is not used for payment requests.
     _Read Only, length<=50_
++ status:`ACTIVE` (enum) - This is the status of the customer. By default the system automatically sets the customer status to an ACTIVE state. If you want to prevent the customer from being used for payments, you can set the status to an INITIAL state (e.g., in cases where you first want to validate the customer).
+    _Read Only_
+    + Members
+        + INITIAL
+        + ACTIVE
++ Include Metadata Object
 
 ## Date of Birth
 + `dateOfBirth` (object, required) - This is the customer's date of birth. 
@@ -5629,7 +4898,7 @@ Use the *singleUseCustomerToken* returned in the response in the Payments Checko
 + metadata (object) 
     _Read Only_
     + Properties
-        + `key`:`Data` (string) - This is a description of the data being added to the order.
+        + `key`:`Data` (string) - This is a description of the data being added to the request.
             _length<=50_
         + `value`:`Data to add` (string) - This is the value for the key/value pair.
             _length<=100_
@@ -5755,6 +5024,7 @@ Use the *singleUseCustomerToken* returned in the response in the Payments Checko
     _length<=39_
 + `timeToLiveSeconds`:`899` (number) - This is the period of time, in seconds, the *paymentHandleToken* is valid before expiration. 
     _Read Only, length<=899_
++ Include Metadata Object
 
 ## PaymentHandleRequest Customer
 
@@ -6126,6 +5396,7 @@ Use the *singleUseCustomerToken* returned in the response in the Payments Checko
 + Include Splitpay
 + `riskReasonCode`:`1001` (array) - An array of integers is returned, displaying the detailed risk reason codes if your transaction was declined. It is returned only if your account is configured accordingly.        
 + Include Gateway Response
++ Include Metadata Object
 
 ## Settlements
 + `id`: `25f6dadf-176a-415f-95c9-6ff39ff697ba` (string) - This is the ID returned in the response. This ID can be used for future associated requests, e,g., Refunds.
@@ -6205,6 +5476,12 @@ Use the *singleUseCustomerToken* returned in the response in the Payments Checko
     _length<=255_
 + `txnTime`:`2018-12-11T16:33:49Z` (string) - This is the date and time the transaction was processed.
     _Read Only_
++ `paymentType`:`CARD` (enum) - This is the payment type associated with the Payment Handle used for this request.
+    _Read Only_
+    + Members
+        + CARD
+        + PAYSAFECASH
+        + PAYSAFECARD
 + `status` (enum) - This is the status of the transaction request.
     _Read Only_
     + Members
@@ -6220,6 +5497,7 @@ Use the *singleUseCustomerToken* returned in the response in the Payments Checko
 + `riskReasonCode`:`1001` (array) - An array of integers is returned, displaying the detailed risk reason codes if your transaction was declined. It is returned only if your account is configured accordingly.
 + Include Gateway Response
 + Include Error Attributes
++ Include Metadata Object
 
 ## voidAuthResponse (object)
 + `id`:`25f6dadf-176a-415f-95c9-6ff39ff697ba` (string) This is the ID returned in the response. This ID can be used for future associated requests, e,g., lookups.
