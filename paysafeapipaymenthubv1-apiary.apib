@@ -776,6 +776,26 @@ In this case, the merchant is receiving a callback notifying them that a Payment
 }
 ```
 
+## Webhooks Signature
+
+The webhook notification contains a signature header calculated using the following algorithm:
+
+```
+digest = HMAC_SHA256 (hmacKey, UTF 8 string containing the JSON webhook request body)
+
+signature = base 64 (digest)
+```
+
+The code receiving the webhook needs to repeat this algorithm and compare the value generated with the value received in the header.
+
+Example Header:
+
+```
+Signature: UMaQ4h635wUc4hp60Z5ASBC/5UtqKybAldOkLv6ngc0=
+```
+
+>**Note:** you will receive the *hmackey* when you [open a webhooks service request](#support) with Paysafe in the Business Portal.
+
 ## Some Notes on Webhooks
 
 + When the status of one of your transaction requests changes, Paysafe immediately sends a callback to your webhooks endpoint URL to inform you of the status change.
