@@ -23,6 +23,10 @@ The Paysafe Payments API currently supports the following payment methods:
 - Card
 - Paysafecard
 - Paysafecash
+- VIP Preferred
+- Play+ 
+- Skrill
+
 
 **Here is a step-by-step guide to get you started:**
 
@@ -338,8 +342,7 @@ For a Paysafecard request, the merchant wants to process a payment request using
 
 ### Scenario 6: Paysafecash Payment
 
-For a Paysafecash request, the merchant wants to process a payment request using Paysafecash as the payment type. 
-In this scenario, you would do the following:
+When the merchant wants to process a payment request using Paysafecash as the payment type, you would do the following:
  1. Create a Payment Handle with the *transactionType* parameter set to PAYMENT and the *paymentType* parameter set to PAYSAFECASH. 
  2. Since the customer has to complete payment authentication by providing Paysafecash details, Paysafe returns a response with the following:
     * The *action* parameter is set to REDIRECT
@@ -348,6 +351,21 @@ In this scenario, you would do the following:
  4. Upon successful bar-code generation, the *status* of the Payment Handle becomes PAYABLE. The merchant gets [notified of this status change via webhooks](paymentswebhooks) that have been configured.
  5. Use the *paymentHandleToken* returned in the response to process the Payment request. The Payment will have a *status* of PENDING until the customer has made the payment.
  6. Once the Payment request is successfully completed, the merchant [gets notified via webhooks](#paymentswebhooks) and the funds are immediately transferred to the merchant's account.
+
+**API Requests to Use:** [Payment Handles](#paymenthandlerequest) + [Payments](#paymentrequest)
+
+### Scenario 7: VIP Preferred Payment
+
+When the merchant wants to process a VIP Preferred payment request, you would do the following:
+ 1. Create a Payment Handle with the transactionType parameter set to PAYMENT and the paymentType parameter set to VIPPREFERRED.
+ 2. Since VIP Preferred is only supported via a hosted page, Paysafe returns a response with the following:
+    * The action parameter is set to REDIRECT
+    * A payment_redirect link that points to the VIP Preferred hosted page URL
+ 3. You can either embed the hosted page within your own custom checkout solution or redirect the customer to the hosted page URL on a different tab. 
+ 4. Interactions on the hosted page are taken care by Paysafe and on successful payment, we will notify you on the on_completed parameter included with your request. 
+ 5. At this point, the status of the Payment Handle becomes PAYABLE. 
+ 6. Use the paymentHandleToken returned in the response to process the Payment request.
+ 7. Once the Payment request is successfully completed, the funds are immediately transferred to the merchant's account.
 
 **API Requests to Use:** [Payment Handles](#paymenthandlerequest) + [Payments](#paymentrequest)
 
