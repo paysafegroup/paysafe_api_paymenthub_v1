@@ -442,12 +442,47 @@ The overlay contains a payment button that creates a payment handle for the data
     <script>
         function checkout() {
             paysafe.checkout.setup("API Key", {
-                amount: 2500,
-                currency: "USD",
-                locale: "en_US",
-                merchantRefNum: "10231231311",
-                canEditAmount: true,
-                environment: "TEST"
+                "currency": "USD",
+                "amount": 10000,
+                "locale": "en_US",
+                "customer": {
+                    "firstName": "John",
+                    "lastName": "Dee",
+                    "email": "johndee@paysafe.com",
+                    "phone": "1234567890",
+                    "dateOfBirth": {
+                        "day": 1,
+                        "month": 7,
+                        "year": 1990
+                    }
+                },
+                "billingAddress": {
+                    "nickName": "John Dee",
+                    "street": "20735 Stevens Creek Blvd",
+                    "street2": "Montessori",
+                    "city": "Cupertino",
+                    "zip": "95014",
+                    "country": "US",
+                    "state": "CA"
+                },
+                "environment": "TEST",
+                "merchantRefNum": "1559900597607",
+                "canEditAmount": true,
+                "paymentMethodDetails": {
+                    "paysafecard": {
+                        "consumerId": "1232323"
+                    },
+                    "paysafecash": {
+                        "consumerId": "123456"
+                    },
+                    "sightline": {
+                        "consumerId": "123456"
+                    }
+                },
+                "payout": true,
+                "payoutConfig": {
+                    "maximumAmount": 100000
+                }
             }, function(instance, error, result) {
                 if (result && result.paymentHandleToken) {
                     console.log(result.paymentHandleToken);
@@ -505,6 +540,8 @@ paysafe.checkout.setup(apiKey, options, resultCallback, closeCallback?)
 |canEditAmount|boolean|no||If *true*, the customer can edit the amount in the Checkout before clicking Pay. If false, the amount is not editable.|
 |[customer](#customer)|object|no||In case the customer is a first-time user and has no customer profile, the merchant can choose to pass an existing customer profile in the call to create a payment handle.|
 |[paymentMethodDetails](#paymentmethoddetails)|object|no||Required for Paysafecash, Paysafecard, Skrill, and Play+ (Sightline) payment types.|
+|payout |boolean |no | | If true, **Payout** Checkout screen will be launched. If false, **Payment** Checkout will be launched.<br/> Defaults to false. |
+|[payoutConfig](#payoutconfig) |object | no | | This configuration is used to specify payout limitations. |
 
 <a name="billingaddress"></a>
 **billingAddress**
@@ -544,6 +581,12 @@ paysafe.checkout.setup(apiKey, options, resultCallback, closeCallback?)
 |[paysafecash](#paysafecash)|object|no||Required for Paysafecash payment type.|
 |[skrill](#skrill)          |object|no||Required for Skrill payment type. |
 |[sightline](#sightline)    |object|no||Required for Play+ (Sightline) payment type. |
+
+<a name="payoutconfig"></a>
+**payoutConfig**
+|Parameter|Type|Required|Validations|Description|
+|---------|-------|---------------|-----------|------------------|
+|maximumAmount|number|yes|`length=1-9`|This specifies the maximum amount that a user is allowed to withdraw from checkout in the current session.|
 
 <a name="paysafecard"></a>
 **paysafecard**
@@ -744,13 +787,48 @@ The following are the 2 steps are involved.
     <script>
         function checkout() {
             paysafe.checkout.setup("API Key", {
-                amount: 2500,
-                currency: "USD",
-                locale: "en_US",
-                merchantRefNum: "10231231311",
-                canEditAmount: true,
-                environment: "TEST",
-                singleUseCustomerToken: "SPFAB1cA5iwdu48H"
+                "currency": "USD",
+                "amount": 10000,
+                "singleUseCustomerToken": "SPFAB1cA5iwdu48H",
+                "locale": "en_US",
+                "customer": {
+                    "firstName": "John",
+                    "lastName": "Dee",
+                    "email": "johndee@paysafe.com",
+                    "phone": "1234567890",
+                    "dateOfBirth": {
+                        "day": 1,
+                        "month": 7,
+                        "year": 1990
+                    }
+                },
+                "billingAddress": {
+                    "nickName": "John Dee",
+                    "street": "20735 Stevens Creek Blvd",
+                    "street2": "Montessori",
+                    "city": "Cupertino",
+                    "zip": "95014",
+                    "country": "US",
+                    "state": "CA"
+                },
+                "environment": "TEST",
+                "merchantRefNum": "1559900597607",
+                "canEditAmount": true,
+                "paymentMethodDetails": {
+                    "paysafecard": {
+                        "consumerId": "1232323"
+                    },
+                    "paysafecash": {
+                        "consumerId": "123456"
+                    },
+                    "sightline": {
+                        "consumerId": "123456"
+                    }
+                },
+                "payout": true,
+                "payoutConfig": {
+                    "maximumAmount": 100000
+                }
             }, function(instance, error, result) {
                 if (result && result.paymentHandleToken) {
                     console.log(result.paymentHandleToken);
@@ -2173,14 +2251,15 @@ If you [look up an authorization request](#getauth)  that used the *visaAddition
 
 |Element                 |Type                   |Description|
 |---                     |---                    |---|
-|consumerId              |string                 |This is the email address of the customer who is making or receiving the payment.|
-|emailSubject            |string                 |This is the Subject line to use in the customer email.|
-|emailMessage            |string                 |This is the message to use in the customer email.|
+|consumerId              |string<br>`length<=50` |This is the email address of the customer who is making or receiving the payment.|
+|emailSubject            |string<br>`length<=30` |This is the Subject line to use in the customer email.|
+|emailMessage            |string<br>`length<=50` |This is the message to use in the customer email.|
 |recipientDescription    |string<br>`length<=30` |This is a description to be shown on the Skrill payment page in the logo area if there is no *logo\_url* parameter. If no value is submitted and there is no logo, the *pay\_to\_email* value is shown as the recipient of the payment.|
 |language                |string<br>`length=2`   |This is the 2-character preferred language code for the consumer (e.g., EN, FR).|
 |logoUrl                 |string                 |This is the URL of the logo that you would like to appear in the top right of the Skrill page. The logo must be accessible via HTTPS or it will not be shown. The logo will be resized to fit. To avoid scaling distortion, the minimum size should be as follows:<br>If the logo width > height - at least 107px wide.<br>If logo width > height - at least 65px high<br>Avoid large images (much greater than 256 by 256px) to minimize the page loading time.|
 |detail1Description      |string                 |You can show additional details about the product in the More information section in the header of Quick Checkout.|
 |detail1Text             |string                 |The detail1Text is shown next to the detail1Dscription in the More Information section in the header of the payment form with the other payment details. The detail1Description combined with the detail1Text is shown in the more information field of the merchant account history CSV file.|
+|descriptor              |string                 |This is the merchant descriptor that will be displayed on the consumer's bank statement.|
 
 ```
      {
@@ -2189,7 +2268,8 @@ If you [look up an authorization request](#getauth)  that used the *visaAddition
          "language": "EN",
          "logoUrl": "http://www.paysafe.com/icon.jpg",
          "detail1Description": "Details 1 description",
-         "detail1Text": "Details 1 text"
+         "detail1Text": "Details 1 text",
+         "descriptor": "My company name"
      }
 ```
 
@@ -2638,7 +2718,7 @@ Click on **Create a Payment Handle** above to see six examples of how to create 
 * A Payment Handle for a credit card that is registered for 3D Secure - the response for this request will contain a redirect to present to the customer so they can validate their 3D Secure credentials
 * A Payment Handle for a Paysafecard payment
 * A Payment Handle for a Paysafecash payment
-* A Payment Handle for a Sightline payment
+* A Payment Handle for a Play+ payment
 * A Payment Handle for a Skrill payment
 * A Payment Handle for a VIP Preferred payment
 * A Payment Handle for a credit card Standalone Credit
@@ -3071,7 +3151,7 @@ Click on **Create a Payment Handle** above to see six examples of how to create 
                 }]
             }
 
-+ Request Create Payment Handle for Sightline (application/json)
++ Request Create Payment Handle for Play+ (application/json)
 
     + Headers
 
@@ -6580,13 +6660,14 @@ Use the *singleUseCustomerToken* returned in the response in the Payments Checko
                 _length<=30_
             + `emailMessage`:`Email text` (string, required) - This is the message to use in the customer email.
                 _length<=50_
-            + `recipientDescription`:`logo_url_alt_text` (string) - This is a description to be shown on the Skrill payment page in the logo area if there is no *logo\_url* parameter. If no value is submitted and there is no logo, the *pay\_to\_email* value is shown as the recipient of the payment.
+            + `recipientDescription`:`logo_url_alt_text` (string, required) - This is a description to be shown on the Skrill payment page in the logo area if there is no *logo\_url* parameter. If no value is submitted and there is no logo, the *pay\_to\_email* value is shown as the recipient of the payment.
                 _length<=30_
-            + `language`:`EN` (string) - This is the 2-character preferred language code for the consumer (e.g., EN, FR).
+            + `language`:`EN` (string, required) - This is the 2-character preferred language code for the consumer (e.g., EN, FR).
                 _length=2_
-            + `logoUrl`:`http://www.yoursite.com/icon.jpg` (string) - This is the URL of the logo that you would like to appear in the top right of the Skrill page. The logo must be accessible via HTTPS or it will not be shown. The logo will be resized to fit.
-            + `detail1Description`: `Details 1 description` (string) - You can show additional details about the product in the More information section in the header of Quick Checkout.
-            + `detail1Text`:`Details 1 text` (string) - The detail1Text is shown next to the detail1Dscription in the More Information section in the header of the payment form with the other payment details. The detail1Description combined with the detail1Text is shown in the more information field of the merchant account history CSV file.
+            + `logoUrl`:`http://www.yoursite.com/icon.jpg` (string, required) - This is the URL of the logo that you would like to appear in the top right of the Skrill page. The logo must be accessible via HTTPS or it will not be shown. The logo will be resized to fit.
+            + `detail1Description`: `Details 1 description` (string, required) - You can show additional details about the product in the More information section in the header of Quick Checkout.
+            + `detail1Text`:`Details 1 text` (string, required) - The detail1Text is shown next to the detail1Dscription in the More Information section in the header of the payment form with the other payment details. The detail1Description combined with the detail1Text is shown in the more information field of the merchant account history CSV file.
+            + `descriptor`:`Merchant's trading name` (string, required) - This is the merchant descriptor that will be displayed on the consumer's bank statement.
 
     + vippreferred (object, required) - These are the details of the [vippreferred account](#vippreferredobject) used for the request. Only one payment instrument object (e.g., *card* or *vippreferred*) can be included in the request.
         + Properties
