@@ -402,16 +402,21 @@ When the merchant wants to process a Skrill payment request, you would do the fo
 <a name="paymentscheckout" title="Payments Checkout"></a>
 # Payments Checkout
 
-Paysafe Payments Checkout is an SDK that allows merchants to take payment from credit cards and other alternate payment methods &ndash; like Paysafecash and Paysafecard &ndash; using a secure overlay that requires the least demanding level of PCI compliance: SAQ-A. 
+Paysafe Payments Checkout is an SDK that allows merchants to 
+- Take payment from credit cards and other alternate payment methods &ndash; like Paysafecash and Paysafecard &ndash; 
+(or)
+- Process credit (withdrawals) for customers via payment methods that support credit transactions 
+
+Payments Checkout uses a secure overlay that requires the least demanding level of PCI compliance: SAQ-A. 
 The entry and storage of payment information is handled by Paysafe and the checkout uses Paysafe's Payment APIs for payment and credit processing.
 
 ## How to Use the SDK
 
 1. Include the Paysafe Checkout SDK in your HTML payment form.
 2. Call the checkout setup function with your Public API key, [which you retrieve from the Business Portal](#publicapikey). 
-The setup function creates an iframe overlay containing the secure payment form hosted on Paysafe's servers. 
-You will need to pass a callback function as part of the setup to handle successful payment handle success and failure.
-3. The callback should use AJAX to send the payment handle representing the customer's payment details to your merchant server to [make payment using the Paysafe Payments API](#paymentrequest).
+The setup function creates an iframe overlay containing the secure payment/withdrawal form hosted on Paysafe's servers. 
+You will need to pass a callback function as part of the setup to handle payment handle success and failure.
+3. The callback should use AJAX to send the payment handle representing the customer's payment details to your merchant server to [make a payment](#paymentrequest) or [process a credit](#process Original Credits) using the Paysafe Payments API.
 
 ## Including the SDK 
 
@@ -504,10 +509,89 @@ The overlay contains a payment button that creates a payment handle for the data
 </html>
 ```
 
+## Example Withdrawal Form
+
+The following code sample shows a minimal Paysafe Checkout example for Card and Play+ withdrawal that creates a payment overlay for the user to enter their card number, expiry date, and CVV. 
+The overlay contains a withdraw button that creates a payment handle for the data entered by the user and displays the payment handle token (if successful) in the browser console.
+
+```html
+<html>
+    <head>
+        <script src="https://hosted.paysafe.com/checkout/v2/paysafe.checkout.min.js"></script>
+    </head>
+
+ 
+    <body>
+        <button onclick="checkout()"> Pay $25 </button>
+    </body>
+
+    <script>
+        function checkout() {
+            paysafe.checkout.setup("API Key", {
+                "currency": "USD",
+                "amount": 10000,
+                "locale": "en_US",
+                "customer": {
+                    "firstName": "John",
+                    "lastName": "Dee",
+                    "email": "johndee@paysafe.com",
+                    "phone": "1234567890",
+                    "dateOfBirth": {
+                        "day": 1,
+                        "month": 7,
+                        "year": 1990
+                    }
+                },
+                "billingAddress": {
+                    "nickName": "John Dee",
+                    "street": "20735 Stevens Creek Blvd",
+                    "street2": "Montessori",
+                    "city": "Cupertino",
+                    "zip": "95014",
+                    "country": "US",
+                    "state": "CA"
+                },
+                "environment": "TEST",
+                "merchantRefNum": "1559900597607",
+                "canEditAmount": "true",
+                "payout":"true", 
+                "payoutConfig":{
+                    "maximumAmount":"100000"
+                    }
+                "paymentMethodDetails": {
+                    "sightline": {
+                        "consumerId": "123456"
+                    }
+                },
+                "payout": true,
+                "payoutConfig": {
+                    "maximumAmount": 100000
+                }
+            }, function(instance, error, result) {
+                if (result && result.paymentHandleToken) {
+                    console.log(result.paymentHandleToken);
+                    // make AJAX call to Payments API
+                } else {
+                    console.error(error);
+                    // Handle the error
+                }
+            }, function(stage, expired) {
+                switch(stage) {
+                    case "BeforePayment": // Handle the scenario
+                    case "DuringPayment": // Handle the scenario
+                    case "AfterPayment": // Handle the scenario
+                    default: // Handle the scenario
+                }
+            });
+        }
+    </script>
+</html>
+```
+
 ## Setup Function
 
 The setup function creates and initializes the Paysafe Checkout in an overlay. It has the following parameters:
-+ The [Public API key](#publicapikey) provided in the Business Portal. Note that this key can only be used to generate payment handle tokens for use with payments, and has no other API access rights, such as those required for taking payments. Consequently, this key can be exposed publicly in the user's browser.
++ The [Public API key](#publicapikey) provided in the Business Portal. Note that this key can only be used to generate payment handle tokens for use with payments or credits, and has no other API access rights, such as those required for taking payments. Consequently, this key can be exposed publicly in the user's browser.
 + An *options* object containing the environment to use (Test or Live), the payment amount, currency, and several parameters to show additional features in the payment form.
 + A *resultCallback* function you provide to receive the Paysafe checkout instance, handle successful payment handle (by sending the payment handle to your merchant server), or respond to any errors caused by a failed payment handle creation.
 + An optional *closeCallback* function you provide to handle the customer closing the payment overlay.
@@ -540,8 +624,8 @@ paysafe.checkout.setup(apiKey, options, resultCallback, closeCallback?)
 |canEditAmount|boolean|no||If *true*, the customer can edit the amount in the Checkout before clicking Pay. If false, the amount is not editable.|
 |[customer](#customer)|object|no||In case the customer is a first-time user and has no customer profile, the merchant can choose to pass an existing customer profile in the call to create a payment handle.|
 |[paymentMethodDetails](#paymentmethoddetails)|object|no||Required for Paysafecash, Paysafecard, Skrill, and Play+ (Sightline) payment types.|
-|payout |boolean |no | | If true, **Payout** Checkout screen will be launched. If false, **Payment** Checkout will be launched.<br/> Defaults to false. |
-|[payoutConfig](#payoutconfig) |object | no | | This configuration is used to specify payout limitations. |
+|payout |boolean |no | | If true, **Withdrawal** Checkout screen will be launched. If false, **Payment** Checkout will be launched.<br/> Defaults to false. |
+|[payoutConfig](#payoutconfig) |object | no | | This configuration is used to specify withdrawal limitations. |
 
 <a name="billingaddress"></a>
 **billingAddress**
@@ -577,10 +661,10 @@ paysafe.checkout.setup(apiKey, options, resultCallback, closeCallback?)
 **paymentMethodDetails**
 |Parameter|Type|Required|Validations|Description|
 |---------|-------|---------------|-----------|------------------|
-|[paysafecard](#paysafecard)|object|no||Required for Paysafecard payment type.|
-|[paysafecash](#paysafecash)|object|no||Required for Paysafecash payment type.|
-|[skrill](#skrill)          |object|no||Required for Skrill payment type. |
-|[sightline](#sightline)    |object|no||Required for Play+ (Sightline) payment type. |
+|[paysafecard](#paysafecard)|object|Conditional||Required for Paysafecard payment type.|
+|[paysafecash](#paysafecash)|object|Conditional||Required for Paysafecash payment type.|
+|[skrill](#skrill)          |object|Conditional||Required for Skrill payment type. |
+|[sightline](#sightline)    |object|Conditional||Required for Play+ (Sightline) payment type. |
 
 <a name="payoutconfig"></a>
 **payoutConfig**
