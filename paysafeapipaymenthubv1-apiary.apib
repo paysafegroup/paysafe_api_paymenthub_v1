@@ -403,8 +403,7 @@ When the merchant wants to process a Skrill payment request, you would do the fo
 # Payments Checkout
 
 Paysafe Payments Checkout is an SDK that allows merchants to 
-- Take payment from credit cards and other alternate payment methods &ndash; like Paysafecash and Paysafecard &ndash; 
-(or)
+- Take payment from credit cards and other alternate payment methods &ndash; like Paysafecash and Paysafecard (or)
 - Process credit (withdrawals) for customers via payment methods that support credit transactions 
 
 Payments Checkout uses a secure overlay that requires the least demanding level of PCI compliance: SAQ-A. 
@@ -416,7 +415,7 @@ The entry and storage of payment information is handled by Paysafe and the check
 2. Call the checkout setup function with your Public API key, [which you retrieve from the Business Portal](#publicapikey). 
 The setup function creates an iframe overlay containing the secure payment/withdrawal form hosted on Paysafe's servers. 
 You will need to pass a callback function as part of the setup to handle payment handle success and failure.
-3. The callback should use AJAX to send the payment handle representing the customer's payment details to your merchant server to [make a payment](#paymentrequest) or [process a credit](#process Original Credits) using the Paysafe Payments API.
+3. The callback should use AJAX to send the payment handle representing the customer's payment details to your merchant server to [make a payment](#paymentrequest) or [process a credit](#originalcreditrequest) using the Paysafe Payments API.
 
 ## Including the SDK 
 
@@ -483,10 +482,6 @@ The overlay contains a payment button that creates a payment handle for the data
                     "sightline": {
                         "consumerId": "123456"
                     }
-                },
-                "payout": true,
-                "payoutConfig": {
-                    "maximumAmount": 100000
                 }
             }, function(instance, error, result) {
                 if (result && result.paymentHandleToken) {
@@ -562,10 +557,6 @@ The overlay contains a withdraw button that creates a payment handle for the dat
                     "sightline": {
                         "consumerId": "123456"
                     }
-                },
-                "payout": true,
-                "payoutConfig": {
-                    "maximumAmount": 100000
                 }
             }, function(instance, error, result) {
                 if (result && result.paymentHandleToken) {
