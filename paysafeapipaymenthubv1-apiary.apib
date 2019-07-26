@@ -6664,7 +6664,7 @@ Use the *singleUseCustomerToken* returned in the response in the Payments Checko
 
 + One of
 
-    + card (object, conditional) - These are the details of the [card](#cardobject) used for the request. Only one payment instrument object (e.g., *card* or *paysafecash* or *sightline*) can be included in the request.
+    + card (object) - These are the details of the [card](#cardobject) used for the request. Only one payment instrument object (e.g., *card* or *paysafecash* or *sightline*) can be included in the request.
 
         + Properties
 
@@ -6698,7 +6698,7 @@ Use the *singleUseCustomerToken* returned in the response in the Payments Checko
             + cardBin:`411111` (string) - This is the card BIN (typically the first 6 digits).
                 _Read Only, length=6_
         
-    + paysafecard (object, conditional) - These are the details of the [paysafecard](#paysafecardobject) used for the request. Only one payment instrument object (e.g., *card* or *paysafecard* or *sightline*) can be included in the request.
+    + paysafecard (object) - These are the details of the [paysafecard](#paysafecardobject) used for the request. Only one payment instrument object (e.g., *card* or *paysafecard* or *sightline*) can be included in the request.
         + Properties
             + `consumerId`:`merchantclientid` (string, required) - This is the merchant's unique identifier of the customer. For security purposes, if any personal data is used (e.g., customer's user name, email address, etc.), it has to be encrypted or hashed.
             + `ageRestriction`:`18` (number) - This is the minimum age restriction for the transaction.
@@ -6706,7 +6706,7 @@ Use the *singleUseCustomerToken* returned in the response in the Payments Checko
             + `countryRestriction`:`DE` (string) - This is the code of the country to which the transaction will be restricted. See [Country Codes](#countrycodes).
                 _length=2_
 
-    + paysafecash (object, conditional) - These are the details of the [paysafecash account](#paysafecashobject) used for the request. Only one payment instrument object (e.g., *card* or *paysafecash* or *sightline*) can be included in the request.
+    + paysafecash (object) - These are the details of the [paysafecash account](#paysafecashobject) used for the request. Only one payment instrument object (e.g., *card* or *paysafecash* or *sightline*) can be included in the request.
         + Properties
             + `consumerId`:`merchantclientid` (string, required) - This is the merchant's unique identifier of the customer. For security purposes, if any personal data is used (e.g., customer's user name, email address, etc.), it has to be encrypted or hashed.
             + `ageRestriction`:`18` (number) - This is the minimum age restriction for the transaction.
@@ -6714,7 +6714,7 @@ Use the *singleUseCustomerToken* returned in the response in the Payments Checko
             + `countryRestriction`:`DE` (string) - This is the code of the country to which the transaction will be restricted. See [Country Codes](#countrycodes).
                 _length=2_
 
-    + skrill (object, conditional) - These are the details of the [skrill account](#skrillobject) used for the request. Only one payment instrument object (e.g., *card* or *skrill*) can be included in the request.
+    + skrill (object) - These are the details of the [skrill account](#skrillobject) used for the request. Only one payment instrument object (e.g., *card* or *skrill*) can be included in the request.
         + Properties
             + `consumerId`:`john.doe@email.com` (string, required) - This is the email address of the customer who is receiving the payment. Required only in case of withdrawal request.
                 _length<=50_
@@ -6731,7 +6731,7 @@ Use the *singleUseCustomerToken* returned in the response in the Payments Checko
             + `detail1Text`:`Details 1 text` (string, optional) - The detail1Text is shown next to the detail1Dscription in the More Information section in the header of the payment form with the other payment details. The detail1Description combined with the detail1Text is shown in the more information field of the merchant account history CSV file.
             + `descriptor`:`Merchant's trading name` (string, optional) - This is the merchant descriptor that will be displayed on the consumer's bank statement.
             
-    + sightline (object, conditional) - These are the details of the [Play+ account](#sightlineobject) used for the request. Only one payment instrument object (e.g., *card* or *sightline*) can be included in the request.
+    + sightline (object) - These are the details of the [Play+ account](#sightlineobject) used for the request. Only one payment instrument object (e.g., *card* or *sightline*) can be included in the request.
         + Properties
             + `consumerId`:`12312313` (string, required) - This is the Loyalty Membership Number unique to the customer to be enrolled with Play+ (Sightline). This is to be provided by the merchant. 
             + `paymentToken`:`CNjEzMTM4NDg1` (string) - This is the payment token for a card. This will be present if registration is occurring as part of the salvage flow or for a funding the Play+ (Sightline) card flow.
