@@ -652,10 +652,10 @@ paysafe.checkout.setup(apiKey, options, resultCallback, closeCallback?)
 **paymentMethodDetails**
 |Parameter|Type|Required|Validations|Description|
 |---------|-------|---------------|-----------|------------------|
-|[paysafecard](#paysafecard)|object|Conditional||Required for Paysafecard payment/withdrawal.|
-|[paysafecash](#paysafecash)|object|Conditional||Required for Paysafecash payment/withdrawal.|
-|[skrill](#skrill)          |object|Conditional||Required for Skrill withdrawal only. |
-|[sightline](#sightline)    |object|Conditional||Required for Play+ (Sightline) payment/withdrawal. |
+|[paysafecard](#paysafecard)|object|Conditional||Required for Paysafecard payment type.|
+|[paysafecash](#paysafecash)|object|Conditional||Required for Paysafecash payment type.|
+|[skrill](#skrill)          |object|Conditional||Required for Skrill payment type. |
+|[sightline](#sightline)    |object|Conditional||Required for Play+ (Sightline) payment type. |
 
 <a name="payoutconfig"></a>
 **payoutConfig**
@@ -685,14 +685,10 @@ paysafe.checkout.setup(apiKey, options, resultCallback, closeCallback?)
 **skrill**
 |Parameter|Type|Required|Validations|Description|
 |---------|-------|---------------|-----------|------------------|
-|consumerId              |string|yes|`length<=50` |This is the consumer's Skrill email ID to be paid. Required only for withdrawal checkout. Merchant has to have this stored prior when consumer made a Skrill payment.|
-|emailSubject            |string|yes|`length<=30` |This is the Subject line to use in the customer email.Required only for withdrawal checkout.|
-|emailMessage            |string|yes|`length<=50` |This is the message to use in the customer email.Required only for withdrawal checkout.|
-|recipientDescription    |string|no |`length<=30` |A description to be shown on the Skrill payment page in the logo area if there is no *logo\_url* parameter. If no value is submitted and there is no logo, the *pay\_to\_email* value is shown as the recipient of the payment.|
-|language                |string|no |`length=2`   |The 2-character preferred language code for the consumer (e.g., EN, FR).|
-|logoUrl                 |string|no |             |The URL of the logo which you would like to appear in the top right of the Skrill page. The logo must be accessible via HTTPS or it will not be shown. The logo will be resized to fit. To avoid scaling distortion, the minimum size should be as follows:<br>If the logo width > height - at least 107px wide.<br>If logo width > height - at least 65px high<br>Avoid large images (much greater than 256 by 256px) to minimize the page loading time.|
-|detail1Description      |string|no |             |You can show additional details about the product in the More information section in the header of Quick Checkout.|
-|detail1Text             |string|no |             |The detail1Text is shown next to the detail1Dscription in the More Information section in the header of the payment form with the other payment details. The detail1Description combined with the detail1Text is shown in the more information field of the merchant account history CSV file.|
+|consumerId|string|yes|`length<=50`|This is a consumer ID that the merchant has stored for Skrill payments.|
+|emailSubject |string |yes |`length<=30` |This is the Subject line to use in the customer email.|
+|emailMessage |string |yes |`length<=50` |This is the message to use in the customer email.|
+
 The Paysafe Checkout is displayed when the configuration provided in *options* is correctly validated.
 
 <a name="resultcallback"></a>
@@ -5962,7 +5958,7 @@ Use the *singleUseCustomerToken* returned in the response in the Payments Checko
 + phone:`647-788-3901` (string) - This is the customer's phone number.
     _length<=40_
 + defaultShippingAddressIndicator:`true` (boolean) - Flag to mark this address as the default shipping address.
-+ status: (enum) - This is the status of the address.
++ status:`ACTIVE` (enum) - This is the status of the address.
     _Read Only_
     + Members
         + ACTIVE
@@ -6001,7 +5997,7 @@ Use the *singleUseCustomerToken* returned in the response in the Payments Checko
         _length<=80_
     + `xid`:`aWg4N1ZZOE53TkFrazJuMmkyRDA=` (string) - This is the transaction identifier returned by the card issuer.
         _length<=40_
-    + `status`: (enum) - This is the status of authentication request.
+    + `status`:`COMPLETED` (enum) - This is the status of authentication request.
         _Read Only_
         + Members
             + COMPLETED
@@ -6141,7 +6137,7 @@ Use the *singleUseCustomerToken* returned in the response in the Payments Checko
     _Read Only, length<=36_
 + merchantCustomerId:`mycustomer10` (string, required) - This is a customer ID that the merchant provides with the request for their own internal customer identification. This value must be unique for each customer belonging to a merchant.
     _length<=100_
-+ locale: (enum, required) - This indicates the language of the customer.
++ locale:`en_US` (enum, required) - This indicates the language of the customer.
     - en_US
     - fr_CA
     - en_GB
@@ -6158,7 +6154,7 @@ Use the *singleUseCustomerToken* returned in the response in the Payments Checko
     _length<=40_
 + ip:`192.0.126.111` (string) - This is the customer’s IP address.
     _length<=46_
-+ gender: (enum) - This is the customer’s gender.
++ gender:`M` (enum) - This is the customer’s gender.
     - F
     - M
 + nationality:`Canadian` (string) - This is the customer’s nationality.
@@ -6167,7 +6163,7 @@ Use the *singleUseCustomerToken* returned in the response in the Payments Checko
     _length<=40_
 + paymentToken:`P0zPDqggWESaktW` (string) - This is a token generated by Paysafe that represents the customer and returned in the response to the customer creation request. It is not used for payment requests.
     _Read Only, length<=50_
-+ status: (enum) - This is the status of the customer. By default the system automatically sets the customer status to an ACTIVE state. If you want to prevent the customer from being used for payments, you can set the status to an INITIAL state (e.g., in cases where you first want to validate the customer).
++ status:`ACTIVE` (enum) - This is the status of the customer. By default the system automatically sets the customer status to an ACTIVE state. If you want to prevent the customer from being used for payments, you can set the status to an INITIAL state (e.g., in cases where you first want to validate the customer).
     _Read Only_
     + Members
         + INITIAL
@@ -6333,13 +6329,12 @@ Use the *singleUseCustomerToken* returned in the response in the Payments Checko
     + Default: true
 + `txnTime`:`2018-12-11T16:33:49Z` (string) - This is the date and time the transaction was processed.
     _Read Only_
-+ `paymentType`: (enum) - This is the payment type associated with the Payment Handle used for this request.
++ `paymentType`:`CARD` (enum) - This is the payment type associated with the Payment Handle used for this request.
     _Read Only_
     + Members
         + CARD
-        + SIGHTLINE
-        + SKRILL
-        + VIPPREFERRED
+        + PAYSAFECASH
+        + PAYSAFECARD
 + `status`:`PENDING` (enum) - This is the status of the transaction request.
     _Read Only_
     + Members
@@ -6367,15 +6362,12 @@ Use the *singleUseCustomerToken* returned in the response in the Payments Checko
 
 ## Payment Methods Get
 + paymentMethods (object)
-    + `paymentMethod`: (enum) - This is the payment type associated with this payment method.
+    + `paymentMethod`:`CARD` (enum) - This is the payment type associated with this payment method.
         _Read Only_
         + Members
             + CARD
             + PAYSAFECASH
             + PAYSAFECARD
-            + SIGHTLINE
-            + SKRILL
-            + VIPPREFERRED
     + currencyCode:`USD` (string) - This is the [currency of the merchant account](#currencycodes), e.g., USD or CAD.
         _Read Only, max=3_
     + `accountId`: `1009355920` (string) - This is the merchant account for which the payment method and currency are enabled.
@@ -6388,7 +6380,7 @@ Use the *singleUseCustomerToken* returned in the response in the Payments Checko
     _Read Only, length<=36_
 + `merchantRefNum`:`merchantRefNum-101` (string, required) - This is the merchant reference number created by the merchant and submitted as part of the request. It must be unique for each request.
     _length<=255_
-+ `transactionType`: (enum, required) - This specifies the transaction type for which the Payment Handle is created.
++ `transactionType`:`PAYMENT` (enum, required) - This specifies the transaction type for which the Payment Handle is created.
     + Members
         + PAYMENT - Payment Handle is created to continue the Payment.
         + STANDALONE_CREDIT - Payment Handle is created to continue the Standalone Credit.
@@ -6409,7 +6401,7 @@ Use the *singleUseCustomerToken* returned in the response in the Payments Checko
     _Read Only_
     + Members
         + SINGLE_USE - The Payment Handle can be used for one transaction only and expires if not used.
-+ `paymentType`: (enum, required) - This is the payment type associated with this Payment Handle. If applicable, you need to pass the corresponding payment type object as listed after this parameter.
++ `paymentType`:`CARD` (enum, required) - This is the payment type associated with this Payment Handle.
     + Members
         + CARD
         + PAYSAFECASH
@@ -6417,7 +6409,6 @@ Use the *singleUseCustomerToken* returned in the response in the Payments Checko
         + SIGHTLINE
         + SKRILL
         + VIPPREFERRED
-+ Include Payment Instrument
 + `action`:`NONE` (enum) - This specifies the next step of the user journey once they proceed to the Payment.
     _Read Only_
     + Members
@@ -6437,6 +6428,7 @@ Use the *singleUseCustomerToken* returned in the response in the Payments Checko
     _length=3-4_
 + `paymentHandleToken`:`SCO3wKcIyLoQbQvw` (string) - This is the payment token generated by Paysafe that will be used by merchants for Payment API requests.
     _Read Only, length<=36_
++ Include Payment Instrument
 + Include Profile
 + Include Billing Details
 + Include Merchant Descriptor
@@ -6476,10 +6468,10 @@ Use the *singleUseCustomerToken* returned in the response in the Payments Checko
     _Read Only_
     + Members
         + MULTI_USE - The Payment Handle can be used multiple times.
-+ `paymentType`: (enum, required) - This is the payment type associated with this Payment Handle.
++ `paymentType`:`CARD` (enum, required) - This is the payment type associated with this Payment Handle.
     + Members
         + CARD
-+ `executionMode`: (enum) - This specifies the action of the merchant server in order to complete the Payment.
++ `executionMode`:`SYNCHRONOUS` (enum) - This specifies the action of the merchant server in order to complete the Payment.
     + Members
         + ASYNCHRONOUS - The Payment request is not completed immediately and the merchant [must rely on webhooks](#paymentswebhooks) to retrieve the status of the Payment request.
         + SYNCHRONOUS - The status of the Payment request will be returned synchronously to the merchant, e.g., a credit card request.
@@ -6516,7 +6508,7 @@ Use the *singleUseCustomerToken* returned in the response in the Payments Checko
     _Read Only, length<=899_
 + `merchantRefNum`:`merchantRefNum-101` (string, required) - This is the merchant reference number created by the merchant and submitted as part of the request. It must be unique for each request.
     _length<=255_
-+ `status`: (enum) - This is the status of the single-use customer token.
++ `status`:`ACTIVE` (enum) - This is the status of the single-use customer token.
     _Read Only_
     + Members
         + INITIAL
@@ -6570,12 +6562,12 @@ Use the *singleUseCustomerToken* returned in the response in the Payments Checko
     
     + Members
         + MULTI_USE - The Payment Handle can be used multiple times.
-+ `paymentType`: (enum, required) - This is the payment type associated with this Payment Handle.
++ `paymentType`:`CARD` (enum, required) - This is the payment type associated with this Payment Handle.
     _Read Only_
     
     + Members
         + CARD
-+ `action`: (enum) - This specifies the next step of the user journey once they proceed to the Payment.
++ `action`:`NONE` (enum) - This specifies the next step of the user journey once they proceed to the Payment.
     _Read Only_
     
     + Members
@@ -6598,13 +6590,13 @@ Use the *singleUseCustomerToken* returned in the response in the Payments Checko
         _length<=36_
     + `merchantRefNum`:`merchantRefNum-101` (string, required) - This is the merchant reference number created by the merchant and submitted as part of the request. It must be unique for each request.
         _length<=255_
-    + `transactionType`: (enum, required) - This specifies the transaction type for which the Payment Handle is created. 
+    + `transactionType`:`PAYMENT` (enum, required) - This specifies the transaction type for which the Payment Handle is created.
         + Members
             + PAYMENT - Payment Handle is created to continue the Payment.
             + STANDALONE_CREDIT - Payment Handle is created to continue the Standalone Credit.
             + ORIGINAL_CREDIT - Payment Handle is created to continue the Original Credit.
             + VERIFICATION - Payment Handle is created to continue the Verification request.
-    + `status`: (enum) - This is the status of the transaction request.
+    + `status`:`PAYABLE` (enum) - This is the status of the transaction request.
         _Read Only_
         + Members
             + RECEIVED - Paysafe has received the request and is waiting for the downstream processor’s response.
@@ -6619,20 +6611,16 @@ Use the *singleUseCustomerToken* returned in the response in the Payments Checko
         _Read Only_
         + Members
             + SINGLE_USE - The Payment Handle can be used for one transaction only and expires if not used.
-    + `paymentType`: (enum, required) - This is the payment type associated with this Payment Handle. If applicable, you need to pass the corresponding payment type object as listed after this parameter. 
+    + `paymentType`:`CARD` (enum, required) - This is the payment type associated with this Payment Handle.
         + Members
             + CARD
             + PAYSAFECASH
             + PAYSAFECARD
-            + SIGHTLINE
-            + SKRILL
-            + VIPPREFERRED
-    + Include Payment Instrument
-    + `action`: (enum) - This specifies the next step of the user journey once they proceed to the Payment.
+    + `action`:`NONE` (enum) - This specifies the next step of the user journey once they proceed to the Payment.
         + Members
             + NONE
             + REDIRECT
-    + `executionMode`: (enum) - This specifies the action of the merchant server in order to complete the Payment.
+    + `executionMode`:`SYNCHRONOUS` (enum) - This specifies the action of the merchant server in order to complete the Payment.
         + Members
             + ASYNCHRONOUS - The Payment request is not completed immediately and the merchant [must rely on webhooks](#paymentswebhooks) to retrieve the status of the Payment request.
             + SYNCHRONOUS - The status of the Payment request will be returned synchronously to the merchant, e.g., a credit card request.
@@ -6642,6 +6630,7 @@ Use the *singleUseCustomerToken* returned in the response in the Payments Checko
         _max=3_
     + `paymentHandleToken`:`842778a0-03a2-11e9-8eb2-f2801f1b9fd1` (string) - This is the payment token generated by Paysafe that will be used by merchants for Payment API requests.
         _Read Only, length<=36_
+    + Include Payment Instrument
     + Include Profile
     + Include Billing Details
     + `returnLinks` (object) - The URL endpoints to redirect the customer to after a redirection to an alternative payment or 3D Secure site. You can customize the return URL based on the transaction status. 
@@ -6664,7 +6653,7 @@ Use the *singleUseCustomerToken* returned in the response in the Payments Checko
 
 + One of
 
-    + card (object, conditional) - These are the details of the [card](#cardobject) used for the request. Only one payment instrument object (e.g., *card* or *paysafecash* or *sightline*) can be included in the request.
+    + card (object, required) - These are the details of the [card](#cardobject) used for the request. Only one payment instrument object (e.g., *card* or *paysafecash*) can be included in the request.
 
         + Properties
 
@@ -6698,7 +6687,7 @@ Use the *singleUseCustomerToken* returned in the response in the Payments Checko
             + cardBin:`411111` (string) - This is the card BIN (typically the first 6 digits).
                 _Read Only, length=6_
         
-    + paysafecard (object, conditional) - These are the details of the [paysafecard](#paysafecardobject) used for the request. Only one payment instrument object (e.g., *card* or *paysafecard* or *sightline*) can be included in the request.
+    + paysafecard (object, required) - These are the details of the [paysafecard](#paysafecardobject) used for the request. Only one payment instrument object (e.g., *card* or *paysafecard*) can be included in the request.
         + Properties
             + `consumerId`:`merchantclientid` (string, required) - This is the merchant's unique identifier of the customer. For security purposes, if any personal data is used (e.g., customer's user name, email address, etc.), it has to be encrypted or hashed.
             + `ageRestriction`:`18` (number) - This is the minimum age restriction for the transaction.
@@ -6706,7 +6695,7 @@ Use the *singleUseCustomerToken* returned in the response in the Payments Checko
             + `countryRestriction`:`DE` (string) - This is the code of the country to which the transaction will be restricted. See [Country Codes](#countrycodes).
                 _length=2_
 
-    + paysafecash (object, conditional) - These are the details of the [paysafecash account](#paysafecashobject) used for the request. Only one payment instrument object (e.g., *card* or *paysafecash* or *sightline*) can be included in the request.
+    + paysafecash (object, required) - These are the details of the [paysafecash account](#paysafecashobject) used for the request. Only one payment instrument object (e.g., *card* or *paysafecash*) can be included in the request.
         + Properties
             + `consumerId`:`merchantclientid` (string, required) - This is the merchant's unique identifier of the customer. For security purposes, if any personal data is used (e.g., customer's user name, email address, etc.), it has to be encrypted or hashed.
             + `ageRestriction`:`18` (number) - This is the minimum age restriction for the transaction.
@@ -6714,31 +6703,31 @@ Use the *singleUseCustomerToken* returned in the response in the Payments Checko
             + `countryRestriction`:`DE` (string) - This is the code of the country to which the transaction will be restricted. See [Country Codes](#countrycodes).
                 _length=2_
 
-    + skrill (object, conditional) - These are the details of the [skrill account](#skrillobject) used for the request. Only one payment instrument object (e.g., *card* or *skrill*) can be included in the request.
+    + skrill (object, required) - These are the details of the [skrill account](#skrillobject) used for the request. Only one payment instrument object (e.g., *card* or *skrill*) can be included in the request.
         + Properties
-            + `consumerId`:`john.doe@email.com` (string, required) - This is the email address of the customer who is receiving the payment. Required only in case of withdrawal request.
+            + `consumerId`:`john.doe@email.com` (string, required) - This is the email address of the customer who is making or receiving the payment.
                 _length<=50_
-            + `emailSubject`:`Skrill payment` (string, required) - This is the Subject line to use in the customer email. Required only in case of withdrawal request.
+            + `emailSubject`:`Skrill payment` (string, required) - This is the Subject line to use in the customer email.
                 _length<=30_
-            + `emailMessage`:`Email text` (string, required) - This is the message to use in the customer email. Required only in case of withdrawal request.
+            + `emailMessage`:`Email text` (string, required) - This is the message to use in the customer email.
                 _length<=50_
-            + `recipientDescription`:`logo_url_alt_text` (string, optional) - This is a description to be shown on the Skrill payment page in the logo area if there is no *logo\_url* parameter. If no value is submitted and there is no logo, the *pay\_to\_email* value is shown as the recipient of the payment.
+            + `recipientDescription`:`logo_url_alt_text` (string, required) - This is a description to be shown on the Skrill payment page in the logo area if there is no *logo\_url* parameter. If no value is submitted and there is no logo, the *pay\_to\_email* value is shown as the recipient of the payment.
                 _length<=30_
-            + `language`:`EN` (string, optional) - This is the 2-character preferred language code for the consumer (e.g., EN, FR).
+            + `language`:`EN` (string, required) - This is the 2-character preferred language code for the consumer (e.g., EN, FR).
                 _length=2_
-            + `logoUrl`:`http://www.yoursite.com/icon.jpg` (string, optional) - This is the URL of the logo that you would like to appear in the top right of the Skrill page. The logo must be accessible via HTTPS or it will not be shown. The logo will be resized to fit.
-            + `detail1Description`: `Details 1 description` (string, optional) - You can show additional details about the product in the More information section in the header of Quick Checkout.
-            + `detail1Text`:`Details 1 text` (string, optional) - The detail1Text is shown next to the detail1Dscription in the More Information section in the header of the payment form with the other payment details. The detail1Description combined with the detail1Text is shown in the more information field of the merchant account history CSV file.
-            + `descriptor`:`Merchant's trading name` (string, optional) - This is the merchant descriptor that will be displayed on the consumer's bank statement.
-            
-    + sightline (object, conditional) - These are the details of the [Play+ account](#sightlineobject) used for the request. Only one payment instrument object (e.g., *card* or *sightline*) can be included in the request.
+            + `logoUrl`:`http://www.yoursite.com/icon.jpg` (string, required) - This is the URL of the logo that you would like to appear in the top right of the Skrill page. The logo must be accessible via HTTPS or it will not be shown. The logo will be resized to fit.
+            + `detail1Description`: `Details 1 description` (string, required) - You can show additional details about the product in the More information section in the header of Quick Checkout.
+            + `detail1Text`:`Details 1 text` (string, required) - The detail1Text is shown next to the detail1Dscription in the More Information section in the header of the payment form with the other payment details. The detail1Description combined with the detail1Text is shown in the more information field of the merchant account history CSV file.
+            + `descriptor`:`Merchant's trading name` (string, required) - This is the merchant descriptor that will be displayed on the consumer's bank statement.
+
+    + sightline (object, required) - These are the details of the [Play+ account](#sightlineobject) used for the request. Only one payment instrument object (e.g., *card* or *sightline*) can be included in the request.
         + Properties
             + `consumerId`:`12312313` (string, required) - This is the Loyalty Membership Number unique to the customer to be enrolled with Play+ (Sightline). This is to be provided by the merchant. 
             + `paymentToken`:`CNjEzMTM4NDg1` (string) - This is the payment token for a card. This will be present if registration is occurring as part of the salvage flow or for a funding the Play+ (Sightline) card flow.
             + `paymentHandleToken`:`SCO3wKcIyLoQbQvw` (string) - This is the payment token for a card. This will be present if registration is occurring as part of the salvage flow or for a funding the Play+ (Sightline) card flow.
             + `balance`:`20000` (string) - This is the balance on the Play+ (Sightline) prepaid card.
             + `last4ssn`:`6789` (string) - This is the last 4 digits of the customer's SSN, required to make the payments call. This is required only for a Payment transaction.
-            + `card`: (object) - This is the card object. This will be present if customer registers with Play+ as part of the card recovery flow or when a customer adds fund to Play+ (Sightline).
+            + `card`: (object) - This is the card object. This will be present if registration is occurring as part of the salvage flow or for a funding the Play+ (Sightline) card flow.
 
 ## PaymentsRequest (object)
 
@@ -6766,16 +6755,13 @@ Use the *singleUseCustomerToken* returned in the response in the Payments Checko
     _length<=255_
 + `txnTime`:`2018-12-11T16:33:49Z` (string) - This is the date and time the transaction was processed.
     _Read Only_
-+ `paymentType`: (enum) - This is the payment type associated with the Payment Handle used for this request.
++ `paymentType`:`CARD` (enum) - This is the payment type associated with the Payment Handle used for this request.
     _Read Only_
     + Members
         + CARD
         + PAYSAFECASH
         + PAYSAFECARD
-        + SIGHTLINE
-        + SKRILL
-        + VIPPREFERRED
-+ `status`: (enum) - This is the status of the transaction request.
++ `status`:`COMPLETED` (enum) - This is the status of the transaction request.
     _Read Only_
     + Members
         + RECEIVED - Our system has received the request and is waiting for the downstream processor’s response.
@@ -6819,7 +6805,7 @@ Use the *singleUseCustomerToken* returned in the response in the Payments Checko
         _length<=40_
     + `mobile`:`4446666` (string) - This is the customer's mobile phone number. 
         _length<=40_
-    + `gender`: (enum) - This is the customer’s gender.
+    + `gender`:`M` (enum) - This is the customer’s gender.
         - F
         - M
     + `nationality`:`Indian` (string) - This is the customer’s nationality.
@@ -6946,10 +6932,12 @@ Use the *singleUseCustomerToken* returned in the response in the Payments Checko
     _length<=255_
 + `txnTime`:`2018-12-11T16:33:49Z` (string) - This is the date and time the transaction was processed.
     _Read Only_
-+ `paymentType`: (enum) - This is the payment type associated with the Payment Handle used for this request.
++ `paymentType`:`CARD` (enum) - This is the payment type associated with the Payment Handle used for this request.
     _Read Only_
     + Members
         + CARD
+        + PAYSAFECASH
+        + PAYSAFECARD
 + `status` (enum) - This is the status of the transaction request.
     _Read Only_
     + Members
