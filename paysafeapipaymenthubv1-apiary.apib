@@ -472,6 +472,7 @@ The overlay contains a payment button that creates a payment handle for the data
                 "environment": "TEST",
                 "merchantRefNum": "1559900597607",
                 "canEditAmount": true,
+                "displayPaymentMethods":["skrill","card"],
                 "paymentMethodDetails": {
                     "paysafecard": {
                         "consumerId": "1232323"
@@ -552,7 +553,8 @@ The overlay contains a withdraw button that creates a payment handle for the dat
                 "payout":"true", 
                 "payoutConfig":{
                     "maximumAmount":"100000"
-                    }
+                    },
+                "displayPaymentMethods":["skrill","card"],
                 "paymentMethodDetails": {
                     "sightline": {
                         "consumerId": "123456"
@@ -614,6 +616,7 @@ paysafe.checkout.setup(apiKey, options, resultCallback, closeCallback?)
 |singleUseCustomerToken|string|no||This is the *singleUseCustomerToken* that the merchant generated using the [Create a Single-Use Customer Token request](#createcustomersut). Any saved addresses and/or payment details would be displayed in the Checkout.|
 |canEditAmount|boolean|no||If *true*, the customer can edit the amount in the Checkout before clicking Pay. If false, the amount is not editable.|
 |[customer](#customer)|object|no||In case the customer is a first-time user and has no customer profile, the merchant can choose to pass an existing customer profile in the call to create a payment handle.|
+|displayPaymentMethods|Array |no | | If provided, this is the restricted list of payment methods that a customer will see once checkout is launched. <br/> Possibe values are card, paysafecard, paysafecash, sightline, vippreferred, skrill.|
 |[paymentMethodDetails](#paymentmethoddetails)|object|no||Required for Paysafecash, Paysafecard, Skrill, and Play+ (Sightline) payment types.|
 |payout |boolean |no | | If true, **Withdrawal** Checkout screen will be launched. If false, **Payment** Checkout will be launched.<br/> Defaults to false. |
 |[payoutConfig](#payoutconfig) |object | no | | This configuration is used to specify withdrawal limitations. |
