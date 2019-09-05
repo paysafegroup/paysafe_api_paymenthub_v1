@@ -948,37 +948,52 @@ You can trigger webhooks for the following events:
 
 |Event Type|Description|
 |----------|-----------|
-|PAYMENT_HANDLE_INITIATED | Our system has received the payment handle request and is waiting for the downstream processor’s response.|
-|PAYMENT_HANDLE_PROCESSING | The payment handle request is waiting for the authentication.|
-|PAYMENT_HANDLE_PAYABLE | The payment handle has the status of PAYABLE and can be used for a payments call. |
-|PAYMENT_HANDLE_COMPLETED | Payments call associated with payment handle has been initiated.|
-|PAYMENT_HANDLE_FAILED | The payment handle request failed, due to either an error or being declined.|
-|PAYMENT_RECEIVED | Our system has received the payment request and is waiting for the downstream processor’s response.|
-|PAYMENT_COMPLETED | The payment request has been completed|
-|PAYMENT_HELD | The payment request has been placed on hold due to risk considerations.|
-|PAYMENT_FAILED | The payment request failed, due to either an error or being declined.|
-|PAYMENT_CANCELLED | The payment request has been fully voided (reversed).|
-|SETTLEMENT_RECEIVED | Our system has received the settlement request and is waiting for the downstream processor’s response.|
-|SETTLEMENT_PENDING | Our system has received the settlement request but it has not yet been batched.|
-|SETTLEMENT_PROCESSING | The settlement batch has started.|
-|SETTLEMENT_COMPLETED | The settlement request has been completed.|
-|SETTLEMENT_FAILED | The settlement request failed, due to either an error or being declined.|
-|SETTLEMENT_CANCELLED | The settlement request has been cancelled.|
-|REFUND_RECEIVED | Our system has received the refund request and is waiting for the downstream processor’s response.|
-|REFUND_COMPLETED | The refund request has been completed.|
-|REFUND_PENDING | Our system has received the refund request but it has not yet been batched.|
-|REFUND_FAILED | The refund request failed, due to either an error or being declined.|
-|REFUND_CANCELLED | The refund request has been cancelled. |
-|VOIDAUTH_RECEIVED | Our system has received the void authorization request and is waiting for the downstream processor’s response.|
-|VOIDAUTH_COMPLETED | The void authorization request has been completed.|
-|VOIDAUTH_PENDING | Our system has received the void authorization request but it has not yet been batched.|
-|VOIDAUTH_FAILED | The void authorization request failed, due to either an error or being declined.|
-|VOIDAUTH_CANCELLED | The void authorization request has been cancelled.|
-|SA_CREDIT_RECEIVED | Our system has received the credit request and is waiting for the downstream processor’s response.|
-|SA_CREDIT_COMPLETED | The credit request has been completed.|
-|SA_CREDIT_HELD | The credit request has been placed on hold due to risk considerations.|
-|SA_CREDIT_FAILED | The credit request failed, due to either an error or being declined.|
-|SA_CREDIT_CANCELLED | The credit request has been cancelled.|
+|PAYMENT_HANDLE_INITIATED | Our system has received the payment handle request and is waiting for the downstream processor’s response. |
+|PAYMENT_HANDLE_PROCESSING | The payment handle request is waiting for the authentication. |
+|PAYMENT_HANDLE_PAYABLE | The payment handle status is PAYABLE and can be used for the payment call. |
+|PAYMENT_HANDLE_COMPLETED | Payments call associated with payment handle are initiated. |
+|PAYMENT_HANDLE_FAILED | The payment handle request failed due to either an error or being declined. |
+|REGISTRATION_COMPLETED | The payment method registration is completed. |
+|REGISTRATION_FAILED | The payment method registration is failed. |
+|REGISTRATION_DECLINED | The payment method registration is declined. |
+|PAYMENT_PROCESSING | The payment request is being processed. |
+|PAYMENT_RECEIVED | Our system has received the payment request and is waiting for the downstream processor’s response. |
+|PAYMENT_COMPLETED | The payment request is completed. |
+|PAYMENT_HELD | The payment request is placed on hold due to risk considerations. |
+|PAYMENT_FAILED | The payment request failed due to either an error or being declined. |
+|PAYMENT_CANCELLED | The payment request is fully voided (reversed). |
+|SETTLEMENT_RECEIVED | Our system has received the settlement request and is waiting for the downstream processor’s response. |
+|SETTLEMENT_PENDING | Our system has received the settlement request, but it has not yet batched. |
+|SETTLEMENT_PROCESSING | The settlement batch has started. |
+|SETTLEMENT_COMPLETED | The settlement request is completed. |
+|SETTLEMENT_FAILED | The settlement request failed due to either an error or being declined. |
+|SETTLEMENT_CANCELLED | The settlement request is cancelled. |
+|REFUND_PROCESSING | The refund request is being processed. |
+|REFUND_RECEIVED | Our system has received the refund request and is waiting for the downstream processor’s response. |
+|REFUND_COMPLETED | The refund request is completed. |
+|REFUND_PENDING | Our system has received the refund request, but it has not yet batched. |
+|REFUND_FAILED | The refund request failed due to either an error or being declined. |
+|REFUND_CANCELLED | The refund request is cancelled. |
+|VOIDAUTH_RECEIVED | Our system has received the void authorization request and is waiting for the downstream processor’s response. |
+|VOIDAUTH_COMPLETED | The void authorization request is completed. |
+|VOIDAUTH_PENDING | Our system has received the void authorization request, but it has not yet batched. |
+|VOIDAUTH_FAILED | The void authorization request failed due to either an error or being declined. |
+|VOIDAUTH_CANCELLED | The void authorization request is cancelled. |
+|ORIGINAL_CREDIT_PROCESSING | The credit request is being processed. |
+|ORIGINAL_CREDIT_COMPLETED | The credit request is completed. |
+|ORIGINAL_CREDIT_PENDING | The credit request is received but is yet to be processed. |
+|ORIGINAL_CREDIT_FAILED | The credit request has failed due to either an error or being declined. |
+|ORIGINAL_CREDIT_CANCELLED | The credit request is cancelled. |
+|ORIGINAL_CREDIT_BATCH_COMPLETED | The batched credit request is completed. |
+|ORIGINAL_CREDIT_BATCH_FAILED | The batched credit request is failed. |
+|SA_CREDIT_PROCESSING | The credit request is being processed. |
+|SA_CREDIT_RECEIVED | Our system has received the credit request and is waiting for the downstream processor’s response. |
+|SA_CREDIT_COMPLETED | The credit request is completed. |
+|SA_CREDIT_HELD | The credit request is placed on hold due to risk considerations. |
+|SA_CREDIT_FAILED | The credit request failed due to either an error or being declined. |
+|SA_CREDIT_CANCELLED | The credit request is cancelled. |
+|SA_CREDIT_BATCH_FAILED | The batched credit request is failed. |
+|SA_CREDIT_BATCH_COMPLETED | The batched credit request is completed. |
 
 
 ## Sample Webhooks Payload
