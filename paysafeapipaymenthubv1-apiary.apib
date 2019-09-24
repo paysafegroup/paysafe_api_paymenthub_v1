@@ -558,6 +558,11 @@ The overlay contains a withdraw button that creates a payment handle for the dat
                 "paymentMethodDetails": {
                     "sightline": {
                         "consumerId": "123456"
+                    },
+                    "skrill": {
+                        "consumerId": "john.doe@email.com",
+                        "emailSubject": "Skrill Payout",
+                        "emailMessage": "Your Skrill Payout request has been processed"
                     }
                 }
             }, function(instance, error, result) {
@@ -619,7 +624,7 @@ paysafe.checkout.setup(apiKey, options, resultCallback, closeCallback?)
 |displayPaymentMethods|Array |no | | If provided, this is the restricted list of payment methods that a customer will see once checkout is launched. <br/> Possibe values are card, paysafecard, paysafecash, sightline, vippreferred, skrill.|
 |[paymentMethodDetails](#paymentmethoddetails)|object|no||Required for Paysafecash, Paysafecard, Skrill, and Play+ (Sightline) payment types.|
 |payout |boolean |no | | If true, **Withdrawal** Checkout screen will be launched. If false, **Payment** Checkout will be launched.<br/> Defaults to false. |
-|[payoutConfig](#payoutconfig) |object | no | | This configuration is used to specify withdrawal limitations. |
+|[payoutConfig](#payoutconfig) |object | conditional | | Required for withdrawal checkout only. This configuration is used to specify withdrawal limitations. |
 
 <a name="billingaddress"></a>
 **billingAddress**
@@ -2348,9 +2353,9 @@ If you [look up an authorization request](#getauth)  that used the *visaAddition
 
 |Element                 |Type                   |Description|
 |---                     |---                    |---|
-|consumerId              |string<br>`length<=50` |This is the email address of the customer who is making or receiving the payment.|
-|emailSubject            |string<br>`length<=30` |This is the Subject line to use in the customer email.|
-|emailMessage            |string<br>`length<=50` |This is the message to use in the customer email.|
+|consumerId              |string<br>`length<=50` |This is the email address of the customer who is making or receiving the payment.This is to be provided by merchant while making a payout. |
+|emailSubject            |string<br>`length<=30` |This is the Subject line to use in the customer email. This is to be provided by merchant while making a payout. |
+|emailMessage            |string<br>`length<=50` |This is the message to use in the customer email.This is to be provided by merchant while making a payout. |
 |recipientDescription    |string<br>`length<=30` |This is a description to be shown on the Skrill payment page in the logo area if there is no *logo\_url* parameter. If no value is submitted and there is no logo, the *pay\_to\_email* value is shown as the recipient of the payment.|
 |language                |string<br>`length=2`   |This is the 2-character preferred language code for the consumer (e.g., EN, FR).|
 |logoUrl                 |string                 |This is the URL of the logo that you would like to appear in the top right of the Skrill page. The logo must be accessible via HTTPS or it will not be shown. The logo will be resized to fit. To avoid scaling distortion, the minimum size should be as follows:<br>If the logo width > height - at least 107px wide.<br>If logo width > height - at least 65px high<br>Avoid large images (much greater than 256 by 256px) to minimize the page loading time.|
@@ -2361,6 +2366,8 @@ If you [look up an authorization request](#getauth)  that used the *visaAddition
 ```
      {
          "consumerId": "john.doe@email.com",
+         "emailSubject": "Skrill Payout",
+         "emailMessage": "Your Skrill Payout request has been processed",
          "recipientDescription": "logo_url_alt_text",
          "language": "EN",
          "logoUrl": "http://www.paysafe.com/icon.jpg",
@@ -3327,17 +3334,6 @@ Click on **Create a Payment Handle** above to see six examples of how to create 
                 "amount": 100,
                 "currencyCode": "USD",
                 "customerIp": "172.0.0.1",
-                "skrill": {
-                    "consumerId": "john.doe@email.com",
-                    "emailSubject": "Skrill Payment",
-                    "emailMessage": "Your Email Text",
-                    "language": "EN",
-                    "logoUrl": "http://www.paysafe.com/icon.jpg",
-                    "recipientDescription": "Recipient Description",
-                    "detail1Text": "Detail 1 text",
-                    "detail1Description": "Detail 1 description",
-                    "descriptor": "Merchant's trading name"
-                },
                 "billingDetails": {
                     "nickName": "Home",
                     "street": "100 Queen",
@@ -6732,7 +6728,7 @@ Use the *singleUseCustomerToken* returned in the response in the Payments Checko
             + `countryRestriction`:`DE` (string) - This is the code of the country to which the transaction will be restricted. See [Country Codes](#countrycodes).
                 _length=2_
 
-    + skrill (object) - These are the details of the [skrill account](#skrillobject) used for the request. Only one payment instrument object (e.g., *card* or *skrill*) can be included in the request.
+    + skrill (object) - These are the details of the [skrill account](#skrillobject) used for the request. Only one payment instrument object (e.g., *card* or *skrill*) can be included in the request. Skrill Object is required only for withdrawal request.
         + Properties
             + `consumerId`:`john.doe@email.com` (string, required) - This is the email address of the customer who is receiving the payment. Required only in case of withdrawal request.
                 _length<=50_
