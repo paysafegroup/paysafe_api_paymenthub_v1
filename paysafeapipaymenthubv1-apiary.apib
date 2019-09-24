@@ -693,9 +693,9 @@ paysafe.checkout.setup(apiKey, options, resultCallback, closeCallback?)
 **skrill**
 |Parameter|Type|Required|Validations|Description|
 |---------|-------|---------------|-----------|------------------|
-|consumerId              |string|yes|`length<=50` |This is the consumer's Skrill email ID to be paid. Required only for withdrawal checkout. Merchant has to have this stored prior when consumer made a Skrill payment.|
-|emailSubject            |string|yes|`length<=30` |This is the Subject line to use in the customer email.Required only for withdrawal checkout.|
-|emailMessage            |string|yes|`length<=50` |This is the message to use in the customer email.Required only for withdrawal checkout.|
+|consumerId              |string|yes|`length<=50` |This is the consumer's Skrill email ID to be paid. Required for withdrawal checkout. Merchant has to have this stored prior when consumer made a Skrill payment.|
+|emailSubject            |string|yes|`length<=30` |This is the Subject line to use in the customer email.Required for withdrawal checkout.|
+|emailMessage            |string|yes|`length<=50` |This is the message to use in the customer email.Required for withdrawal checkout.|
 |recipientDescription    |string|no |`length<=30` |A description to be shown on the Skrill payment page in the logo area if there is no *logo\_url* parameter. If no value is submitted and there is no logo, the *pay\_to\_email* value is shown as the recipient of the payment.|
 |language                |string|no |`length=2`   |The 2-character preferred language code for the consumer (e.g., EN, FR).|
 |logoUrl                 |string|no |             |The URL of the logo which you would like to appear in the top right of the Skrill page. The logo must be accessible via HTTPS or it will not be shown. The logo will be resized to fit. To avoid scaling distortion, the minimum size should be as follows:<br>If the logo width > height - at least 107px wide.<br>If logo width > height - at least 65px high<br>Avoid large images (much greater than 256 by 256px) to minimize the page loading time.|
@@ -3413,18 +3413,7 @@ Click on **Create a Payment Handle** above to see six examples of how to create 
                 ],
                 "transactionType": "PAYMENT",
                 "updatedTime": "2019-06-24T14:18:33Z",
-                "statusTime": "2019-06-24T14:18:33Z",
-                "skrill": {
-                    "consumerId": "john.doe@email.com",
-                    "emailSubject": "Skrill Payment",
-                    "emailMessage": "Your Email Text",
-                    "language": "EN",
-                    "logoUrl": "http://www.paysafe.com/icon.jpg",
-                    "recipientDescription": "Recipient Description",
-                    "detail1Text": "Detail 1 text",
-                    "detail1Description": "Detail 1 description",
-                    "descriptor": "Merchant's trading name"
-                }
+                "statusTime": "2019-06-24T14:18:33Z"
             }
 
 + Request Create Payment Handle for VIP Preferred (application/json)
@@ -6730,11 +6719,11 @@ Use the *singleUseCustomerToken* returned in the response in the Payments Checko
 
     + skrill (object) - These are the details of the [skrill account](#skrillobject) used for the request. Only one payment instrument object (e.g., *card* or *skrill*) can be included in the request. Skrill Object is required only for withdrawal request.
         + Properties
-            + `consumerId`:`john.doe@email.com` (string, required) - This is the email address of the customer who is receiving the payment. Required only in case of withdrawal request.
+            + `consumerId`:`john.doe@email.com` (string, required) - This is the email address of the customer who is receiving the payment. Required for withdrawal request.
                 _length<=50_
-            + `emailSubject`:`Skrill payment` (string, required) - This is the Subject line to use in the customer email. Required only in case of withdrawal request.
+            + `emailSubject`:`Skrill payment` (string, required) - This is the Subject line to use in the customer email. Required for withdrawal request.
                 _length<=30_
-            + `emailMessage`:`Email text` (string, required) - This is the message to use in the customer email. Required only in case of withdrawal request.
+            + `emailMessage`:`Email text` (string, required) - This is the message to use in the customer email. Required for withdrawal request.
                 _length<=50_
             + `recipientDescription`:`logo_url_alt_text` (string, optional) - This is a description to be shown on the Skrill payment page in the logo area if there is no *logo\_url* parameter. If no value is submitted and there is no logo, the *pay\_to\_email* value is shown as the recipient of the payment.
                 _length<=30_
