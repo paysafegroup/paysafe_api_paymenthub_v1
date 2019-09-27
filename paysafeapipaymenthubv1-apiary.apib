@@ -26,6 +26,7 @@ The Paysafe Payments API currently supports the following payment methods:
 - VIP Preferred
 - Play+ (Sightline)
 - Skrill
+- Instant ACH (iACH)
 
 
 **Here is a step-by-step guide to get you started:**
@@ -397,13 +398,26 @@ When the merchant wants to process a Skrill payment request, you would do the fo
  6. Use the *paymentHandleToken* returned in the response to process the Payment request.
  7. Once the Payment request is successfully completed, the funds are immediately transferred to the merchant's account.
 
+### Scenario 10: Instant ACH Payment
+
+When the merchant wants to process a Instant ACH payment request, you would do the following:
+ 1. Create a Payment Handle with the *transactionType* parameter set to PAYMENT and the *paymentType* parameter set to INSTANTACH.
+ 2. Since the customer has to complete payment authentication by providing bank credentials, Paysafe returns a response with the following:
+    * The *action* parameter is set to REDIRECT
+    * A *payment_redirect* link points to the Instant ACH redirect URL
+ 3. Redirect the customer to the Instant ACH redirect URL so they can choose their bank account and provide credentials to complete the money transfer.
+ 4. Upon successful customer authentication, the merchant gets notified at the URL specified in the *on_completed* parameter included with their request.
+ 5. At this point, the status of the Payment Handle becomes PAYABLE.
+ 6. Use the *paymentHandleToken* returned in the response to process the Payment request.
+ 7. Once the Payment request is successfully completed, the funds are immediately transferred to the merchant's account.
+ 
 **API Requests to Use:** [Payment Handles](#paymenthandlerequest) + [Payments](#paymentrequest)
 
 <a name="paymentscheckout" title="Payments Checkout"></a>
 # Payments Checkout
 
 Paysafe Payments Checkout is an SDK that allows merchants to 
-- Take payment from credit cards and other alternate payment methods &ndash; like Paysafecash and Paysafecard (or)
+- Take payment from credit cards and other alternate payment methods &ndash; like Paysafecash and Paysafecard etc. (or)
 - Process credit (withdrawals) for customers via payment methods that support credit transactions 
 
 Payments Checkout uses a secure overlay that requires the least demanding level of PCI compliance: SAQ-A. 
@@ -554,7 +568,7 @@ The overlay contains a withdraw button that creates a payment handle for the dat
                 "payoutConfig":{
                     "maximumAmount": 100000
                     },
-                "displayPaymentMethods":["skrill","card"],
+                "displayPaymentMethods":["skrill","card","instantach"],
                 "paymentMethodDetails": {
                     "sightline": {
                         "consumerId": "123456"
@@ -563,6 +577,11 @@ The overlay contains a withdraw button that creates a payment handle for the dat
                         "consumerId": "john.doe@email.com",
                         "emailSubject": "Skrill Payout",
                         "emailMessage": "Your Skrill Payout request has been processed"
+                    },
+                    "instantach": {
+                        "consumerId": "john.doe@email.com",
+                        "emailSubject": "Instant ACH Payout",
+                        "emailMessage": "Your Instant ACH Payout request has been processed"
                     }
                 }
             }, function(instance, error, result) {
@@ -621,8 +640,8 @@ paysafe.checkout.setup(apiKey, options, resultCallback, closeCallback?)
 |singleUseCustomerToken|string|no||This is the *singleUseCustomerToken* that the merchant generated using the [Create a Single-Use Customer Token request](#createcustomersut). Any saved addresses and/or payment details would be displayed in the Checkout.|
 |canEditAmount|boolean|no||If *true*, the customer can edit the amount in the Checkout before clicking Pay. If false, the amount is not editable.|
 |[customer](#customer)|object|no||In case the customer is a first-time user and has no customer profile, the merchant can choose to pass an existing customer profile in the call to create a payment handle.|
-|displayPaymentMethods|Array |no | | If provided, this is the restricted list of payment methods that a customer will see once checkout is launched. <br/> Possibe values are card, paysafecard, paysafecash, sightline, vippreferred, skrill.|
-|[paymentMethodDetails](#paymentmethoddetails)|object|no||Required for Paysafecash, Paysafecard, Skrill, and Play+ (Sightline) payment types.|
+|displayPaymentMethods|Array |no | | If provided, this is the restricted list of payment methods that a customer will see once checkout is launched. <br/> Possibe values are card, paysafecard, paysafecash, sightline, vippreferred, skrill|
+|[paymentMethodDetails](#paymentmethoddetails)|object|conditional||Required for Paysafecash, Paysafecard, Skrill, Play+ (Sightline) payment types.|
 |payout |boolean |no | | If true, **Withdrawal** Checkout screen will be launched. If false, **Payment** Checkout will be launched.<br/> Defaults to false. |
 |[payoutConfig](#payoutconfig) |object | conditional | | Required for withdrawal checkout only. This configuration is used to specify withdrawal limitations. |
 
@@ -2377,6 +2396,34 @@ If you [look up an authorization request](#getauth)  that used the *visaAddition
      }
 ```
 
+## instantach
+
+|Element                 |Type                   |Description|
+|---                     |---                    |---|
+|consumerId              |string<br>`length<=50` |This is the email address of the customer who is making the payment.If provided by merchant, this will be populated in redirected screen for customer to see. |
+|emailSubject            |string<br>`length<=30` |This is the Subject line to use in the customer email. |
+|emailMessage            |string<br>`length<=50` |This is the message to use in the customer email. |
+|recipientDescription    |string<br>`length<=30` |This is a description to be shown on the instantach payment page in the logo area if there is no *logo\_url* parameter. If no value is submitted and there is no logo, the *pay\_to\_email* value is shown as the recipient of the payment.|
+|language                |string<br>`length=2`   |This is the 2-character preferred language code for the consumer (e.g., EN, FR).|
+|logoUrl                 |string                 |This is the URL of the logo that you would like to appear in the top right of the instantach page. The logo must be accessible via HTTPS or it will not be shown. The logo will be resized to fit. To avoid scaling distortion, the minimum size should be as follows:<br>If the logo width > height - at least 107px wide.<br>If logo width > height - at least 65px high<br>Avoid large images (much greater than 256 by 256px) to minimize the page loading time.|
+|detail1Description      |string                 |You can show additional details about the product in the More information section in the header of Quick Checkout.|
+|detail1Text             |string                 |The detail1Text is shown next to the detail1Dscription in the More Information section in the header of the payment form with the other payment details. The detail1Description combined with the detail1Text is shown in the more information field of the merchant account history CSV file.|
+|descriptor              |string<br>`length<=30` |This is the merchant descriptor that will be displayed on the consumer's bank statement.|
+
+```
+     {
+         "consumerId": "john.doe@email.com",
+         "emailSubject": "InstantACH Payment",
+         "emailMessage": "Your Instant ACH Payment request has been processed",
+         "recipientDescription": "logo_url_alt_text",
+         "language": "EN",
+         "logoUrl": "http://www.paysafe.com/icon.jpg",
+         "detail1Description": "Details 1 description",
+         "detail1Text": "Details 1 text",
+         "descriptor": "My company name"
+     }
+```
+
 
 <a name="splitpayobject" title="splitpay Object"></a>
 ## splitpay
@@ -2795,6 +2842,7 @@ Click on **Create a Payment Handle** above to see six examples of how to create 
 * A Payment Handle for a Paysafecash payment
 * A Payment Handle for a Play+ payment
 * A Payment Handle for a Skrill payment
+* A Payment Handle for an Instant ACH payment
 * A Payment Handle for a VIP Preferred payment
 * A Payment Handle for a credit card Standalone Credit
 * A Payment Handle for a credit card Verification
@@ -3368,6 +3416,103 @@ Click on **Create a Payment Handle** above to see six examples of how to create 
             {
                 "id": "64b614b8-753d-4404-b491-2dd8b817c40b",
                 "paymentType": "SKRILL",
+                "paymentHandleToken": "PHsLl14Tfi4l22gs",
+                "merchantRefNum": " merchantRefNum-321",
+                "currencyCode": "USD",
+                "dupCheck": true,
+                "txnTime": "2019-06-24T14:18:33.000+0000",
+                "billingDetails": {
+                    "street": "100 Queen",
+                    "street2": "Unit 201",
+                    "city": "Toronto",
+                    "zip": "M5H 2N2",
+                    "country": "CA"
+                },
+                "customerIp": "172.0.0.1",
+                "status": "INITIATED",
+                "links": [{
+                    "rel": "redirect_payment",
+                    "href": "https://api.qa.paysafe.com/alternatepayments/v1/redirect?accountId=1010608990&paymentHandleId=64b614b8-753d-4404-b491-2dd8b817c40b&token=eyJhbGciOiJIUzI1NiJ9.eyJhY2QiOiIxMDEwNjA4OTkwIiwicHlkIjoiNjRiNjE0YjgtNzUzZC00NDA0LWI0OTEtMmRkOGI4MTdjNDBiIiwiZXhwIjoxNTYxMzg3NzEzfQ.LGZ8K3yYqR0_J7iNicVCfcmZFIo8xkiX0hg4WpnHm_c"
+                }],
+                "liveMode": true,
+                "usage": "SINGLE_USE",
+                "action": "REDIRECT",
+                "executionMode": "SYNCHRONOUS",
+                "amount": 100,
+                "merchantDescriptor": {
+                    "dynamicDescriptor": "OnlineStore",
+                    "phone": "12345678"
+                },
+                "timeToLiveSeconds": 899,
+                "gatewayResponse": {
+                    "sid": "9e55a0ac44474c2d9f3813d7f65b07c4",
+                    "processor": "SKRILL_QCO"
+                },
+                "returnLinks": [{
+                        "rel": "on_completed",
+                        "href": "https://usgaminggamblig/payment/return/success",
+                        "method": "GET"
+                    },
+                    {
+                        "rel": "on_failed",
+                        "href": "https://usgaminggamblig/payment/return/failed",
+                        "method": "GET"
+                    }
+                ],
+                "transactionType": "PAYMENT",
+                "updatedTime": "2019-06-24T14:18:33Z",
+                "statusTime": "2019-06-24T14:18:33Z"
+            }
+
++ Request Create Payment Handle for InstantACH (application/json)
+
+    + Headers
+
+            Authorization: "Basic YOUR-BASE64-ENCODED-API-KEY"
+            
+    + Body
+
+            {
+                "merchantRefNum": "merchantRefNum-321",
+                "transactionType": "PAYMENT",
+                "paymentType": "INSTANTACH",
+                "amount": 100,
+                "currencyCode": "USD",
+                "customerIp": "172.0.0.1",
+                "billingDetails": {
+                    "nickName": "Home",
+                    "street": "100 Queen",
+                    "street2": "Unit 201",
+                    "city": "Toronto",
+                    "zip": "M5H 2N2",
+                    "country": "CA"
+                },
+                "merchantDescriptor": {
+                    "dynamicDescriptor": "OnlineStore",
+                    "phone": "12345678"
+                },
+                "returnLinks": [{
+                        "rel": "on_completed",
+                        "href": "https://usgaminggamblig/payment/return/success",
+                        "method": "GET"
+                    },
+                    {
+                        "rel": "on_failed",
+                        "href": "https://usgaminggamblig/payment/return/failed",
+                        "method": "GET"
+                    }
+                ]
+            }
+
+
+
++ Response 200 (application/json)
+
+    + Body
+
+            {
+                "id": "64b614b8-753d-4404-b491-2dd8b817c40b",
+                "paymentType": "INSTANTACH",
                 "paymentHandleToken": "PHsLl14Tfi4l22gs",
                 "merchantRefNum": " merchantRefNum-321",
                 "currencyCode": "USD",
@@ -6420,6 +6565,7 @@ Use the *singleUseCustomerToken* returned in the response in the Payments Checko
         + SIGHTLINE
         + SKRILL
         + VIPPREFERRED
+        + INSTANTACH
 + Include Payment Instrument
 + `action`:`NONE` (enum) - This specifies the next step of the user journey once they proceed to the Payment.
     _Read Only_
