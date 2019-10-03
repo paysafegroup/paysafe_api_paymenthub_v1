@@ -508,9 +508,10 @@ The overlay contains a payment button that creates a payment handle for the data
                 }
             }, function(stage, expired) {
                 switch(stage) {
-                    case "BeforePayment": // Handle the scenario
-                    case "DuringPayment": // Handle the scenario
-                    case "AfterPayment": // Handle the scenario
+                    case "PAYMENT_HANDLE_NOT_CREATED": // Handle the scenario
+                    case "PAYMENT_HANDLE_CREATED": // Handle the scenario
+                    case "PAYMENT_HANDLE_REDIRECT": // Handle the scenario
+                    case "PAYMENT_HANDLE_PAYABLE": // Handle the scenario
                     default: // Handle the scenario
                 }
             });
@@ -594,9 +595,10 @@ The overlay contains a withdraw button that creates a payment handle for the dat
                 }
             }, function(stage, expired) {
                 switch(stage) {
-                    case "BeforePayment": // Handle the scenario
-                    case "DuringPayment": // Handle the scenario
-                    case "AfterPayment": // Handle the scenario
+                    case "PAYMENT_HANDLE_NOT_CREATED": // Handle the scenario
+                    case "PAYMENT_HANDLE_CREATED": // Handle the scenario
+                    case "PAYMENT_HANDLE_REDIRECT": // Handle the scenario
+                    case "PAYMENT_HANDLE_PAYABLE": // Handle the scenario
                     default: // Handle the scenario
                 }
             });
@@ -772,7 +774,7 @@ The *closeCallback* contains the following elements.
 
 |Parameter|Type|Required|Description|
 |---------|-------|---------------|-----------|
-|stage|string|yes|Stage during which the Checkout overlay is closed. Possible values are: *BeforePayment*, *DuringPayment*, *AfterPayment*|
+|stage|string|yes|Stage during which the Checkout overlay is closed. Possible values are: *PAYMENT_HANDLE_NOT_CREATED*, *PAYMENT_HANDLE_CREATED*, *PAYMENT_HANDLE_REDIRECT*, *PAYMENT_HANDLE_PAYABLE* <ul><li>PAYMENT_HANDLE_NOT_CREATED: User did not click on the pay button, and did not proceed with the payment.</li><li>PAYMENT_HANDLE_CREATED: User clicked on the pay button, but Payment flow is incomplete.</li><li>PAYMENT_HANDLE_REDIRECT: User is redirected for authentication, but payment flow is incomplete.</li><li>PAYMENT_HANDLE_PAYABLE: Payment flow is complete, and payment handle token is returned. You can now proceed with payment using the payment handle token.</li>  </ul>|
 |expired|boolean|yes|Indicates whether the *close* event was triggered after the Checkout expired.|
 |{return}|undefined|false|
 
@@ -945,9 +947,10 @@ The following are the 2 steps are involved.
                 }
             }, function(stage, expired) {
                 switch(stage) {
-                    case "BeforePayment": // Handle the scenario
-                    case "DuringPayment": // Handle the scenario
-                    case "AfterPayment": // Handle the scenario
+                    case "PAYMENT_HANDLE_NOT_CREATED": // Handle the scenario
+                    case "PAYMENT_HANDLE_CREATED": // Handle the scenario
+                    case "PAYMENT_HANDLE_REDIRECT": // Handle the scenario
+                    case "PAYMENT_HANDLE_PAYABLE": // Handle the scenario
                     default: // Handle the scenario
                 }
             });
