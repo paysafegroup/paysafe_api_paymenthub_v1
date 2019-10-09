@@ -406,7 +406,7 @@ When the merchant wants to process a Instant ACH payment request, you would do t
     * The *action* parameter is set to REDIRECT
     * A *payment_redirect* link points to the Instant ACH redirect URL
  3. Redirect the customer to the Instant ACH redirect URL so they can choose their bank account and provide credentials to complete the money transfer.
- > **NOTE:** Instant ACH is only available in the US. If the customer tries to access Instant ACH from an IP address outside of US, they will be denied access.
+ <br/> **NOTE:** Instant ACH is only available in the US. If the customer tries to access Instant ACH from an IP address outside of US, they will be denied access.
  4. Upon successful customer authentication, the merchant gets notified at the URL specified in the *on_completed* parameter included with their request.
  5. At this point, the status of the Payment Handle becomes PAYABLE.
  6. Use the *paymentHandleToken* returned in the response to process the Payment request.
