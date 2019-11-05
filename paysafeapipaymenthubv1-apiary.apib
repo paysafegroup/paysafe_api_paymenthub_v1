@@ -136,7 +136,7 @@ When you create the payment handle, you can include information like the credit 
 
 When you create the Payment Handle, Paysafe returns a *paymentHandleToken* in the response. That token represents all the customer payment information you need to include in, for example, a [credit card payment request](#paymentrequest).
 
-You have to have to create a separate Payment Handle for each transaction type/payment type combination you need to use &ndash; e.g., one for credit card Payments, one for credit card Standalone Credits,  etc. 
+You have to create a separate Payment Handle for each transaction type/payment type combination you need to use &ndash; e.g., one for credit card Payments, one for credit card Standalone Credits,  etc. 
 Payment Handles typically have a lifespan of 15 minutes and can be used only once.
 
 ### Some Important Parameters
@@ -229,7 +229,7 @@ The following request types are supported:
 
 |Endpoint URL                                   |Description                            |Action |
 |---                                            |---                                    |---    |
-|/paymentmethods                                |Look Up Payment Methods for a Merchant |POST   |
+|/paymentmethods                                |Look Up Payment Methods for a Merchant |GET   |
 |/paymenthandles                                |Create a Customer Payment Handle       |POST   |
 |/paymenthandles/{payment_handle_id}            |Look Up a Payment Handle               |GET    |
 |/verifications                                 |Verify a Card                          |POST   |
@@ -418,7 +418,7 @@ When the merchant wants to process a Instant ACH payment request, you would do t
 # Payments Checkout
 
 Paysafe Payments Checkout is an SDK that allows merchants to 
-- Take payment from credit cards and other alternate payment methods &ndash; like Paysafecash and Paysafecard etc. (or)
+- Take payment from credit cards and other alternate payment methods &ndash; like Paysafecash, Paysafecard, Skrill, Instant ACH etc. (or)
 - Process credit (withdrawals) for customers via payment methods that support credit transactions 
 
 Payments Checkout uses a secure overlay that requires the least demanding level of PCI compliance: SAQ-A. 
@@ -444,7 +444,7 @@ You need to include it in your HTML form by adding a `<script>` element in eithe
 
 ## Example Payment Form
 
-The following code sample shows a minimal Paysafe Checkout example for card payments that creates a payment overlay for the user to enter their card number, expiry date, and CVV. 
+The following code sample shows a minimal Paysafe Checkout example that creates a payment overlay for the user.
 The overlay contains a payment button that creates a payment handle for the data entered by the user and displays the payment handle token (if successful) in the browser console.
 
 ```html
@@ -523,9 +523,8 @@ The overlay contains a payment button that creates a payment handle for the data
 
 ## Example Withdrawal Form
 
-The following code sample shows a minimal Paysafe Checkout example for Card and Play+ withdrawal that creates a payment overlay for the user to enter their card number, expiry date, and CVV. 
+The following code sample shows a minimal Paysafe Checkout example that creates a payment overlay for the user.
 The overlay contains a withdraw button that creates a payment handle for the data entered by the user and displays the payment handle token (if successful) in the browser console.
-
 ```html
 <html>
     <head>
@@ -577,6 +576,7 @@ The overlay contains a withdraw button that creates a payment handle for the dat
                     },
                     "skrill": {
                         "consumerId": "john.doe@email.com",
+                        "paymentId": "3aeb9c63-6386-46a3-9f8e-f452e722228a",
                         "emailSubject": "Skrill Payout",
                         "emailMessage": "Your Skrill Payout request has been processed"
                     },
@@ -643,8 +643,8 @@ paysafe.checkout.setup(apiKey, options, resultCallback, closeCallback?)
 |singleUseCustomerToken|string|no||This is the *singleUseCustomerToken* that the merchant generated using the [Create a Single-Use Customer Token request](#createcustomersut). Any saved addresses and/or payment details would be displayed in the Checkout.|
 |canEditAmount|boolean|no||If *true*, the customer can edit the amount in the Checkout before clicking Pay. If false, the amount is not editable.|
 |[customer](#customer)|object|no||In case the customer is a first-time user and has no customer profile, the merchant can choose to pass an existing customer profile in the call to create a payment handle.|
-|displayPaymentMethods|Array |no | | If provided, this is the restricted list of payment methods that a customer will see once checkout is launched. <br/> Possibe values are card, paysafecard, paysafecash, sightline, vippreferred, skrill|
-|[paymentMethodDetails](#paymentmethoddetails)|object|conditional||Required for Paysafecash, Paysafecard, Skrill, Play+ (Sightline) payment types.|
+|displayPaymentMethods|Array |no | | If provided, this is the restricted list of payment methods that a customer will see once checkout is launched. <br/> Possibe values are card, paysafecard, paysafecash, sightline, vippreferred, skrill, instantach|
+|[paymentMethodDetails](#paymentmethoddetails)|object|conditional||Required for Paysafecash, Paysafecard, Skrill, Instant ACH, Play+ (Sightline) payment types.|
 |payout |boolean |no | | If true, **Withdrawal** Checkout screen will be launched. If false, **Payment** Checkout will be launched.<br/> Defaults to false. |
 |[payoutConfig](#payoutconfig) |object | conditional | | Required for withdrawal checkout only. This configuration is used to specify withdrawal limitations. |
 
@@ -685,6 +685,7 @@ paysafe.checkout.setup(apiKey, options, resultCallback, closeCallback?)
 |[paysafecard](#paysafecard)|object|Conditional||Required for Paysafecard payment/withdrawal.|
 |[paysafecash](#paysafecash)|object|Conditional||Required for Paysafecash payment/withdrawal.|
 |[skrill](#skrill)          |object|Conditional||Required for Skrill withdrawal only. |
+|[instantach](#instantach)  |object|Conditional||Required for Instant ACH withdrawal only. |
 |[sightline](#sightline)    |object|Conditional||Required for Play+ (Sightline) payment/withdrawal. |
 
 <a name="payoutconfig"></a>
@@ -721,6 +722,21 @@ paysafe.checkout.setup(apiKey, options, resultCallback, closeCallback?)
 |recipientDescription    |string|no |`length<=30` |A description to be shown on the Skrill payment page in the logo area if there is no *logo\_url* parameter. If no value is submitted and there is no logo, the *pay\_to\_email* value is shown as the recipient of the payment.|
 |language                |string|no |`length=2`   |The 2-character preferred language code for the consumer (e.g., EN, FR).|
 |logoUrl                 |string|no |             |The URL of the logo which you would like to appear in the top right of the Skrill page. The logo must be accessible via HTTPS or it will not be shown. The logo will be resized to fit. To avoid scaling distortion, the minimum size should be as follows:<br>If the logo width > height - at least 107px wide.<br>If logo width > height - at least 65px high<br>Avoid large images (much greater than 256 by 256px) to minimize the page loading time.|
+|detail1Description      |string|no |             |You can show additional details about the product in the More information section in the header of Quick Checkout.|
+|detail1Text             |string|no |             |The detail1Text is shown next to the detail1Description in the More Information section in the header of the payment form with the other payment details. The detail1Description combined with the detail1Text is shown in the more information field of the merchant account history CSV file.|
+The Paysafe Checkout is displayed when the configuration provided in *options* is correctly validated.
+
+<a name="instantach"></a>
+**instantach**
+|Parameter|Type|Required|Validations|Description|
+|---------|-------|---------------|-----------|------------------|
+|consumerId              |string|yes|`length<=50` |This is the consumer's Instant ACH email ID to be paid. Required for withdrawal checkout. Merchant has to have this stored prior when consumer made a Instant ACH payment.|
+|paymentId               |string|yes|`length<=36` |This is the ID returned in the response to a prior Payment that the customer made using Instant ACH. Required for withdrawal checkout.|
+|emailSubject            |string|yes|`length<=30` |This is the Subject line to use in the customer email.Required for withdrawal checkout.|
+|emailMessage            |string|yes|`length<=50` |This is the message to use in the customer email.Required for withdrawal checkout.|
+|recipientDescription    |string|no |`length<=30` |A description to be shown on the Instant ACH payment page in the logo area if there is no *logo\_url* parameter. If no value is submitted and there is no logo, the *pay\_to\_email* value is shown as the recipient of the payment.|
+|language                |string|no |`length=2`   |The 2-character preferred language code for the consumer (e.g., EN, FR).|
+|logoUrl                 |string|no |             |The URL of the logo which you would like to appear in the top right of the Instant ACH page. The logo must be accessible via HTTPS or it will not be shown. The logo will be resized to fit. To avoid scaling distortion, the minimum size should be as follows:<br>If the logo width > height - at least 107px wide.<br>If logo width > height - at least 65px high<br>Avoid large images (much greater than 256 by 256px) to minimize the page loading time.|
 |detail1Description      |string|no |             |You can show additional details about the product in the More information section in the header of Quick Checkout.|
 |detail1Text             |string|no |             |The detail1Text is shown next to the detail1Dscription in the More Information section in the header of the payment form with the other payment details. The detail1Description combined with the detail1Text is shown in the more information field of the merchant account history CSV file.|
 The Paysafe Checkout is displayed when the configuration provided in *options* is correctly validated.
@@ -2405,6 +2421,7 @@ If you [look up an authorization request](#getauth)  that used the *visaAddition
 |Element                 |Type                   |Description|
 |---                     |---                    |---|
 |consumerId              |string<br>`length<=50` |This is the email address of the customer who is making the payment.If provided by merchant, this will be populated in redirected screen for customer to see. |
+|paymentId               |string|yes|`length<=36`|This is the ID returned in the response to a prior Payment that the customer made using Instant ACH. Required for withdrawal checkout.|
 |emailSubject            |string<br>`length<=30` |This is the Subject line to use in the customer email. |
 |emailMessage            |string<br>`length<=50` |This is the message to use in the customer email. |
 |recipientDescription    |string<br>`length<=30` |This is a description to be shown on the instantach payment page in the logo area if there is no *logo\_url* parameter. If no value is submitted and there is no logo, the *pay\_to\_email* value is shown as the recipient of the payment.|
@@ -2417,6 +2434,7 @@ If you [look up an authorization request](#getauth)  that used the *visaAddition
 ```
      {
          "consumerId": "john.doe@email.com",
+         "paymentId": "3aeb9c63-6386-46a3-9f8e-f452e722228a",
          "emailSubject": "InstantACH Payment",
          "emailMessage": "Your Instant ACH Payment request has been processed",
          "recipientDescription": "logo_url_alt_text",
@@ -6527,6 +6545,7 @@ Use the *singleUseCustomerToken* returned in the response in the Payments Checko
             + PAYSAFECARD
             + SIGHTLINE
             + SKRILL
+            + INSTANTACH
             + VIPPREFERRED
     + currencyCode:`USD` (string) - This is the [currency of the merchant account](#currencycodes), e.g., USD or CAD.
         _Read Only, max=3_
@@ -6568,6 +6587,7 @@ Use the *singleUseCustomerToken* returned in the response in the Payments Checko
         + PAYSAFECARD
         + SIGHTLINE
         + SKRILL
+        + INSTANTACH
         + VIPPREFERRED
         + INSTANTACH
 + Include Payment Instrument
@@ -6779,6 +6799,7 @@ Use the *singleUseCustomerToken* returned in the response in the Payments Checko
             + PAYSAFECARD
             + SIGHTLINE
             + SKRILL
+            + INSTANTACH
             + VIPPREFERRED
     + Include Payment Instrument
     + `action`: (enum) - This specifies the next step of the user journey once they proceed to the Payment.
@@ -6883,6 +6904,24 @@ Use the *singleUseCustomerToken* returned in the response in the Payments Checko
             + `detail1Description`: `Details 1 description` (string, optional) - You can show additional details about the product in the More information section in the header of Quick Checkout.
             + `detail1Text`:`Details 1 text` (string, optional) - The detail1Text is shown next to the detail1Dscription in the More Information section in the header of the payment form with the other payment details. The detail1Description combined with the detail1Text is shown in the more information field of the merchant account history CSV file.
             + `descriptor`:`Merchant's trading name` (string, optional) - This is the merchant descriptor that will be displayed on the consumer's bank statement.
+    
+    + instantach (object) - These are the details of the [instantach account](#instantachobject) used for the request. Only one payment instrument object (e.g., *card* or *instantach*) can be included in the request. instantach Object is required only for withdrawal request.
+        + Properties
+            + `consumerId`:`john.doe@email.com` (string, required) - This is the email address of the customer who is receiving the payment. Required for withdrawal request.
+                _length<=50_
+            + `paymentId` :`3aeb9c63-6386-46a3-9f8e-f452e722228a`(string, required) - This is the ID returned in the response to a prior Payment that the customer made using Instant ACH.
+            + `emailSubject`:`Instant ACH payment` (string, required) - This is the Subject line to use in the customer email. Required for withdrawal request.
+                _length<=30_
+            + `emailMessage`:`Email text` (string, required) - This is the message to use in the customer email. Required for withdrawal request.
+                _length<=50_
+            + `recipientDescription`:`logo_url_alt_text` (string, optional) - This is a description to be shown on the Instant ACH payment page in the logo area if there is no *logo\_url* parameter. If no value is submitted and there is no logo, the *pay\_to\_email* value is shown as the recipient of the payment.
+                _length<=30_
+            + `language`:`EN` (string, optional) - This is the 2-character preferred language code for the consumer (e.g., EN, FR).
+                _length=2_
+            + `logoUrl`:`http://www.yoursite.com/icon.jpg` (string, optional) - This is the URL of the logo that you would like to appear in the top right of the Instant ACH page. The logo must be accessible via HTTPS or it will not be shown. The logo will be resized to fit.
+            + `detail1Description`: `Details 1 description` (string, optional) - You can show additional details about the product in the More information section in the header of Quick Checkout.
+            + `detail1Text`:`Details 1 text` (string, optional) - The detail1Text is shown next to the detail1Dscription in the More Information section in the header of the payment form with the other payment details. The detail1Description combined with the detail1Text is shown in the more information field of the merchant account history CSV file.
+            + `descriptor`:`Merchant's trading name` (string, optional) - This is the merchant descriptor that will be displayed on the consumer's bank statement.
             
     + sightline (object) - These are the details of the [Play+ account](#sightlineobject) used for the request. Only one payment instrument object (e.g., *card* or *sightline*) can be included in the request.
         + Properties
@@ -6927,6 +6966,7 @@ Use the *singleUseCustomerToken* returned in the response in the Payments Checko
         + PAYSAFECARD
         + SIGHTLINE
         + SKRILL
+        + INSTANTACH
         + VIPPREFERRED
 + `status`: (enum) - This is the status of the transaction request.
     _Read Only_
