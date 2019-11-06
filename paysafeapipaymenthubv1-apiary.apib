@@ -4716,7 +4716,7 @@ Click on **Get Refunds Using Merchant Reference Number** above to see how to loo
 
 ## Standalone Credits [/v1/standalonecredits]
 
-A Standalone Credit request allows you to issue credits to cardholders without requiring a previous *settlement_id*.
+Standalone Credits allow merchants to issue credits to cardholders without requiring a previous Payment/Settlement.
 
 **Note:** If your merchant category code (MCC) is listed as able to [process Original Credits](#originalcreditrequest), you must not use Standalone Credits.
 
@@ -4870,19 +4870,22 @@ Click on **Get Standalone Credit Using Merchant Reference Number** above to see 
 
 ## Original Credits [/v1/originalcredits]
 
-An Original Credit request allows you to issue credits to cardholders without requiring a previous *settlement_id*.
+Original Credits allow merchants with specific merchant category codes (MCCs) to issue winnings as credits to cardholders, without requiring a previous Payment/Settlement.
 
-Only merchants with the following MCCs can process Original Credits:
+**Note:** Acquirers and processors do not necessarily support all available MCCs; before integrating, you should contact [Integration Support](https://developer.paysafe.com/en/resources-and-support/contact-us/) for details.
+
+Worldpay Inc. (formerly Vantiv) supports Original Credit transactions with the following MCCs:
 <a name="originalcreditmccs" title="Orignal Credit MCCs"></a>
- * 4829
- * 6012
- * 6051
- * 6211
- * 6540
- * 7299
+
+ * 5816
+ * 7800
+ * 7801
+ * 7802
+ * 7994
+
+Original Credit transfers are supported for non-Worldpay Inc. merchants with the following MCCs:
  * 7994
  * 7995
- * 8999
 
 ### Process Original Credit [POST]
 <a name="originalcreditrequest" title="Process Original Credit"></a>
