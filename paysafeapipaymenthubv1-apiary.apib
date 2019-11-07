@@ -1927,6 +1927,35 @@ This is a read-only raw response returned by an acquirer.
 | cvvVerification    | enum   | This is the response to the cvv submitted with the transaction request. Possible values are:<ul><li>MATCH</li><li>NO_MATCH</li><li>NO_MATCH</li><li>NOT_PROCESSED</li><li>UNKNOWN</li></ul> |
 | cvv2Result         | string | This is the raw cvv2 result code.                                                                   |
 
+## instantach
+
+|Element                 |Type                   |Description|
+|---                     |---                    |---|
+|consumerId              |string<br>`length<=50` |This is the email address of the customer who is making the payment.If provided by merchant, this will be populated in redirected screen for customer to see. |
+|paymentId               |string<br>`length<=36` |This is the ID returned in the response to a prior Payment that the customer made using Instant ACH. Required for withdrawal checkout.|
+|emailSubject            |string<br>`length<=30` |This is the Subject line to use in the customer email. |
+|emailMessage            |string<br>`length<=50` |This is the message to use in the customer email. |
+|recipientDescription    |string<br>`length<=30` |This is a description to be shown on the instantach payment page in the logo area if there is no *logo\_url* parameter. If no value is submitted and there is no logo, the *pay\_to\_email* value is shown as the recipient of the payment.|
+|language                |string<br>`length=2`   |This is the 2-character preferred language code for the consumer (e.g., EN, FR).|
+|logoUrl                 |string                 |This is the URL of the logo that you would like to appear in the top right of the instantach page. The logo must be accessible via HTTPS or it will not be shown. The logo will be resized to fit. To avoid scaling distortion, the minimum size should be as follows:<br>If the logo width > height - at least 107px wide.<br>If logo width > height - at least 65px high<br>Avoid large images (much greater than 256 by 256px) to minimize the page loading time.|
+|detail1Description      |string                 |You can show additional details about the product in the More information section in the header of Quick Checkout.|
+|detail1Text             |string                 |The detail1Text is shown next to the detail1Description in the More Information section in the header of the payment form with the other payment details. The detail1Description combined with the detail1Text is shown in the more information field of the merchant account history CSV file.|
+|descriptor              |string<br>`length<=30` |This is the merchant descriptor that will be displayed on the consumer's bank statement.|
+
+```
+     {
+         "consumerId": "john.doe@email.com",
+         "paymentId": "3aeb9c63-6386-46a3-9f8e-f452e722228a",
+         "emailSubject": "InstantACH Payment",
+         "emailMessage": "Your Instant ACH Payment request has been processed",
+         "recipientDescription": "logo_url_alt_text",
+         "language": "EN",
+         "logoUrl": "http://www.paysafe.com/icon.jpg",
+         "detail1Description": "Details 1 description",
+         "detail1Text": "Details 1 text",
+         "descriptor": "My company name"
+     }
+```
 <a name="level2level3object" title="level2level3 Object"></a>
 ## level2level3
 
@@ -2407,36 +2436,6 @@ If you [look up an authorization request](#getauth)  that used the *visaAddition
          "consumerId": "john.doe@email.com",
          "emailSubject": "Skrill Payout",
          "emailMessage": "Your Skrill Payout request has been processed",
-         "recipientDescription": "logo_url_alt_text",
-         "language": "EN",
-         "logoUrl": "http://www.paysafe.com/icon.jpg",
-         "detail1Description": "Details 1 description",
-         "detail1Text": "Details 1 text",
-         "descriptor": "My company name"
-     }
-```
-
-## instantach
-
-|Element                 |Type                   |Description|
-|---                     |---                    |---|
-|consumerId              |string<br>`length<=50` |This is the email address of the customer who is making the payment.If provided by merchant, this will be populated in redirected screen for customer to see. |
-|paymentId               |string<br>`length<=36` |This is the ID returned in the response to a prior Payment that the customer made using Instant ACH. Required for withdrawal checkout.|
-|emailSubject            |string<br>`length<=30` |This is the Subject line to use in the customer email. |
-|emailMessage            |string<br>`length<=50` |This is the message to use in the customer email. |
-|recipientDescription    |string<br>`length<=30` |This is a description to be shown on the instantach payment page in the logo area if there is no *logo\_url* parameter. If no value is submitted and there is no logo, the *pay\_to\_email* value is shown as the recipient of the payment.|
-|language                |string<br>`length=2`   |This is the 2-character preferred language code for the consumer (e.g., EN, FR).|
-|logoUrl                 |string                 |This is the URL of the logo that you would like to appear in the top right of the instantach page. The logo must be accessible via HTTPS or it will not be shown. The logo will be resized to fit. To avoid scaling distortion, the minimum size should be as follows:<br>If the logo width > height - at least 107px wide.<br>If logo width > height - at least 65px high<br>Avoid large images (much greater than 256 by 256px) to minimize the page loading time.|
-|detail1Description      |string                 |You can show additional details about the product in the More information section in the header of Quick Checkout.|
-|detail1Text             |string                 |The detail1Text is shown next to the detail1Description in the More Information section in the header of the payment form with the other payment details. The detail1Description combined with the detail1Text is shown in the more information field of the merchant account history CSV file.|
-|descriptor              |string<br>`length<=30` |This is the merchant descriptor that will be displayed on the consumer's bank statement.|
-
-```
-     {
-         "consumerId": "john.doe@email.com",
-         "paymentId": "3aeb9c63-6386-46a3-9f8e-f452e722228a",
-         "emailSubject": "InstantACH Payment",
-         "emailMessage": "Your Instant ACH Payment request has been processed",
          "recipientDescription": "logo_url_alt_text",
          "language": "EN",
          "logoUrl": "http://www.paysafe.com/icon.jpg",
