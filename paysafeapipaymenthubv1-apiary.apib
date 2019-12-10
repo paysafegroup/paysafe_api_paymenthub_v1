@@ -564,8 +564,8 @@ The overlay contains a withdraw button that creates a payment handle for the dat
                 },
                 "environment": "TEST",
                 "merchantRefNum": "1559900597607",
-                "canEditAmount": "true",
-                "payout":"true", 
+                "canEditAmount": true,
+                "payout": true, 
                 "payoutConfig":{
                     "maximumAmount": 100000
                     },
@@ -2102,7 +2102,7 @@ This is an authorization that is approved for an amount lower than the requested
 ```apib
 {
     "partialAuth": {
-        "requested": "true",
+        "requested": true,
         "amountDue": "1000",
         "originalAmount": "2000"
     }
