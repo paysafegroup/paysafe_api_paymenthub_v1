@@ -1,0 +1,2738 @@
+FORMAT: 1A
+HOST: https://api.test.paysafe.com/customeridentification/
+
+# Paysafe Customer Identity API
+
+# Release Notes
+
+| Version   | Date           | Details |
+|---        |---             |---      |
+| 1.0       | November 2018  | <ul><li>Document Release</li></ul>     |
+
+# Overview
+
+The Paysafe Customer Identity API allows merchants to perform KYC (know your customer) Customer Identity checks on their customers with a single request to the API. [Click here to see an overview](https://developer.paysafe.com/en/additional-documentation/customer-identity-checks/getting-started/introduction-to-the-paysafe-customer-identity-api//) of how this API works.
+
+
+<a name="apikey" title="Authentication"></a>
+# Authentication
+
+In order for you to use the Paysafe REST API, Paysafe must first set you up on their system and provide you with an API key. Your API key looks something like this:
+
+  * Key Username – MerchantXYZ
+  * Key Password – B-tst1-0-51ed39e4-312d02345d3f123120881dff9bb4020a89e8ac44cdfdcecd702151182fdc952272661d290ab2e5849e31bb03deede7e
+
+Note that this is not the same as your Merchant Back Office username and password.
+The case-sensitive API key is sent using HTTP Basic Authentication. To use HTTP Basic Authentication, you must send the API key credentials using the Authorization header with every request. The Authorization header is constructed as follows:
+
+  1. The Key Username and Key Password are combined into a string separated by a colon, e.g.,“Key Username:Key Password”.
+  2. The resulting string literal is then encoded using Base64.
+  3. The authorization method and a space (i.e., “Basic”) are then put before the encoded string.
+
+For example, using the Key Username and Password examples above, the header is formed as follows:
+
+``Authorization: Basic
+TWVyY2hhbnRYWVo6Qi10c3QxLTAtNTFlZDM5ZTQtMzEyZDAyMzQ1ZDNmMTIzMTIwODgxZGZmOWJiNDAyMGE4OWU4YWM0NGNkZmRjZWNkNzAyMTUxMTgyZmRjOTU yMjcyNjYxZDI5MGFiMmU1ODQ5ZTMxYmIwM2RlZWRlN2U=``
+
+For additional details, please refer to [http://en.wikipedia.org/wiki/Basic_access_authentication](http://en.wikipedia.org/wiki/Basic_access_authentication).
+
+  **Note:** Your Production API key will be different from your Test API key. Contact your account manager for details. You must keep your API keys safe and ensure that it is used appropriately for your needs.
+
+# URLs 
+
+##  Test URL
+In order to test your integration with Paysafe, use the following Test URL:
+
+`https://api.test.paysafe.com`
+
+For example:
+
+`https://api.test.paysafe.com/customeridentification/v1/identityprofiles`
+
+## Production URL
+In order to process live requests with Paysafe, use the following Production URL:
+
+`https://api.paysafe.com`
+
+For example:
+
+`https://api.paysafe.com/customeridentification/v1/identityprofiles`
+
+<a name="globalinvalidcharacters" title="Global Invalid Characters"></a>
+# Global Invalid Characters
+
+You must not include any of the characters in the following table as values in any of your request parameters. If you do, your request will result in an error.
+
+|    Character    |    HEX    |    Description                     |
+|-----------------|-----------|------------------------------------|
+| "               | 22        | Double quotes (or speech marks)    |
+| ;               | 3B        | Semicolon                          |
+| ^               | 5E        | Caret, circumflex                  |
+| *               | 2A        | Asterisk                           |
+| <               | 3C        | Less than (or open angled bracket) |
+| /               | 2F        | Slash or divide                    |
+| [               | 5B        | Opening bracket                    |
+| ]               | 5D        | Closing bracket                    |
+| \               | 5C        | Backslash                          |
+
+# API
+
+The Customer Identity API allows merchants to process KYC (know your customer) Customer Identity checks on their customers using the REST protocol. The protocol uses JSON for all requests and responses. The following request types are supported:
+
+  * [Customer Identity Checks](#riskcheckrequest)
+  * [Rerun Failed Customer Identity Checks](#rerunriskcheckrequest)
+  
+**API Endpoints** 
+
+ - `https://api.paysafe.com/customeridentification/v1/identityprofiles`
+ - `https://api.paysafe.com/customeridentification/v1/identityprofiles/customer_identity_id/rerunfailedchecks`
+
+**Resource Patterns**
+
+|Endpoint URL                                       |Description                            |Action |
+|---                                                |---                                    |---    |
+|/identityprofiles                                      |Run a Customer Identity Check on a Customer         |POST   |
+|/identityprofiles/{customer_identity_id}/rerunfailedchecks  |Rerun a Failed Customer Identity Check              |POST   |
+
+
+# Testing Instructions
+
+The Paysafe Test environment can be used to test applications without running transactions through the Production (live) system. Requests processed in the Test environment are not sent to live downstream providers, but through a simulator. Depending on the information provided with the transaction request, the simulator returns either a successful (approved) or failed (declined) response.
+
+With the Paysafe API you can test the following:
+
+* Verify support for all the operation types that you require.
+* Review all common errors as well as errors that may occur for each operation, and ensure your application can handle them.
+* Verify the lengths and format for all attributes you send.
+
+<a name="isostandards" title="ISO Standards"></a>
+# ISO Standards
+
+<a name="provincecodes" title="Province Codes"></a>
+## Province Codes
+
+|Province               |Code   |
+|---                    |---    |
+|Alberta                |AB     |
+|British Columbia       |BC     |
+|Manitoba               |MB     |
+|New Brunswick          |NB     |
+|Newfoundland           |NL     |
+|Nova Scotia            |NS     |
+|Northwest Territories  |NT     |
+|Nunavut                |NU     |
+|Ontario                |ON     |
+|Prince Edward Island   |PE     |
+|Quebec                 |QC     |
+|Saskatchewan           |SK     |
+|Yukon                  |YT     |
+
+<a name="statecodes" title="State Codes"></a>
+## State Codes
+
+|State                  |Code   |
+|---                    |---    |
+|Alabama                |AL     |
+|Alaska                 |AK     |
+|American Samoa         |AS     |
+|Arizona                |AZ     |
+|Arkansas               |AR     |
+|Armed Forces Americas  |AA     |
+|Armed Forces Europe    |AE     |
+|Armed Forces Pacific   |AP     |
+|California             |CA     |
+|Colorado               |CO     |
+|Connecticut            |CT     |
+|Delaware               |DE     |
+|District of Columbia   |DC     |
+|Florida                |FL     |
+|Georgia                |GA     |
+|Guam                   |GU     |
+|Hawaii                 |HI     |
+|Idaho                  |ID     |
+|Illinois               |IL     |
+|Indiana                |IN     |
+|International          |IT     |
+|Iowa                   |IA     |
+|Kansas                 |KS     |
+|Kentucky               |KY     |
+|Louisiana              |LA     |
+|Maine                  |ME     |
+|Maryland               |MD     |
+|Massachusetts          |MA     |
+|Michigan               |MI     |
+|Minnesota              |MN     |
+|Mississippi            |MS     |
+|Missouri               |MO     |
+|Montana                |MT     |
+|Nebraska               |NE     |
+|Nevada                 |NV     |
+|New Hampshire          |NH     |
+|New Jersey             |NJ     |
+|New Mexico             |NM     |
+|New York               |NY     |
+|North Carolina         |NC     |
+|North Dakota           |ND     |
+|Northern Mariana Is.   |MP     |
+|Ohio                   |OH     |
+|Oklahoma               |OK     |
+|Oregon                 |OR     |
+|Palau                  |PW     |
+|Pennsylvania           |PA     |
+|Puerto Rico            |PR     |
+|Rhode Island           |RI     |
+|South Carolina         |SC     |
+|South Dakota           |SD     |
+|Tennessee              |TN     |
+|Texas                  |TX     |
+|U.S. Virgin Islands    |VI     |
+|United States Federal  |US     |
+|Utah                   |UT     |
+|Vermont                |VT     |
+|Virginia               |VA     |
+|Washington             |WA     |
+|West Virginia          |WV     |
+|Wisconsin              |WI     |
+|Wyoming                |WY     |
+
+
+<a name="countrycodes" title="Country Codes"></a>
+## Country Codes
+| Country                       | Code |
+|---                                |---       |
+| Afghanistan                       | AF |
+| Åland Islands                     | AX |
+| Albania                           | AL |
+| Algeria                           | DZ |
+| American Samoa                    | AS |
+| Andorra                           | AD |
+| Angola                            | AO |
+| Anguilla                          | AI |
+| Antarctica                        | AQ |
+| Antigua and Barbuda               | AG |
+| Argentina                         | AR |
+| Armenia                           | AM |
+| Aruba                             | AW |
+| Australia                         | AU |
+| Austria                           | AT |
+| Azerbaijan                        | AZ |
+| Bahamas                           | BS |
+| Bahrain                           | BH |
+| Bangladesh                        | BD |
+| Barbados                          | BB |
+| Belarus                           | BY |
+| Belgium                           | BE |
+| Belize                            | BZ |
+| Benin                             | BJ |
+| Bermuda                           | BM |
+| Bhutan                            | BT |
+| Bolivia                           | BO |
+| Bonaire, Sint Eustatius and Saba  | BQ |
+| Bosnia and Herzegovina            | BA |
+| Botswana                          | BW |
+| Bouvet Island                     | BV |
+| Brazil                            | BR |
+| British Indian Ocean Territory    | IO |
+| Brunei Darussalam                 | BN |
+| Bulgaria                          | BG |
+| Burkina Faso                      | BF |
+| Burundi                           | BI |
+| Cambodia                          | KH |
+| Cameroon                          | CM |
+| Canada                            | CA |
+| Cape Verde                        | CV |
+| Cayman Islands                    | KY |
+| Central African Republic          | CF |
+| Chad                              | TD |
+| Chile                             | CL |
+| China                             | CN |
+| Christmas Island                  | CX |
+| Cocos (Keeling) Islands           | CC |
+| Colombia                          | CO |
+| Comoros                           | KM |
+| Congo                             | CG |
+| Congo, Democratic Republic of     | CD |
+| Cook Islands                      | CK |
+| Costa Rica                        | CR |
+| Côte D’Ivoire                     | CI |
+| Croatia                           | HR |
+| Cuba                              | CU |
+| Curaçao                           | CW |
+| Cyprus                            | CY |
+| Czech Republic                    | CZ |
+| Denmark                           | DK |
+| Djibouti                          | DJ |
+| Dominica                          | DM |
+| Dominican Republic                | DO |
+| Ecuador                           | EC |
+| Egypt                             | EG |
+| El Salvador                       | SV |
+| Equatorial Guinea                 | GQ |
+| Eritrea                           | ER |
+| Estonia                           | EE |
+| Ethiopia                          | ET |
+| Falkland Islands                  | FK |
+| Faroe Islands                     | FO |
+| Fiji                              | FJ |
+| Finland                           | FI |
+| France                            | FR |
+| French Guiana                     | GF |
+| French Polynesia                  | PF |
+| French Southern Territories       | TF |
+| Gabon                             | GA |
+| Gambia                            | GM |
+| Georgia                           | GE |
+| Germany                           | DE |
+| Ghana                             | GH |
+| Gibraltar                         | GI |
+| Greece                            | GR |
+| Greenland                         | GL |
+| Grenada                           | GD |
+| Guadeloupe                        | GP |
+| Guam                              | GU |
+| Guatemala                         | GT |
+| Guernsey                          | GG |
+| Guinea                            | GN |
+| Guinea-Bissau                     | GW |
+| Guyana                            | GY |
+| Haiti                             | HT |
+| Heard and McDonald Islands        | HM |
+| Honduras                          | HN |
+| Hong Kong                         | HK |
+| Hungary                           | HU |
+| Iceland                           | IS |
+| India                             | IN |
+| Indonesia                         | ID |
+| Iran  (Islamic Republic of)       | IR |
+| Iraq                              | IQ |
+| Ireland                           | IE |
+| Isle of Man                       | IM |
+| Israel                            | IL |
+| Italy                             | IT |
+| Jamaica                           | JM |
+| Japan                             | JP |
+| Jersey                            | JE |
+| Jordan                            | JO |
+| Kazakhstan                        | KZ |
+| Kenya                             | KE |
+| Kiribati                          | KI |
+| Korea, Democratic People’s Republic | KP |
+| Korea, Republic of                | KR |
+| Kuwait                            | KW |
+| Kyrgyzstan                        | KG |
+| Lao People’s Democratic Republic  | LA |
+| Latvia                            | LV |
+| Lebanon                           | LB |
+| Lesotho                           | LS |
+| Liberia                           | LR |
+| Libyan Arab Jamahiriya            | LY |
+| Liechtenstein                     | LI |
+| Lithuania                         | LT |
+| Luxembourg                        | LU |
+| Macau                             | MO |
+| Macedonia                         | MK |
+| Madagascar                        | MG |
+| Malawi                            | MW |
+| Malaysia                          | MY |
+| Maldives                          | MV |
+| Mali                              | ML |
+| Malta                             | MT |
+| Marshall Islands                  | MH |
+| Martinique                        | MQ |
+| Mauritania                        | MR |
+| Mauritius                         | MU |
+| Mayotte                           | YT |
+| Mexico                            | MX |
+| Micronesia, Federated States of   | FM |
+| Moldova, Republic of              | MD |
+| Monaco                            | MC |
+| Mongolia                          | MN |
+| Montenegro                        | ME |
+| Montserrat                        | MS |
+| Morocco                           | MA |
+| Mozambique                        | MZ |
+| Myanmar                           | MM |
+| Namibia                           | NA |
+| Nauru                             | NR |
+| Nepal                             | NP |
+| New Caledonia                     | NC |
+| New Zealand                       | NZ |
+| Nicaragua                         | NI |
+| Niger                             | NE |
+| Nigeria                           | NG |
+| Niue                              | NU |
+| Norfolk Island                    | NF |
+| Northern Mariana Islands          | MP |
+| Norway                            | NO |
+| Oman                              | OM |
+| Pakistan                          | PK |
+| Palau                             | PW |
+| Palestinian Territory, Occupied   | PS |
+| Panama                            | PA |
+| Papua New Guinea                  | PG |
+| Paraguay                          | PY |
+| Peru                              | PE |
+| Philippines                       | PH |
+| Pitcairn                          | PN |
+| Poland                            | PL |
+| Portugal                          | PT |
+| Puerto Rico                       | PR |
+| Qatar                             | QA |
+| Reunion                           | RE |
+| Romania                           | RO |
+| Russian Federation                | RU |
+| Rwanda                            | RW |
+| Saint Barthélemy                  | BL |
+| Saint Helena                      | SH |
+| Saint Kitts and Nevis             | KN |
+| Saint Lucia                       | LC |
+| Saint Martin                      | MF |
+| Saint Vincent and the Grenadines  | VC |
+| Samoa                             | WS |
+| San Marino                        | SM |
+| Sao Tome and Principe             | ST |
+| Saudi Arabia                      | SA |
+| Senegal                           | SN |
+| Serbia                            | RS |
+| Seychelles                        | SC |
+| Sierra Leone                      | SL |
+| Singapore                         | SG |
+| Sint Maarten                      | SX |
+| Slovakia (Slovak Republic)        | SK |
+| Slovenia                          | SI |
+| Solomon Islands                   | SB |
+| Somalia                           | SO |
+| South Africa                      | ZA |
+| South Georgia and the South Sandwich Islands | GS |
+| South Sudan                       | SS |
+| Spain                             | ES |
+| Sri Lanka                         | LK |
+| St. Pierre and Miquelon           | PM |
+| Sudan                             | SD |
+| Suriname                          | SR |
+| Svalbard and Jan Mayen Islands    | SJ |
+| Swaziland                         | SZ |
+| Sweden                            | SE |
+| Switzerland                       | CH |
+| Syrian Arab Republic              | SY |
+| Taiwan                            | TW |
+| Tajikistan                        | TJ |
+| Tanzania, United Republic of      | TZ |
+| Thailand                          | TH |
+| The Netherlands                   | NL |
+| Timor-Leste                       | TL |
+| Togo                              | TG |
+| Tokelau                           | TK |
+| Tonga                             | TO |
+| Trinidad and Tobago               | TT |
+| Tunisia                           | TN |
+| Turkey                            | TR |
+| Turkmenistan                      | TM |
+| Turks and Caicos Islands          | TC |
+| Tuvalu                            | TV |
+| Uganda                            | UG |
+| Ukraine                           | UA |
+| United Arab Emirates              | AE |
+| United Kingdom                    | GB |
+| United States                     | US |
+| United States Minor Outlying Islands | UM |
+| Uruguay                           | UY |
+| Uzbekistan                        | UZ |
+| Vanuatu                           | VU |
+| Vatican City State (Holy See)     | VA |
+| Venezuela                         | VE |
+| Vietnam                           | VN |
+| Virgin Islands (British)          | VG |
+| Virgin Islands (U.S.)             | VI |
+| Wallis and Futuna Islands         | WF |
+| Western Sahara                    | EH |
+| Yemen                             | YE |
+| Zambia                            | ZM |
+| Zimbabwe                          | ZW |
+
+# Complex JSON Objects
+
+<a name="amlassistobject" title="amlassist Object"></a>
+## amlassist
+|Element            |Type                                   |Description    |
+|---                |---                                    |---            |
+|id                 |string <br/>`length=36`                |This is the *amlassist* ID generated for the request, returned in the response.|
+|status             |enum                                   |This is the status from the downstream provider. See the [amlassist Decision Matrix Table](#amlassisttable) for details. |
+|response           |[response](#amlassistresponseobject)   |These are responses from downstream providers. |
+|error              |[error](#errorobject)                  |These are error details in case errors occurred or in the case where *decision* is FAIL/ERROR. |
+
+```apib
+            {
+                "id": "0f1266b9-ce28-4df2-bc3f-d4b746cc1ced",
+                "status": "SUCCESS",
+                "response": {
+                    "isSingleSourceHit": true,
+                    "isDualSourceHit": true,
+                    "decision": "SUCCESS",
+                    "singleSourceDecision": "N",
+                    "dualSourceDecision": "Y",
+                    "isWaterfallProcess": true,
+                    "originOfCreditFile": "CANADA",
+                    "numberOfTrades": 2,
+                    "singleSourceResult": {
+                        "isLastNameMatched": true,
+                        "isFirstNameMatched": true,
+                        "isMiddleNameMatched": true,
+                        "isSuffixNameMatch": false,
+                        "isAddressCivicMatch": true,
+                        "isAddressStreetNameMatch": true,
+                        "isAddressCityMatch": true,
+                        "isAddressPostalCodeMatch": true,
+                        "isAddressProvinceMatch": true,
+                        "isDateOfBirthMatch": false,
+                        "currentAddressReportedDate": "201904",
+                        "dateOfBirthAsReported": "19711105",
+                        "nameAsReported": "KING,SANDRA,MARGOT,JR",
+                        "addressAsReported": "4280,ATLEE AVE,BURNABY,BC,V5G3R6"
+                    },
+                    "dualSourceResult": [{
+                            "isLastNameMatched": true,
+                            "isFirstNameMatched": true,
+                            "isMiddleNameMatched": true,
+                            "isSuffixNameMatch": false,
+                            "isAddressCivicMatch": true,
+                            "isAddressStreetNameMatch": true,
+                            "isAddressCityMatch": true,
+                            "isAddressPostalCodeMatch": true,
+                            "isAddressProvinceMatch": true,
+                            "isDateOfBirthMatch": false,
+                            "isAccountNumberMatch": false,
+                            "isNameAndDobMatch": false,
+                            "isNameAndAddressMatch": true,
+                            "isNameAndAccountMatch": false,
+                            "tradeStatus": "O",
+                            "dateOfBirthAsReported": "19711105",
+                            "memberNumber": "001ON02776",
+                            "dateLastReported": "20190331",
+                            "dateOpened": "20161201",
+                            "institutionName": "S. CARTES DESJARDINS",
+                            "accountNumber": "123456789044431",
+                            "familyName": "DESJARDINS GROUP",
+                            "nameAsReported": "KING,SANDRA,MARGOT,",
+                            "addressAsReported": "4280 ATLEE AVE ,BURNABY,BC,V5G3R6"
+                        },
+                        {
+                            "isLastNameMatched": true,
+                            "isFirstNameMatched": true,
+                            "isMiddleNameMatched": true,
+                            "isSuffixNameMatch": false,
+                            "isAddressCivicMatch": true,
+                            "isAddressStreetNameMatch": true,
+                            "isAddressCityMatch": true,
+                            "isAddressPostalCodeMatch": true,
+                            "isAddressProvinceMatch": true,
+                            "isDateOfBirthMatch": false,
+                            "isAccountNumberMatch": false,
+                            "isNameAndDobMatch": true,
+                            "isNameAndAddressMatch": false,
+                            "isNameAndAccountMatch": false,
+                            "tradeStatus": "O",
+                            "dateOfBirthAsReported": "19711105",
+                            "memberNumber": "481BB01426",
+                            "dateLastReported": "20190331",
+                            "dateOpened": "20161201",
+                            "institutionName": "CIBC",
+                            "accountNumber": "123456789011131",
+                            "familyName": "CANADIAN IMPERIAL BANK-CMMRC",
+                            "nameAsReported": "KING,SANDRA,MARGOT,",
+                            "addressAsReported": "4280 ATLEE AVE ,BURNABY,BC,V5G3R6"
+                        }
+                    ],
+                    "bureauName": "Equifax  inc.",
+                    "dateOfRequest": "2019/04/25 12:00 AM UTC",
+                    "creditFileNumber": "50165927",
+                    "isCreditFileGreaterThanThreeYearsOld": "false",
+                    "verificationTime": "2019/04/25 09:19 PM UTC",
+                    "creditFileCreationDate": "2018/01/01 12:00 AM UTC"
+                }
+            }
+```
+
+<a name="amlassisttable" title="AML Assist Decision Matrix Table"></a>
+### AML Assist Decision Matrix Table
+
+If the downstream provider cannot ascertain the identity of the customer using the single source product, then it will attempt to do so using the dual source product.
+
+|Single Source          |Single Source Decision     | Dual Source           |Dual Source Decision   |Final Status |
+|---                    |---                        |---                    |---                    |---            |
+|Credit file found      |Fail                       |Trade info found       |Fail                   |FAIL           |
+|Credit file found      |Fail                       |Trade info found       |Success                |SUCCESS        |
+|Credit file found      |Success                    |Trade info not found   |Fail                   |SUCCESS        |
+|Credit file not found  |Fail                       |Trade info found       |Fail                   |FAIL           |
+|Credit file not found  |Fail                       |Trade info found       |Success                |SUCCESS        |
+|Credit file not found  |Fail                       |Trade info not found   |Fail                   |FAIL   |   
+
+<a name="amlassistresponseobject" title="AML Assist Response Object"></a>
+## AML Assist Response
+
+This is the raw response from the downstream provider. Paysafe uses this data in part to render the Customer Identity Check decision.
+
+|Element                                |Type           |Description    |
+|---                                    |---            |---            |
+|isSingleSourceHit                      | boolean       | This indicates whether the single source product has been used.|
+|isDualSourceHit                        | boolean       | This indicates whether the dual source product has been used. |
+|decision                               | enum          | This is a decision returned by the provider. Possible values are:<ul><li>SUCCESS</li><li>FAIL</li></ol>  |
+|singleSourceDecision                   | boolean       | This is the result of the decisioning model for the single source product.|
+|dualSourceDecision                     | boolean       | This is the result of the decisioning model for the dual source product. |
+|isWaterfallProcess                     | boolean       | This indicates whether the waterfall process model has been applied. |
+|originOfCreditFile                     | string        | This indicates the country of origin of this credit file. |
+|numberOfTrades                         | number        | This is the number of trades on the credit file. Applicable if dual source has been hit. |
+|singleSourceResult                     |[singleSourceResult](#amlassistsinglesourceresultobject) | This is the raw response from the downstream provider.     |
+|dualSourceResult                       |[dualSourceResult](#amlassistdualsourceresultobject) | This is the raw response from the downstream provider.
+|bureauName                             | string        | This is the bureau name retrieved from the downstream provider output. |
+|dateOfRequest                          | string        | This indicates the date the credit file was requested. |
+|creditFileNumber                       | string        | This is the credit file number received from the downstream provider.  |
+|isCreditFileGreaterThanThreeYearsOld   | boolean       | This indicates whether the credit file is greater than three years old.  |
+|verificationTime                       | dateTime      | This is the time the request was processed. |
+|creditFileCreationDate                 | dateTime      | This is the date the credit file was created. |
+
+```apib
+            {
+                "response": {
+                    "isSingleSourceHit": true,
+                    "isDualSourceHit": true,
+                    "decision": "SUCCESS",
+                    "singleSourceDecision": "N",
+                    "dualSourceDecision": "Y",
+                    "isWaterfallProcess": true,
+                    "originOfCreditFile": "CANADA",
+                    "numberOfTrades": 2,
+                    "singleSourceResult": {
+                        "isLastNameMatched": true,
+                        "isFirstNameMatched": true,
+                        "isMiddleNameMatched": true,
+                        "isSuffixNameMatch": false,
+                        "isAddressCivicMatch": true,
+                        "isAddressStreetNameMatch": true,
+                        "isAddressCityMatch": true,
+                        "isAddressPostalCodeMatch": true,
+                        "isAddressProvinceMatch": true,
+                        "isDateOfBirthMatch": false,
+                        "currentAddressReportedDate": "201904",
+                        "dateOfBirthAsReported": "19711105",
+                        "nameAsReported": "KING,SANDRA,MARGOT,JR",
+                        "addressAsReported": "4280,ATLEE AVE,BURNABY,BC,V5G3R6"
+                    },
+                    "dualSourceResult": [{
+                            "isLastNameMatched": true,
+                            "isFirstNameMatched": true,
+                            "isMiddleNameMatched": true,
+                            "isSuffixNameMatch": false,
+                            "isAddressCivicMatch": true,
+                            "isAddressStreetNameMatch": true,
+                            "isAddressCityMatch": true,
+                            "isAddressPostalCodeMatch": true,
+                            "isAddressProvinceMatch": true,
+                            "isDateOfBirthMatch": false,
+                            "isAccountNumberMatch": false,
+                            "isNameAndDobMatch": false,
+                            "isNameAndAddressMatch": true,
+                            "isNameAndAccountMatch": false,
+                            "tradeStatus": "O",
+                            "dateOfBirthAsReported": "19711105",
+                            "memberNumber": "001ON02776",
+                            "dateLastReported": "20190331",
+                            "dateOpened": "20161201",
+                            "institutionName": "S. CARTES DESJARDINS",
+                            "accountNumber": "123456789044431",
+                            "familyName": "DESJARDINS GROUP",
+                            "nameAsReported": "KING,SANDRA,MARGOT,",
+                            "addressAsReported": "4280 ATLEE AVE ,BURNABY,BC,V5G3R6"
+                        },
+                        {
+                            "isLastNameMatched": true,
+                            "isFirstNameMatched": true,
+                            "isMiddleNameMatched": true,
+                            "isSuffixNameMatch": false,
+                            "isAddressCivicMatch": true,
+                            "isAddressStreetNameMatch": true,
+                            "isAddressCityMatch": true,
+                            "isAddressPostalCodeMatch": true,
+                            "isAddressProvinceMatch": true,
+                            "isDateOfBirthMatch": false,
+                            "isAccountNumberMatch": false,
+                            "isNameAndDobMatch": true,
+                            "isNameAndAddressMatch": false,
+                            "isNameAndAccountMatch": false,
+                            "tradeStatus": "O",
+                            "dateOfBirthAsReported": "19711105",
+                            "memberNumber": "481BB01426",
+                            "dateLastReported": "20190331",
+                            "dateOpened": "20161201",
+                            "institutionName": "CIBC",
+                            "accountNumber": "123456789011131",
+                            "familyName": "CANADIAN IMPERIAL BANK-CMMRC",
+                            "nameAsReported": "KING,SANDRA,MARGOT,",
+                            "addressAsReported": "4280 ATLEE AVE ,BURNABY,BC,V5G3R6"
+                        }
+                    ],
+                    "bureauName": "Equifax  inc.",
+                    "dateOfRequest": "2019/04/25 12:00 AM UTC",
+                    "creditFileNumber": "50165927",
+                    "isCreditFileGreaterThanThreeYearsOld": "false",
+                    "verificationTime": "2019/04/25 09:19 PM UTC",
+                    "creditFileCreationDate": "2018/01/01 12:00 AM UTC"
+                }
+            }
+```
+
+<a name="amlassistsinglesourceresultobject" title="AML Assist Single Source Result Object"></a>
+## singleSourceResult
+
+This is the raw response from the downstream provider. Paysafe uses this data in part to render the Customer Identity Check decision.
+
+|Element                                |Type           |Description    |
+|---                                    |---            |---            |
+|isLastNameMatched                      | boolean       | This indicates whether the last name matched. |
+|isFirstNameMatched                     | boolean       | This indicates whether the first name matched. |
+|isMiddleNameMatched                    | boolean       | This indicates whether the middle name matched. |
+|isSuffixNameMatched                    | boolean       | This indicates whether the suffix name matched. |
+|isAddressCivicMatch                    | boolean       | This indicates whether the civic number of the address matched. |
+|isAddressStreetNameMatch               | boolean       | This indicates whether the address street name matched. |
+|isAddressCityMatch                     | boolean       | This indicates whether the address city matched. |
+|isAddressPostalCodeMatch               | boolean       | This indicates whether the address postal code matched. |
+|isAddressProvinceMatch                 | boolean       | This indicates whether the address province matched. |
+|isDateOfBirthMatch                     | boolean       | This indicates whether the date of birth matched.  |
+|currentAddressReportedDate             | string        | This is the date of the current address retrieved from the downstream provider output. |
+|dateOfBirthAsReported                  | string        | This is the date of birth retrieved from the downstream provider output. |
+|nameAsReported                         | string        | This is the name retrieved from the downstream provider output. |
+|addressAsReported                      | string        | This is the address retrieved from the downstream provider output. |
+
+```apib
+                "isLastNameMatched": "true",
+                "isFirstNameMatched": "true",
+                "isMiddleNameMatched": "true",
+                "isSuffixNameMatched": "true",
+                "isAddressCivicMatch": "true",
+                "isAddressStreetNameMatch": "true",
+                "isAddressCityMatch": "true",
+                "isAddressPostalCodeMatch": "true",
+                "isAddressProvinceMatch": "true",
+                "isDateOfBirthMatch": "true",
+                "currentAddressReportedDate": "201811",
+                "dateOfBirthAsReported": "19711130",
+                "nameAsReported": "SMITH, JANE",
+                "addressAsReported": "11,DORVAL AVE,DORVAL,QC,H3S1G4"
+```
+
+<a name="amlassistdualsourceresultobject" title="AML Assist Dual Source Result Object"></a>
+## dualSourceResult
+
+This is the raw response from the downstream provider. Paysafe uses this data in part to render the Customer Identity Check decision.
+
+|Element                                |Type           |Description    |
+|---                                    |---            |---            |
+|isLastNameMatched                      | boolean       | This indicates whether the last name matched. |
+|isFirstNameMatched                     | boolean       | This indicates whether the first name matched. |
+|isMiddleNameMatched                    | boolean       | This indicates whether the middle name matched. |
+|isSuffixNameMatched                    | boolean       | This indicates whether the suffix name matched. |
+|isAddressCivicMatch                    | boolean       | This indicates whether the civic number of the address matched. |
+|isAddressStreetNameMatch               | boolean       | This indicates whether the address street name matched. |
+|isAddressCityMatch                     | boolean       | This indicates whether the address city matched. |
+|isAddressPostalCodeMatch               | boolean       | This indicates whether the address postal code matched. |
+|isAddressProvinceMatch                 | boolean       | This indicates whether the address province matched. |
+|isDateOfBirthMatch                     | boolean       | This indicates whether the date of birth matched.  |
+|isAccountNumberMatch                   | boolean       | This indicates whether the account number has been matched. |
+|isNameAndDobMatch                      | boolean       | This indicates whether the name and date of birth match. Applicable if dual source has been hit.|
+|isNameAndAddressMatch                  | boolean       | This indicates whether the name and address match. Applicable if dual source has been hit. |
+|isNameAndAccountMatch                  | boolean       | This indicates whether the name and account number match. Applicable if dual source has been hit.|
+|tradeStatus                            | string        | This is the trade status retrieved from the downstream provider. |
+|dateOfBirthAsReported                  | string        | This is the date of birth retrieved from the downstream provider output. |
+|memberNumber                           | string        | This is the member number retrieved from the downstream provider output. |
+|dateLastReported                       | string        | This is the date the credit file was last reported, retrieved from the downstream provider output. |
+|dateOpened                             | string        | This is the date the credit file was opened, retrieved from the downstream provider output. |
+|institutionName                        | string        | This is the institution name, retrieved from the downstream provider output. |
+|accountNumber                          | string        | This is the account name retrieved from the AML Assist output. Applicable if dual source has been hit. |
+|familyName                             | string        | This is the family name retrieved from the AML Assist output. Applicable if dual source has been hit.|
+|nameAsReported                         | string        | This is the name retrieved from the downstream provider output. |
+|addressAsReported                      | string        | This is the address retrieved from the downstream provider output. |
+
+```apib
+            {
+                "isLastNameMatched": "true",
+                "isFirstNameMatched": "true",
+                "isMiddleNameMatched": "true",
+                "isSuffixNameMatched": "true",
+                "isAddressCivicMatch": "true",
+                "isAddressStreetNameMatch": "true",
+                "isAddressCityMatch": "true",
+                "isAddressPostalCodeMatch": "true",
+                "isAddressProvinceMatch": "true",
+                "isDateOfBirthMatch": "true",
+                "isAccountNumberMatch": false,
+                "isNameAndDobMatch": true,
+                "isNameAndAddressMatch": false,
+                "isNameAndAccountMatch": false,
+                "tradeStatus": "O",
+                "dateOfBirthAsReported": "19711130",
+                "memberNumber": "481BB01426",
+                "dateLastReported": "20180901",
+                "dateOpened": "20170802",
+                "institutionName": "CIBC",
+                "accountNumber": "123456789011111",
+                "familyName": "CANADIAN IMPERIAL BANK-CMMRC",
+                "nameAsReported": "SMITH, JANE",
+                "addressAsReported": "11,DORVAL AVE,DORVAL,QC,H3S1G4"
+            }
+```
+
+
+<a name="assessmentcompleteobject" title="assessmentComplete Object"></a>
+## assessmentComplete
+| Element               | Type    | Description                                                       |
+|-----------------------|---------|-------------------------------------------------------------------|
+|reasonCodes            |[reasonCodes](#reasoncodesobject)   | This is an array of reason codes and descriptions from the downstream provider.  |
+
+```apib
+     "assessmentComplete": {
+          "reasonCodes": [
+            {
+              "description": "Credit file located=Adequate match",
+              "code": "51"
+            },
+            {
+              "description": "No Phone record located or poor match score",
+              "code": "60"
+            },
+            {
+              "description": "Supplied address same as the current address in the provider database",
+              "code": "C1"
+            },
+```
+
+<a name="cardobject" title="card Object"></a>
+## card
+
+When providing card information, merchants can provide either card details or a payment token for a customer already created in the system.
+
+|Element            |Type                       |Description                        |
+|---                |---                        |---                                |
+|paymentToken       |string <br/>`length<=80`   |If the payment token is provided, no other card information is necessary. |
+
+**OR**
+
+|Element            |Type                       |Description                        |
+|---                |---                        |---                                |
+|cardNum            |string <br/>`length=8-20`  |This is the card number used for the request. |
+|cardType           |enum                       |This is the type of card used for the request, returned in the response. Possible values are:<br/><ul><li>AM &ndash; American Express</li><li>DI &ndash; Discover</li><li>JC &ndash; JCB</li><li>MC &ndash; Mastercard</li><li>MD &ndash; Maestro</li><li>SO &ndash; Solo</li><li>VI &ndash; Visa</li><li>VD &ndash; Visa Debit</li><li>VE &ndash; Visa Electron</li></ul>
+|cardCategory       |enum                       |This denotes the card category. Possible values are:<ul><li>CREDIT = Credit card</li><li>DEBIT = Debit card</li><li>PREPAID = Prepaid card</li><li>UNKNOWN = BIN not found in database</li></ul>|
+|lastDigits         |string<br/>`length=4`      |This is the last four digits of the card used for the request, returned in the response.|
+|cardExpiry         |[cardExpiry](#cardexpiryobject)|This is the card's expiry date.|
+|holderName         |string<br/> `length=10`    |This is card holder name.|
+|cardBin            |string <br/> `length=6`    |This is card BIN, typically the first six digits| 
+
+```apib
+    {
+    "card": {
+        "cardNum": "4111111111111111",
+        "cardExpiry": {
+            "month": 2,
+            "year": 2019
+        }
+    }
+    }
+```
+
+<a name="cardexpiryobject" title="cardExpiry Object"></a>
+## cardExpiry
+
+|Element                 |Type                   |Description|
+|---                     |---                    |---|
+|month                   |number<br/>`length=2`  |This is the card expiry month. |
+|year                    |number<br/>`length=4`  |This is the card expiry year.|
+
+```apib
+    {
+    "cardExpiry":{
+        "month": "12",
+        "year": "2020"
+    }
+    }
+```
+
+<a name="currentaddressobject" title="currentAddress Object"></a>
+## currentAddress
+
+|Element            |Type                       |Description    |
+|---                |---                        |---       |
+|apartment          |string<br/>`length<=50`    |This is the customer's apartment number, if applicable.|
+|street             |string<br/>`length<=50`    |This is the first line of the customer's street address.|
+|street2            |string<br/>`length<=50`    |This is the second line of the customer's street address, if required.|
+|city               |string<br/>`length<=40`    |This is the city where the address is located.|
+|country            |string<br/>`length=2`      |This is the country where the address is located. See [Country Codes](#countrycodes).|
+|state              |string<br/>`length<=40`    |This is the state/province/region in which the customer lives.<br/>For Canada see [Province Codes](#provincecodes). For the United States see [State Codes](#statecodes). Other countries have no restrictions. |
+|zip                |string<br/>`length<=10`    |This is the zip, postal, or post code of the customer's address.|
+|phone              |string<br/>`length<=40`    |This is the customer's phone number.|
+|monthsAtAddress    |number<br/>`length<=1200`  |This is the number of months the customer has been living at this address.|
+
+```apib
+            {
+              "street":"100 Queen Street West",
+              "street2":"Unit 201",
+              "city":"Toronto",
+              "country":"CA",
+              "state":"ON",
+              "zip":"M5H 2N2",
+              "phone":"647-788-3901",
+              "monthsAtAddress":"20"
+            }
+```
+
+<a name="dateobject" title="Date Object"></a>
+## Date
+|Element            |Type                           |Description    |
+|---                |---                            |---            |
+|year               |number<br/>`length=4 min=1900` |This is the date year.|
+|month              |number<br/>`length=2 max=12`   |This is the date month.|
+|day                |number<br/>`length=2 max=31`   |This is the date day.|
+
+```apib
+            {
+                "year": 1980,
+                "month": 12,
+                "day": 25
+            }
+```
+
+
+<a name="eidcompareobject" title="eidcompare Object"></a>
+## eidcompare
+| Element                   | Type                                      | Description                                                       |
+|---------------------------|---------                                  |-------------------------------------------------------------------|
+|id                         |string <br/>`length=36`                    |This is the *eidCompare* ID generated for the request, returned in the response. |
+|status                     |enum                                       |This is the status from the downstream provider. Possible values are: <ul><li>SUCCESS</li><li>FAIL</li><li>ERROR</li><li>OUTSORT</li><li>SUCCESS_VERIFY</li></ul> |
+|response                   |[response](#eidcompareresponseobject)      |   |
+|error                      |[error](#errorobject)                      | These are error details in case errors occurred or in the case where *decision* is FAIL/ERROR. |
+
+```apib
+    {
+        "id": "0f1266b9-ce28-4df2-bc3f-d4b746cc1ced",
+        "status": "SUCCESS",
+        "response": {
+            "assessmentComplete": {
+                "reasonCodes": [{
+                        "description": "Credit file located=Adequate match",
+                        "code": "51"
+                    },
+                    {
+                        "description": "No Phone record located or poor match score",
+                        "code": "60"
+                    },
+                    {
+                        "description": "Supplied address same as the current address in the provider database",
+                        "code": "C1"
+                    }
+                ],
+                "decision": "Y",
+                "score": 25
+            }
+        }
+    }
+```
+
+
+<a name="eidcompareresponseobject" title="EID Compare Response Object"></a>
+## EID Compare Response
+
+This is the raw response from the downstream provider. Paysafe uses this data in part to render the Customer Identity Check decision.
+
+| Element               | Type    | Description                                                       |
+|-----------------------|---------|-------------------------------------------------------------------|
+|assessmentComplete     |[assessmentComplete](#assessmentcompleteobject)   |This is an array of reason codes from the downstream provider. |
+|decision               |string   |This is the risk decision returned by the downstream provider. |
+|score                  |string   |This is the risk score computed by the downstream provider.   |
+
+```apib
+    {
+    
+        "assessmentComplete": {
+            "reasonCodes": [{
+                    "description": "Credit file located=Adequate match",
+                    "code": "51"
+                },
+                {
+                    "description": "No Phone record located or poor match score",
+                    "code": "60"
+                },
+                {
+                    "description": "Supplied address same as the current address in the provider database",
+                    "code": "C1"
+                }
+            ],
+            "decision": "Y",
+            "score": 25
+        }
+    }
+```
+
+
+<a name="errorobject" title="Error Object"></a>
+## error
+|Element            |Type       |Description       |
+|---                |---        |---               |
+|code               |string     |This is the error code.   |
+|message            |string     |This is a description of the error. Also shown in the X-Application-Status-Code response header.  |
+|details            |string array |This is the detailed error description, if applicable. |
+|fieldErrors        |string array     |If applicable, this is a list of fields that have errors. One or more *field:error* pairs, where *field* is the field name and *error* is the error in the field. |
+
+```apib
+{  
+   "code":"5068",
+   "message":"Either you submitted a request that is missing a mandatory field or the value of a field does not match the format expected.",
+   "details":[
+     "Illegal unquoted character ((CTRL-CHAR, code 10)): has to be escaped using backslash to be included in string value at  [line: 2, column: 61]"
+     ],
+   "fieldErrors":[  
+      {  
+         "field":"locale",
+         "error":"Invalid Locale"
+      }
+   ]
+}
+```
+
+<a name="previousaddressesobject" title="Previous Addresses Object"></a>
+## previousAddresses
+
+**Note:** If *monthsAtAddress* in the [*currentAddress* object](#currentaddressobject) is 24 or less, the Customer Identity Check request will have a greater probability of being successful if a previous address is included.
+
+|Element            |Type                       |Description    |
+|---                |---                        |---       |
+|apartment          |string<br/>`length<=50`    |This is the customer's apartment number, if applicable.|
+|street             |string<br/>`length<=50`    |This is the first line of the customer's street address.|
+|street2            |string<br/>`length<=50`    |This is the second line of the customer's street address, if required.|
+|city               |string<br/>`length<=40`    |This is the city where the address is located.|
+|country            |string<br/>`length=2`      |This is the country where the address is located. See [Country Codes](#countrycodes).|
+|state              |string<br/>`length<=40`    |This is the state/province/region where the address is located.<br/>For Canada see [Province Codes](#provincecodes). For the United States see [State Codes](#statecodes). Other countries have no restrictions. |
+|zip                |string<br/>`length<=10`    |This is the zip, postal, or post code of the customer's address.|
+|phone              |string<br/>`length<=40`    |This is the customer's phone number.|
+|monthsAtAddress    |number<br/>`length<=1200`  |This is the number of months the customer lived at this address.|
+
+```apib
+            {
+              "street":"100 Queen Street West",
+              "street2":"Unit 201",
+              "city":"Toronto",
+              "country":"CA",
+              "state":"ON",
+              "zip":"M5H 2N2",
+              "phone":"647-788-3901",
+              "monthsAtAddress":"30"
+            }
+```
+
+<a name="profileobject" title="Profile Object"></a>
+## profile
+|Element            |Type                               |Description    |
+|---                |---                                |---            |
+|firstName          |string <br/>`length<=80`           |This is the customer’s first name. |
+|middleName         |string <br/>`length<=80`           |This is the customer’s middle name. |
+|lastName           |string <br/>`length<=80`           |This is the customer’s last name. |
+|ssn                |string <br/>`length=9`             |This is the customer's Social Security Number. |
+|sin                |string <br/>`length=9`             |This is the Canadian customer's Social Insurance Number. |
+|ssnLastFour        |string <br/>`length=4`             |This is the last four digits of the customer's Social Security Number, returned in the response. |
+|sinLastFour        |string <br/>`length=4`             |This is the last four digits of the customer's Social Insurance Number, returned in the response. |
+|email              |string<br/>`length<=255`           |This is the customer's email address.|
+|locale             |enum                               |This indicates the language of the profile. Possible values are:<ul><li>en_CA</li><li>fr_CA</li></ul> |
+|currentAddress     |[currentAddress](#currentaddressobject)   |This is the customer's address. |
+|dateOfBirth        |[dateOfBirth](#dateobject)  |This is the customer's date of birth.|
+|previousAddresses  |[previousAddresses](#previousaddressesobject) | This is an array of the customer's previous addresses. <br/>**Note:** If *monthsAtAddress* in the *currentAddress* object is 24 or less, the Customer Identity Check request will have a greater probability of being successful if a previous address is included.|
+
+```apib
+    {
+        "firstName": "John",
+        "lastName": "Smith",
+        "sin": "123456789",
+        "email": "john.smith@myemail.com",
+        "dateOfBirth": {
+            "year": 1980,
+            "month": 12,
+            "day": 25
+        },
+        "currentAddress": {
+            "street": "100 Queen Street West",
+            "street2": "Unit 201",
+            "city": "Toronto",
+            "country": "CA",
+            "state": "ON",
+            "zip": "M5H 2N2",
+            "phone": "647-788-3901",
+            "monthsAtAddress":"20"
+        }
+    }
+```
+
+<a name="providerresponsesobject" title="providerResponses Object"></a>
+## providerResponses
+
+These are raw responses from the downstream providers.
+
+| Element               | Type    | Description                                                       |
+|-----------------------|---------|-------------------------------------------------------------------|
+|amlassist              |[amlassist](#amlassistobject) |                   |
+|eidCompare             |[eidcompare](eidcompareobject)|  |
+
+```apib
+            {
+                "providerResponses": {
+                    "eidCompare": {
+                        "id": "0f1266b9-ce28-4df2-bc3f-d4b746cc1ced",
+                        "status": "SUCCESS",
+                        "response": {
+                            "assessmentComplete": {
+                                "reasonCodes": [{
+                                        "description": "Credit file located=Adequate match",
+                                        "code": "51"
+                                    },
+                                    {
+                                        "description": "No Phone record located or poor match score",
+                                        "code": "60"
+                                    },
+                                    {
+                                        "description": "Supplied address same as the current address in the provider database",
+                                        "code": "C1"
+                                    }
+                                ]
+                            },
+                            "decision": "Y",
+                            "score": 25
+                        }
+                    },
+                    "amlassist": {
+                        "id": "0f1266b9-ce28-4df2-bc3f-d4b746cc1ced",
+                        "status": "SUCCESS",
+                        "response": {
+                            "isSingleSourceHit": true,
+                            "isDualSourceHit": true,
+                            "decision": "SUCCESS",
+                            "singleSourceDecision": "N",
+                            "dualSourceDecision": "Y",
+                            "isWaterfallProcess": true,
+                            "originOfCreditFile": "CANADA",
+                            "numberOfTrades": 2,
+                            "singleSourceResult": {
+                                "isLastNameMatched": true,
+                                "isFirstNameMatched": true,
+                                "isMiddleNameMatched": true,
+                                "isSuffixNameMatch": false,
+                                "isAddressCivicMatch": true,
+                                "isAddressStreetNameMatch": true,
+                                "isAddressCityMatch": true,
+                                "isAddressPostalCodeMatch": true,
+                                "isAddressProvinceMatch": true,
+                                "isDateOfBirthMatch": false,
+                                "currentAddressReportedDate": "201904",
+                                "dateOfBirthAsReported": "19711105",
+                                "nameAsReported": "KING,SANDRA,MARGOT,JR",
+                                "addressAsReported": "4280,ATLEE AVE,BURNABY,BC,V5G3R6"
+                            },
+                            "dualSourceResult": [{
+                                    "isLastNameMatched": true,
+                                    "isFirstNameMatched": true,
+                                    "isMiddleNameMatched": true,
+                                    "isSuffixNameMatch": false,
+                                    "isAddressCivicMatch": true,
+                                    "isAddressStreetNameMatch": true,
+                                    "isAddressCityMatch": true,
+                                    "isAddressPostalCodeMatch": true,
+                                    "isAddressProvinceMatch": true,
+                                    "isDateOfBirthMatch": false,
+                                    "isAccountNumberMatch": false,
+                                    "isNameAndDobMatch": false,
+                                    "isNameAndAddressMatch": true,
+                                    "isNameAndAccountMatch": false,
+                                    "tradeStatus": "O",
+                                    "dateOfBirthAsReported": "19711105",
+                                    "memberNumber": "001ON02776",
+                                    "dateLastReported": "20190331",
+                                    "dateOpened": "20161201",
+                                    "institutionName": "S. CARTES DESJARDINS",
+                                    "accountNumber": "123456789044431",
+                                    "familyName": "DESJARDINS GROUP",
+                                    "nameAsReported": "KING,SANDRA,MARGOT,",
+                                    "addressAsReported": "4280 ATLEE AVE ,BURNABY,BC,V5G3R6"
+                                },
+                                {
+                                    "isLastNameMatched": true,
+                                    "isFirstNameMatched": true,
+                                    "isMiddleNameMatched": true,
+                                    "isSuffixNameMatch": false,
+                                    "isAddressCivicMatch": true,
+                                    "isAddressStreetNameMatch": true,
+                                    "isAddressCityMatch": true,
+                                    "isAddressPostalCodeMatch": true,
+                                    "isAddressProvinceMatch": true,
+                                    "isDateOfBirthMatch": false,
+                                    "isAccountNumberMatch": false,
+                                    "isNameAndDobMatch": true,
+                                    "isNameAndAddressMatch": false,
+                                    "isNameAndAccountMatch": false,
+                                    "tradeStatus": "O",
+                                    "dateOfBirthAsReported": "19711105",
+                                    "memberNumber": "481BB01426",
+                                    "dateLastReported": "20190331",
+                                    "dateOpened": "20161201",
+                                    "institutionName": "CIBC",
+                                    "accountNumber": "123456789011131",
+                                    "familyName": "CANADIAN IMPERIAL BANK-CMMRC",
+                                    "nameAsReported": "KING,SANDRA,MARGOT,",
+                                    "addressAsReported": "4280 ATLEE AVE ,BURNABY,BC,V5G3R6"
+                                }
+                            ],
+                            "bureauName": "Equifax  inc.",
+                            "dateOfRequest": "2019/04/25 12:00 AM UTC",
+                            "creditFileNumber": "50165927",
+                            "isCreditFileGreaterThanThreeYearsOld": "false",
+                            "verificationTime": "2019/04/25 09:19 PM UTC",
+                            "creditFileCreationDate": "2018/01/01 12:00 AM UTC"
+                        }
+                    }
+                }
+            }
+```
+
+<a name="reasoncodesobject" title="reasonCodes Object"></a>
+## reasonCodes
+| Element               | Type    | Description                                                       |
+|-----------------------|---------|-------------------------------------------------------------------|
+|description            |string   |This is a comment on the request by the downstream provider.                       |
+|code                   |number   |This is a code returned by the downstream provider.  |
+
+```apib
+    {
+        "reasonCodes": [{
+                "description": "Credit file located=Adequate match",
+                "code": "51"
+            },
+            {
+                "description": "No Phone record located or poor match score",
+                "code": "60"
+            },
+            {
+                "description": "Supplied address same as the current address in the provider database",
+                "code": "C1"
+            }
+        ]
+    }
+```
+
+# Error Summary
+
+<a name="riskcheckerrors" title="Customer Identity Check Errors"></a>
+## Customer Identity Check Errors
+
+|HTTP Status Code   |Error Code             |Description|
+|---                |---                    |---|
+|402                | CUSTOMER-IDENTITY-1   | One or more external services are down. Please rerun a Customer Identity Check request. |
+|400                | CUSTOMER-IDENTITY-2   | Your merchant account is not configured to perform the identity verification. Please contact Paysafe Technical Support. |
+|409                | CUSTOMER-IDENTITY-3   | The request you have submitted has already been processed. |
+|200                | CUSTOMER-IDENTITY-4   | The address provided is a prison or detention facility. |
+|200                | CUSTOMER-IDENTITY-5   | The person is reported to be deceased. |
+|200                | CUSTOMER-IDENTITY-6   | The person is reported to be on a PEP (politically exposed person) list or a sanctions watchlist. |
+|200                | CUSTOMER-IDENTITY-7   | The request was rejected. |
+|200                | CUSTOMER-IDENTITY-8   | There has been a high number of validation attempts for the same person or address. |
+|200                | CUSTOMER-IDENTITY-9   | An identity theft alert has been raised. |
+|200                | CUSTOMER-IDENTITY-10  | The request includes invalid input for fields. Verify the parameters and retry the request. |
+|200                | CUSTOMER-IDENTITY-11  | The minimum age validation failed. |
+|200                | CUSTOMER-IDENTITY-12  | The address provided is invalid. Verify the parameters and retry the request. |
+|200                | CUSTOMER-IDENTITY-13  | The provider identity validation failed. |
+
+<a name="commonerrors" title="Common Errors"></a>
+## Common Errors
+|HTTP Status Code       |Error Code    |Description|
+|---                    |---           |---|
+|500                    |1000           |An internal error occurred. If the error persists, contact Technical Support. |
+|500                    |1001           |An error occurred with the external processing gateway.|
+|400                    |5005           |You submitted an invalid operation type with your request.|
+|400                    |5023           |The request is not parseable.|
+|400                    |5068           |Either you submitted a request that is missing a mandatory field or the value of a field does not match the format expected.|
+|406                    |5271           |You requested a response in the Accept header that is in an unsupported format.|
+|406                    |5272           |The Content-Type you specified in request header was submitted in an unsupported format.|
+|405                    |5281           |The request uses an action (e.g., GET, POST, or PUT) that is not supported by the resource.|
+|400                    |5502           |Either the payment token is invalid or the corresponding profile or bank account is not active.|
+
+
+# Using the Example API Calls (Console Window)
+To configure and test the API examples, first click on one of the API calls in the API Reference section and then click **Switch to Console** in the right-hand pane. 
+Using the Console window you can update the headers, the request body, and parts of the API endpoint.
+You must update the Header to include your API Key by selecting **Headers** and then updating the **Authorization** value using the Base64
+version of your API key. To get your API key, log in to the test version of the Merchant Back Office and choose **Settings > API Key**. 
+
+Click **View Base 64 Encoded** and copy the key to your clipboard. Paste the key after the word Basic to replace the text YOUR-BASE64-ENCODED-API-KEY.
+When you are ready to test your example, you can choose between the Production and Mock server environment:
+* Production server – This calls the resource on Paysafe's Test system. 
+* Mock server – This environment simply returns the dummy values in the example response irrespective of the parameters you supply. You do not need to use your account ID or Test API key for this request.
+
+To call the API resource, click **Call Resource**. The response is displayed in the Console window.
+
+# Legal and Community
+<ul>
+<li><a href="https://www.paysafe.com/paysafegroup/privacy-policy/" target="_blank">Privacy Policy</a></li>
+<li><a href="https://developer.paysafe.com/en/resources-and-support/terms-of-use/" target="_blank">Terms of Use</a></li>
+<li><a href="https://www.paysafe.com/paysafegroup/regulatory-disclosures/" target="_blank">Regulatory Disclosures</a></li>
+<li><a href="http://community.paysafe.com/spaces/11/index.html" target="_blank">FAQs</a></li>
+<li><a href="http://community.paysafe.com/index.html" target="_blank">Community</a></li>
+</ul>
+
+## Verify That the Service Is Accessible [GET /v1/identityprofiles/monitor]
+<a name="verifyservice" title="Verify Service"></a>
+
+This call returns a status of READY if the API is available.
+
++ Response 200 (application/json)
+
+  + Body
+    
+            {
+                "status" : "READY"
+            }
+
+# Customer Identity Check [/identityprofiles]
+<a name="riskcheckrequest" title="Customer Identity Check Request"></a>
+
+## Run a Customer Identity Check [POST /v1/identityprofiles]
+<a name="riskcheckrequest" title="Run a Customer Identity Check"></a>
+
+Click on **Run a Customer Identity Check** above to see two examples of a Customer Identity Check request:
+
+ * Customer Identity Check using *vendorCheck*
+ * Customer Identity Check using *workflowId*
+
++ Attributes
+    + Include Customer Identity Check
+
++ Request Customer Identity Check Using vendorCheck (application/json)
+
+    + Headers
+    
+            Authorization: Basic YOUR-BASE64-ENCODED-API-KEY
+
+    + Body
+
+            {
+              "customerIp": "10.10.1.2",
+              "merchantRefNum": "c5156cac186e4ade5f99",
+              "vendorCheck": "EID_COMPARE",
+              "profile": {
+                "firstName": "JOHN",
+                "lastName": "DOE",
+                "currentAddress": {
+                  "street": "17 ROCKWOOD DR",
+                  "city": "SCARBOROUGH",
+                  "state": "ON",
+                  "country": "CA",
+                  "zip": "M1M3M9",
+                  "phone": "4502000607"
+                },
+                "dateOfBirth": {
+                  "day": "01",
+                  "month": "03",
+                  "year": "1975"
+                },
+                "locale": "en_CA"
+              },
+              "sin": "923456789",
+              "card": {
+                "cardNum": "371449635398431"
+              }
+            }
+
++ Response 200 (application/json)
+
+    + Body
+
+            {
+              "id": "a2cd6b05-1489-4efd-a9d7-bd085719c13d",
+              "decision": "SUCCESS",
+              "merchantRefNum": "c5156cac186e4ade5f99",
+              "profile": {
+                "firstName": "JOHN",
+                "lastName": "DOE",
+                "dateOfBirth": {
+                  "day": "01",
+                  "month": "03",
+                  "year": "1975"
+                },
+                "locale": "en_CA",
+                "currentAddress": {
+                  "street": "17 ROCKWOOD DR",
+                  "city": "SCARBOROUGH",
+                  "zip": "M1M3M9",
+                  "state": "ON",
+                  "country": "CA",
+                  "phone": "4502000607"
+                }
+              },
+              "card": {
+                "lastDigits": "8431",
+                "cardNum": "###########8431"
+              },
+              "customerIp": "10.10.1.2",
+              "vendorCheck": "EID_COMPARE",
+              "providerResponses": {
+                "eidCompare": {
+                  "id": "ddd2424d-82f3-44af-87e9-e7570efe9d6f",
+                  "status": "SUCCESS",
+                  "response": {
+                    "assessmentComplete": {
+                      "reasonCodes": [
+                        {
+                          "description": "Credit file located=Adequate match",
+                          "code": "51"
+                        },
+                        {
+                          "description": "Credit Card Number=Verified",
+                          "code": "55"
+                        },
+                        {
+                          "description": "No Phone record located or poor match score",
+                          "code": "60"
+                        },
+                        {
+                          "description": "Supplied address same as the current address in the Equifax database",
+                          "code": "C1"
+                        },
+                        {
+                          "description": "Unable to confirm credit file history",
+                          "code": "CI"
+                        },
+                        {
+                          "description": "Input Date of Birth - is a match to Date of Birth on the credit file",
+                          "code": "D1"
+                        },
+                        {
+                          "description": "Input Age Matches the Calculated Age on the Credit File",
+                          "code": "D6"
+                        },
+                        {
+                          "description": "Calculated Age on the Credit File is 18 or Greater",
+                          "code": "D8"
+                        },
+                        {
+                          "description": "Calculated Age on the Credit File is 19 or Greater",
+                          "code": "DA"
+                        },
+                        {
+                          "description": "Age of Credit file is greater than or equal to three years",
+                          "code": "FE"
+                        },
+                        {
+                          "description": "Age of Credit file is greater than or equal to six months",
+                          "code": "FG"
+                        },
+                        {
+                          "description": "No Match on OFAC.",
+                          "code": "ON"
+                        },
+                        {
+                          "description": "WARNING: Phone Number found in the Phone Database - Inquiry Address and last name do not match to the address and last name listed in the phone database",
+                          "code": "TJ"
+                        },
+                        {
+                          "description": "WARNING: Inquiry Telephone Number has been associated with more than one name or address ",
+                          "code": "TN"
+                        },
+                        {
+                          "description": "The telephone area code does not correspond to the province code of the current address",
+                          "code": "TY"
+                        }
+                      ],
+                      "decision": "Y",
+                      "score": 25
+                    }
+                  }
+                }
+              }
+            }
+
++ Request Customer Identity Check Using workflowId (application/json)
+
+    + Headers
+    
+            Authorization: Basic YOUR-BASE64-ENCODED-API-KEY
+
+    + Body
+
+            {
+              "customerIp": "10.10.1.2",
+              "merchantRefNum": "d1eb008b610bbefa1440",
+              "workflowId": "LOW_RISK",
+              "profile": {
+                "firstName": "JOHN",
+                "lastName": "DOE",
+                "currentAddress": {
+                  "street": "17 ROCKWOOD DR",
+                  "city": "SCARBOROUGH",
+                  "state": "ON",
+                  "country": "CA",
+                  "zip": "M1M3M9",
+                  "phone": "4502000607"
+                },
+                "dateOfBirth": {
+                  "day": "01",
+                  "month": "03",
+                  "year": "1975"
+                },
+                "locale": "en_CA"
+              },
+              "sin": "923456789",
+              "card": {
+                "cardNum": "371449635398431"
+              }
+            }
+            
++ Response 200 (application/json)
+
+    + Body
+
+            {
+              "id": "1129bdf9-6c88-4135-b88a-9599fbaed5a6",
+              "decision": "SUCCESS",
+              "merchantRefNum": "d1eb008b610bbefa1440",
+              "profile": {
+                "firstName": "JOHN",
+                "lastName": "DOE",
+                "dateOfBirth": {
+                  "day": "01",
+                  "month": "03",
+                  "year": "1975"
+                },
+                "locale": "en_CA",
+                "currentAddress": {
+                  "street": "17 ROCKWOOD DR",
+                  "city": "SCARBOROUGH",
+                  "zip": "M1M3M9",
+                  "state": "ON",
+                  "country": "CA",
+                  "phone": "4502000607"
+                }
+              },
+              "card": {
+                "lastDigits": "8431",
+                "cardNum": "###########8431"
+              },
+              "customerIp": "10.10.1.2",
+              "workflowId": "LQ_KYC",
+              "providerResponses": {
+                "eidCompare": {
+                  "id": "cad322d5-1a5e-4c7f-8f52-e1e11888e5eb",
+                  "status": "SUCCESS",
+                  "response": {
+                    "assessmentComplete": {
+                      "reasonCodes": [
+                        {
+                          "description": "Credit file located=Adequate match",
+                          "code": "51"
+                        },
+                        {
+                          "description": "Credit Card Number=Verified",
+                          "code": "55"
+                        },
+                        {
+                          "description": "No Phone record located or poor match score",
+                          "code": "60"
+                        },
+                        {
+                          "description": "Supplied address same as the current address in the Equifax database",
+                          "code": "C1"
+                        },
+                        {
+                          "description": "Unable to confirm credit file history",
+                          "code": "CI"
+                        },
+                        {
+                          "description": "Input Date of Birth - is a match to Date of Birth on the credit file",
+                          "code": "D1"
+                        },
+                        {
+                          "description": "Input Age Matches the Calculated Age on the Credit File",
+                          "code": "D6"
+                        },
+                        {
+                          "description": "Calculated Age on the Credit File is 18 or Greater",
+                          "code": "D8"
+                        },
+                        {
+                          "description": "Calculated Age on the Credit File is 19 or Greater",
+                          "code": "DA"
+                        },
+                        {
+                          "description": "Age of Credit file is greater than or equal to three years",
+                          "code": "FE"
+                        },
+                        {
+                          "description": "Age of Credit file is greater than or equal to six months",
+                          "code": "FG"
+                        },
+                        {
+                          "description": "No Match on OFAC.",
+                          "code": "ON"
+                        },
+                        {
+                          "description": "WARNING: Phone Number found in the Phone Database - Inquiry Address and last name do not match to the address and last name listed in the phone database",
+                          "code": "TJ"
+                        },
+                        {
+                          "description": "WARNING: Inquiry Telephone Number has been associated with more than one name or address ",
+                          "code": "TN"
+                        },
+                        {
+                          "description": "The telephone area code does not correspond to the province code of the current address",
+                          "code": "TY"
+                        }
+                      ],
+                      "decision": "Y",
+                      "score": 25
+                    }
+                  }
+                },
+                "amlAssist": {
+                  "id": "c3456890-ad55-49e8-bea8-4ba9eae54d11",
+                  "status": "SUCCESS",
+                  "response": {
+                    "isSingleSourceHit": true,
+                    "isDualSourceHit": true,
+                    "isWaterfallProcess": true,
+                    "singleSourceDecision": "Y",
+                    "dualSourceDecision": "Y",
+                    "originOfCreditFile": "CANADA",
+                    "numberOfTrades": 1,
+                    "singleSourceResult": {
+                      "isLastNameMatched": true,
+                      "isFirstNameMatched": true,
+                      "isMiddleNameMatched": false,
+                      "isSuffixNameMatch": false,
+                      "isAddressCivicMatch": true,
+                      "isAddressStreetNameMatch": false,
+                      "isAddressCityMatch": true,
+                      "isAddressPostalCodeMatch": false,
+                      "isAddressProvinceMatch": true,
+                      "isDateOfBirthMatch": true,
+                      "currentAddressReportedDate": "201810",
+                      "dateOfBirthAsReported": "19810115",
+                      "nameAsReported": "DOE,JOHN,,",
+                      "addressAsReported": "17 ROCKWOOD DR,SCARBOROUGH,ON,M1M3M9"
+                    },
+                    "dualSourceResult": [
+                      {
+                        "isLastNameMatched": true,
+                        "isFirstNameMatched": true,
+                        "isMiddleNameMatched": false,
+                        "isSuffixNameMatch": false,
+                        "isAddressCivicMatch": true,
+                        "isAddressStreetNameMatch": false,
+                        "isAddressCityMatch": true,
+                        "isAddressPostalCodeMatch": false,
+                        "isAddressProvinceMatch": true,
+                        "isDateOfBirthMatch": true,
+                        "isAccountNumberMatch": true,
+                        "isNameAndDobMatch": true,
+                        "isNameAndAddressMatch": true,
+                        "isNameAndAccountMatch": true,
+                        "tradeStatus": "O",
+                        "dateOfBirthAsReported": "19810115",
+                        "memberNumber": "481ON01463",
+                        "dateLastReported": "20180801",
+                        "dateOpened": "20060705",
+                        "institutionName": "CANADIAN TIRE BANK",
+                        "accountNumber": "###########1103",
+                        "familyName": "CANADIAN TIRE CORPORATION LIMITED",
+                        "nameAsReported": "DOE,JOHN,,",
+                        "addressAsReported": "17 ROCKWOOD DR,SCARBOROUGH,ON,M1M3M9"
+                      }
+                    ],
+                    "bureauName": "Equifax inc.",
+                    "dateOfRequest": "2018/10/30 12:00 AM UTC",
+                    "creditFileNumber": "49983026",
+                    "isCreditFileGreaterThanThreeYearsOld": true,
+                    "verificationTime": "2019/12/09 10:55 AM UTC",
+                    "creditFileCreationDate": "2010/01/01 12:00 AM UTC",
+                    "decision": "SUCCESS"
+                  }
+                }
+              }
+            }
+
+
+# Rerun a Customer Identity Check [/rerunfailedchecks]
+<a name="rerunriskcheckrequest" title="Rerun Customer Identity Check"></a>
+
+## Rerun a Customer Identity Check [POST /v1/identityprofiles/{customer_identity_id}/rerunfailedchecks]
+<a name="rerunriskcheckrequest" title="Rerun a Customer Identity Check"></a>
+
+Click on **Rerun a Customer Identity Check** above to see how you submit a request to rerun a Customer Identity Check.
+
+**Note:** There is no payload to include in the request to rerun a Customer Identity Check. 
+
+ - You can rerun a Customer Identity Check request when the *decision* in the response to the initial request is **ERROR**, which could mean that the initial Customer Identity Check request could not be completed. 
+ - Do not rerun a Customer Identity Check request if the *decision* in the response to the initial request is **FAIL**. You will get the same FAIL decision if you resubmit it.
+
++ Parameters
+
+    + customer_identity_id:`86dcb68d-cbd0-4878-8da7-ffc0e6554513` (string, required) - This is the ID returned in the response to the original Customer Identity Check request.
+
++ Attributes
+    + Include Customer Identity Check Rerun
+
++ Request Rerun Customer Identity Check (application/json)
+
+    + Headers
+    
+            Authorization: Basic YOUR-BASE64-ENCODED-API-KEY
+    
+    + Body
+
+            {
+                
+            }
+            
++ Response 200 (application/json)
+
+    + Body
+
+            {
+              "id": "86dcb68d-cbd0-4878-8da7-ffc0e6554513",
+              "decision": "SUCCESS",
+              "merchantRefNum": "6006de11d768f196eead",
+              "profile": {
+                "firstName": "JOHN",
+                "lastName": "DOE",
+                "dateOfBirth": {
+                  "day": "01",
+                  "month": "03",
+                  "year": "1975"
+                },
+                "locale": "en_CA",
+                "currentAddress": {
+                  "street": "17 ROCKWOOD DR",
+                  "city": "SCARBOROUGH",
+                  "zip": "M1M3M9",
+                  "state": "ON",
+                  "country": "CA",
+                  "phone": "4502000607"
+                }
+              },
+              "card": {
+                "lastDigits": "8431",
+                "cardNum": "###########8431"
+              },
+              "customerIp": "10.10.1.2",
+              "workflowId": "LQ_KYC",
+              "providerResponses": {
+                "eidCompare": {
+                  "id": "b43cfd65-10e1-4440-9595-2f224198a7f0",
+                  "status": "SUCCESS",
+                  "response": {
+                    "assessmentComplete": {
+                      "reasonCodes": [
+                        {
+                          "description": "Credit file located=Adequate match",
+                          "code": "51"
+                        },
+                        {
+                          "description": "Credit Card Number=Verified",
+                          "code": "55"
+                        },
+                        {
+                          "description": "No Phone record located or poor match score",
+                          "code": "60"
+                        },
+                        {
+                          "description": "Supplied address same as the current address in the Equifax database",
+                          "code": "C1"
+                        },
+                        {
+                          "description": "Unable to confirm credit file history",
+                          "code": "CI"
+                        },
+                        {
+                          "description": "Input Date of Birth - is a match to Date of Birth on the credit file",
+                          "code": "D1"
+                        },
+                        {
+                          "description": "Input Age Matches the Calculated Age on the Credit File",
+                          "code": "D6"
+                        },
+                        {
+                          "description": "Calculated Age on the Credit File is 18 or Greater",
+                          "code": "D8"
+                        },
+                        {
+                          "description": "Calculated Age on the Credit File is 19 or Greater",
+                          "code": "DA"
+                        },
+                        {
+                          "description": "Age of Credit file is greater than or equal to three years",
+                          "code": "FE"
+                        },
+                        {
+                          "description": "Age of Credit file is greater than or equal to six months",
+                          "code": "FG"
+                        },
+                        {
+                          "description": "No Match on OFAC.",
+                          "code": "ON"
+                        },
+                        {
+                          "description": "WARNING: Phone Number found in the Phone Database - Inquiry Address and last name do not match to the address and last name listed in the phone database",
+                          "code": "TJ"
+                        },
+                        {
+                          "description": "WARNING: Inquiry Telephone Number has been associated with more than one name or address ",
+                          "code": "TN"
+                        },
+                        {
+                          "description": "The telephone area code does not correspond to the province code of the current address",
+                          "code": "TY"
+                        }
+                      ],
+                      "decision": "Y",
+                      "score": 25
+                    }
+                  }
+                },
+                "amlAssist": {
+                  "id": "1dc44ac3-d57e-490d-b57e-cf466061ea09",
+                  "status": "SUCCESS",
+                  "response": {
+                    "isSingleSourceHit": true,
+                    "isDualSourceHit": true,
+                    "isWaterfallProcess": true,
+                    "singleSourceDecision": "Y",
+                    "dualSourceDecision": "Y",
+                    "originOfCreditFile": "CANADA",
+                    "numberOfTrades": 1,
+                    "singleSourceResult": {
+                      "isLastNameMatched": true,
+                      "isFirstNameMatched": true,
+                      "isMiddleNameMatched": false,
+                      "isSuffixNameMatch": false,
+                      "isAddressCivicMatch": true,
+                      "isAddressStreetNameMatch": false,
+                      "isAddressCityMatch": true,
+                      "isAddressPostalCodeMatch": false,
+                      "isAddressProvinceMatch": true,
+                      "isDateOfBirthMatch": true,
+                      "currentAddressReportedDate": "201810",
+                      "dateOfBirthAsReported": "19810115",
+                      "nameAsReported": "DOE,JOHN,,",
+                      "addressAsReported": "17 ROCKWOOD DR,SCARBOROUGH,ON,M1M3M9"
+                    },
+                    "dualSourceResult": [
+                      {
+                        "isLastNameMatched": true,
+                        "isFirstNameMatched": true,
+                        "isMiddleNameMatched": false,
+                        "isSuffixNameMatch": false,
+                        "isAddressCivicMatch": true,
+                        "isAddressStreetNameMatch": false,
+                        "isAddressCityMatch": true,
+                        "isAddressPostalCodeMatch": false,
+                        "isAddressProvinceMatch": true,
+                        "isDateOfBirthMatch": true,
+                        "isAccountNumberMatch": true,
+                        "isNameAndDobMatch": true,
+                        "isNameAndAddressMatch": true,
+                        "isNameAndAccountMatch": true,
+                        "tradeStatus": "O",
+                        "dateOfBirthAsReported": "19810115",
+                        "memberNumber": "481ON01463",
+                        "dateLastReported": "20180801",
+                        "dateOpened": "20060705",
+                        "institutionName": "CANADIAN TIRE BANK",
+                        "accountNumber": "###########1103",
+                        "familyName": "CANADIAN TIRE CORPORATION LIMITED",
+                        "nameAsReported": "DOE,JOHN,,",
+                        "addressAsReported": "17 ROCKWOOD DR,SCARBOROUGH,ON,M1M3M9"
+                      }
+                    ],
+                    "bureauName": "Equifax inc.",
+                    "dateOfRequest": "2018/10/30 12:00 AM UTC",
+                    "creditFileNumber": "49983026",
+                    "isCreditFileGreaterThanThreeYearsOld": true,
+                    "verificationTime": "2019/12/09 12:18 PM UTC",
+                    "creditFileCreationDate": "2010/01/01 12:00 AM UTC",
+                    "decision": "SUCCESS"
+                  }
+                }
+              }
+            }
+ 
+
+# Run a Customer Identity Check Lookup [/identitychecklookup]
+<a name="identitychecklookup" title="Run a Customer Identity Check Lookup"></a>
+
+## Run a Customer Identity Check Lookup using Merchant Reference Number [GET /v1/identityprofiles/merchantrefnum/{merchantRefNum}]
+<a name="riskcheckrequestlookup" title="Run a Customer Identity Check Lookup using Merchant Reference Number"></a>
+
+Click on **Run a Customer Identity Check Lookup using Merchant Reference Number** above to see how to look up and obtain the details of a past customer identity check request using the Merchant Reference Number.
+
++ Parameters
+    + merchantRefNum:`P1234` (string, required) - This is the merchant reference number created by the merchant and submitted as part of the request.
+
++ Request Customer Identity Check Lookup Using Merchant Reference Number (application/json)
+
+    + Headers
+    
+            Authorization: Basic YOUR-BASE64-ENCODED-API-KEY
+
++ Response 200 (application/json)
+
+    + Body
+
+            {
+              "id": "464484ef-a399-45b5-bec9-17d08f4660d5",
+              "decision": "SUCCESS",
+              "merchantRefNum": "P1234",
+              "profile": {
+                "firstName": "JOHN",
+                "lastName": "DOE",
+                "dateOfBirth": {
+                  "day": "01",
+                  "month": "03",
+                  "year": "1975"
+                },
+                "locale": "en_CA",
+                "currentAddress": {
+                  "street": "17 ROCKWOOD DR",
+                  "city": "SCARBOROUGH",
+                  "zip": "M1M3M9",
+                  "state": "ON",
+                  "country": "CA",
+                  "phone": "4502000607"
+                }
+              },
+              "card": {
+                "lastDigits": "8431",
+                "cardNum": "###########8431"
+              },
+              "customerIp": "10.10.1.2",
+              "workflowId": "LQ_KYC",
+              "providerResponses": {
+                "eidCompare": {
+                  "id": "b43cfd65-10e1-4440-9595-2f224198a7f0",
+                  "status": "SUCCESS",
+                  "response": {
+                    "assessmentComplete": {
+                      "reasonCodes": [
+                        {
+                          "description": "Credit file located=Adequate match",
+                          "code": "51"
+                        },
+                        {
+                          "description": "Credit Card Number=Verified",
+                          "code": "55"
+                        },
+                        {
+                          "description": "No Phone record located or poor match score",
+                          "code": "60"
+                        },
+                        {
+                          "description": "Supplied address same as the current address in the Equifax database",
+                          "code": "C1"
+                        },
+                        {
+                          "description": "Unable to confirm credit file history",
+                          "code": "CI"
+                        },
+                        {
+                          "description": "Input Date of Birth - is a match to Date of Birth on the credit file",
+                          "code": "D1"
+                        },
+                        {
+                          "description": "Input Age Matches the Calculated Age on the Credit File",
+                          "code": "D6"
+                        },
+                        {
+                          "description": "Calculated Age on the Credit File is 18 or Greater",
+                          "code": "D8"
+                        },
+                        {
+                          "description": "Calculated Age on the Credit File is 19 or Greater",
+                          "code": "DA"
+                        },
+                        {
+                          "description": "Age of Credit file is greater than or equal to three years",
+                          "code": "FE"
+                        },
+                        {
+                          "description": "Age of Credit file is greater than or equal to six months",
+                          "code": "FG"
+                        },
+                        {
+                          "description": "No Match on OFAC.",
+                          "code": "ON"
+                        },
+                        {
+                          "description": "WARNING: Phone Number found in the Phone Database - Inquiry Address and last name do not match to the address and last name listed in the phone database",
+                          "code": "TJ"
+                        },
+                        {
+                          "description": "WARNING: Inquiry Telephone Number has been associated with more than one name or address ",
+                          "code": "TN"
+                        },
+                        {
+                          "description": "The telephone area code does not correspond to the province code of the current address",
+                          "code": "TY"
+                        }
+                      ],
+                      "decision": "Y",
+                      "score": 25
+                    }
+                  }
+                },
+                "amlAssist": {
+                  "id": "1dc44ac3-d57e-490d-b57e-cf466061ea09",
+                  "status": "SUCCESS",
+                  "response": {
+                    "isSingleSourceHit": true,
+                    "isDualSourceHit": true,
+                    "isWaterfallProcess": true,
+                    "singleSourceDecision": "Y",
+                    "dualSourceDecision": "Y",
+                    "originOfCreditFile": "CANADA",
+                    "numberOfTrades": 1,
+                    "singleSourceResult": {
+                      "isLastNameMatched": true,
+                      "isFirstNameMatched": true,
+                      "isMiddleNameMatched": false,
+                      "isSuffixNameMatch": false,
+                      "isAddressCivicMatch": true,
+                      "isAddressStreetNameMatch": false,
+                      "isAddressCityMatch": true,
+                      "isAddressPostalCodeMatch": false,
+                      "isAddressProvinceMatch": true,
+                      "isDateOfBirthMatch": true,
+                      "currentAddressReportedDate": "201810",
+                      "dateOfBirthAsReported": "19810115",
+                      "nameAsReported": "DOE,JOHN,,",
+                      "addressAsReported": "17 ROCKWOOD DR,SCARBOROUGH,ON,M1M3M9"
+                    },
+                    "dualSourceResult": [
+                      {
+                        "isLastNameMatched": true,
+                        "isFirstNameMatched": true,
+                        "isMiddleNameMatched": false,
+                        "isSuffixNameMatch": false,
+                        "isAddressCivicMatch": true,
+                        "isAddressStreetNameMatch": false,
+                        "isAddressCityMatch": true,
+                        "isAddressPostalCodeMatch": false,
+                        "isAddressProvinceMatch": true,
+                        "isDateOfBirthMatch": true,
+                        "isAccountNumberMatch": true,
+                        "isNameAndDobMatch": true,
+                        "isNameAndAddressMatch": true,
+                        "isNameAndAccountMatch": true,
+                        "tradeStatus": "O",
+                        "dateOfBirthAsReported": "19810115",
+                        "memberNumber": "481ON01463",
+                        "dateLastReported": "20180801",
+                        "dateOpened": "20060705",
+                        "institutionName": "CANADIAN TIRE BANK",
+                        "accountNumber": "###########1103",
+                        "familyName": "CANADIAN TIRE CORPORATION LIMITED",
+                        "nameAsReported": "DOE,JOHN,,",
+                        "addressAsReported": "17 ROCKWOOD DR,SCARBOROUGH,ON,M1M3M9"
+                      }
+                    ],
+                    "bureauName": "Equifax inc.",
+                    "dateOfRequest": "2018/10/30 12:00 AM UTC",
+                    "creditFileNumber": "49983026",
+                    "isCreditFileGreaterThanThreeYearsOld": true,
+                    "verificationTime": "2019/12/09 12:18 PM UTC",
+                    "creditFileCreationDate": "2010/01/01 12:00 AM UTC",
+                    "decision": "SUCCESS"
+                  }
+                }
+              }
+            }
+
+
+## Run a Customer Identity Check Lookup using ID [GET /v1/identityprofiles/{customer_identity_id}]
+<a name="riskcheckrequestlookupid" title="Run a Customer Identity Check Lookup using ID"></a>
+
+Click on **Run a Customer Identity Check Lookup using ID** above to see how to look up and obtain the details of a past customer identity check request using the ID.
+
++ Parameters
+    + `customer_identity_id`: `d4b746cc1ced-ce28-4df2-bc3f-d4b746cc1ced-0f1266b9` (string) - This is the ID generated for the request, returned in the response.
+
++ Request Customer Identity Check Lookup Using ID (application/json)
+
+    + Headers
+    
+            Authorization: Basic YOUR-BASE64-ENCODED-API-KEY
+
++ Response 200 (application/json)
+
+    + Body
+
+            {
+              "id": "d4b746cc1ced-ce28-4df2-bc3f-d4b746cc1ced-0f1266b9",
+              "decision": "SUCCESS",
+              "merchantRefNum": "P1234",
+              "profile": {
+                "firstName": "JOHN",
+                "lastName": "DOE",
+                "dateOfBirth": {
+                  "day": "01",
+                  "month": "03",
+                  "year": "1975"
+                },
+                "locale": "en_CA",
+                "currentAddress": {
+                  "street": "17 ROCKWOOD DR",
+                  "city": "SCARBOROUGH",
+                  "zip": "M1M3M9",
+                  "state": "ON",
+                  "country": "CA",
+                  "phone": "4502000607"
+                }
+              },
+              "card": {
+                "lastDigits": "8431",
+                "cardNum": "###########8431"
+              },
+              "customerIp": "10.10.1.2",
+              "workflowId": "LQ_KYC",
+              "providerResponses": {
+                "eidCompare": {
+                  "id": "b43cfd65-10e1-4440-9595-2f224198a7f0",
+                  "status": "SUCCESS",
+                  "response": {
+                    "assessmentComplete": {
+                      "reasonCodes": [
+                        {
+                          "description": "Credit file located=Adequate match",
+                          "code": "51"
+                        },
+                        {
+                          "description": "Credit Card Number=Verified",
+                          "code": "55"
+                        },
+                        {
+                          "description": "No Phone record located or poor match score",
+                          "code": "60"
+                        },
+                        {
+                          "description": "Supplied address same as the current address in the Equifax database",
+                          "code": "C1"
+                        },
+                        {
+                          "description": "Unable to confirm credit file history",
+                          "code": "CI"
+                        },
+                        {
+                          "description": "Input Date of Birth - is a match to Date of Birth on the credit file",
+                          "code": "D1"
+                        },
+                        {
+                          "description": "Input Age Matches the Calculated Age on the Credit File",
+                          "code": "D6"
+                        },
+                        {
+                          "description": "Calculated Age on the Credit File is 18 or Greater",
+                          "code": "D8"
+                        },
+                        {
+                          "description": "Calculated Age on the Credit File is 19 or Greater",
+                          "code": "DA"
+                        },
+                        {
+                          "description": "Age of Credit file is greater than or equal to three years",
+                          "code": "FE"
+                        },
+                        {
+                          "description": "Age of Credit file is greater than or equal to six months",
+                          "code": "FG"
+                        },
+                        {
+                          "description": "No Match on OFAC.",
+                          "code": "ON"
+                        },
+                        {
+                          "description": "WARNING: Phone Number found in the Phone Database - Inquiry Address and last name do not match to the address and last name listed in the phone database",
+                          "code": "TJ"
+                        },
+                        {
+                          "description": "WARNING: Inquiry Telephone Number has been associated with more than one name or address ",
+                          "code": "TN"
+                        },
+                        {
+                          "description": "The telephone area code does not correspond to the province code of the current address",
+                          "code": "TY"
+                        }
+                      ],
+                      "decision": "Y",
+                      "score": 25
+                    }
+                  }
+                },
+                "amlAssist": {
+                  "id": "1dc44ac3-d57e-490d-b57e-cf466061ea09",
+                  "status": "SUCCESS",
+                  "response": {
+                    "isSingleSourceHit": true,
+                    "isDualSourceHit": true,
+                    "isWaterfallProcess": true,
+                    "singleSourceDecision": "Y",
+                    "dualSourceDecision": "Y",
+                    "originOfCreditFile": "CANADA",
+                    "numberOfTrades": 1,
+                    "singleSourceResult": {
+                      "isLastNameMatched": true,
+                      "isFirstNameMatched": true,
+                      "isMiddleNameMatched": false,
+                      "isSuffixNameMatch": false,
+                      "isAddressCivicMatch": true,
+                      "isAddressStreetNameMatch": false,
+                      "isAddressCityMatch": true,
+                      "isAddressPostalCodeMatch": false,
+                      "isAddressProvinceMatch": true,
+                      "isDateOfBirthMatch": true,
+                      "currentAddressReportedDate": "201810",
+                      "dateOfBirthAsReported": "19810115",
+                      "nameAsReported": "DOE,JOHN,,",
+                      "addressAsReported": "17 ROCKWOOD DR,SCARBOROUGH,ON,M1M3M9"
+                    },
+                    "dualSourceResult": [
+                      {
+                        "isLastNameMatched": true,
+                        "isFirstNameMatched": true,
+                        "isMiddleNameMatched": false,
+                        "isSuffixNameMatch": false,
+                        "isAddressCivicMatch": true,
+                        "isAddressStreetNameMatch": false,
+                        "isAddressCityMatch": true,
+                        "isAddressPostalCodeMatch": false,
+                        "isAddressProvinceMatch": true,
+                        "isDateOfBirthMatch": true,
+                        "isAccountNumberMatch": true,
+                        "isNameAndDobMatch": true,
+                        "isNameAndAddressMatch": true,
+                        "isNameAndAccountMatch": true,
+                        "tradeStatus": "O",
+                        "dateOfBirthAsReported": "19810115",
+                        "memberNumber": "481ON01463",
+                        "dateLastReported": "20180801",
+                        "dateOpened": "20060705",
+                        "institutionName": "CANADIAN TIRE BANK",
+                        "accountNumber": "###########1103",
+                        "familyName": "CANADIAN TIRE CORPORATION LIMITED",
+                        "nameAsReported": "DOE,JOHN,,",
+                        "addressAsReported": "17 ROCKWOOD DR,SCARBOROUGH,ON,M1M3M9"
+                      }
+                    ],
+                    "bureauName": "Equifax inc.",
+                    "dateOfRequest": "2018/10/30 12:00 AM UTC",
+                    "creditFileNumber": "49983026",
+                    "isCreditFileGreaterThanThreeYearsOld": true,
+                    "verificationTime": "2019/12/09 12:18 PM UTC",
+                    "creditFileCreationDate": "2010/01/01 12:00 AM UTC",
+                    "decision": "SUCCESS"
+                  }
+                }
+              }
+            }
+
+
+# Data Structures
+
+## AML Assist
+
++ `amlAssist` (object) - This includes a response from a downstream provider.
+
+    _Read Only_
+
+    + Properties
+        + `id`: `d4b746cc1ced-ce28-4df2-bc3f-d4b746cc1ced-0f1266b9` (string) - This is the ID generated for the request, returned in the response.
+            _Read Only_, _length=36_
+        + `status`: `SUCCESS` (enum) - This is the risk decision.
+            
+            + Members
+                - SUCCESS
+                - FAIL
+                - ERROR
+        + Include AML Assist Response
+
+## AML Assist Response
+
++ `response` (object) - These are the response parameters [returned by the downstream provider](#amlassistresponseobject).
+    _Read Only_
+
+    + Properties
+        + `isSingleSourceHit`: `true` (boolean) - This indicates whether the single source product has been used.
+            _Read Only_
+        + `isDualSourceHit`: `false` (boolean) - This indicates whether the dual source product has been used.
+            _Read Only_
+        + `decision`: `SUCCESS` (enum) - This is a decision returned by the provider. 
+            _Read Only_
+            
+            + Members
+                + SUCCESS
+                + FAIL
+        
+        + `singleSourceDecision`: `false` (boolean) - This is the result of the decisioning model for the single source product.
+            _Read Only_
+        + `dualSourceDecision`: `true` (boolean) - This is the result of the decisioning model for the dual source product.
+            _Read Only_
+        + `isWaterfallProcess`: `true` (boolean) - This indicates whether the waterfall process model has been applied.
+            _Read Only_
+        + `originOfCreditFile`: `Canada` (string) - This indicates the country of origin of this credit file.
+            _Read Only_
+        + `numberOfTrades`: `1` (number) - This is the number of trades on the credit file. Applicable if dual source has been hit.
+            _Read Only_
+        + Include Single Source Result
+        + Include Dual Source Result
+        + `bureauName`: `Equifax Canada` (string) - This is the bureau name retrieved from the downstream provider output.
+            _Read Only_
+        + `dateOfRequest`: `2018/10/29 12:00 AM UTC` (string) - This indicates the date the credit file was requested.
+            _Read Only_
+        + `creditFileNumber`: `65462` (string) - This is the credit file number received from the downstream provider.
+            _Read Only_
+        + `isCreditFileGreaterThanThreeYearsOld`: `true` (boolean) - This indicates whether the credit file is greater than three years old.
+            _Read Only_
+        + `verificationTime`: `2018/11/15 10:58 AM UTC` (string) - This is the time the request was processed.
+            _Read Only_
+        + `creditFileCreationDate`: `2016/01/01 12:00 AM UTC` (string) - This is the date the credit file was created.
+            _Read Only_
+
+## Assessment Complete
++ `assessmentComplete` (object)
+    _Read Only_
+
+    + Properties
+        + Include Reason Codes
+
+## `Card`
+
++ One of
+
+    + card (object) - This is the payment token that represents the [card](#cardobject) used for the request. Only one **card** object can be included in the request.
+    
+        + Properties
+
+            + paymentToken:`LTEyMzYzMjQ3ODg` (string) - This is the payment token representing the card. Either the *paymentToken* or the *cardNum* is required if the optional *card* object is included.
+                _length<=80_
+          
+    + card (object) - These are the details of the [card](#cardobject) used for the request. Only one **card** object can be included in the request.
+    
+        + Properties
+
+            + cardNum:`4111111111111111` (string, required) - This is the card number used for the request. Either the *cardNum* or the *paymentToken* is required if the optional *card* object is included.
+                _length=8-20_
+            + cardType:`AM` (enum) - This is type of card used for the request.
+                + Members
+                - AM - American Express
+                - DC - Diners Club
+                - DI - Discover
+                - JC - JCB
+                - MC - MasterCard
+                - MD - Maestro
+                - SF - Swiff
+                - SO - Solo
+                - VI - Visa
+                - VD - Visa Debit
+                - VE - Visa Electron
+            + cardCategory:`CREDIT` (enum) - This denotes the card category.
+                + Members
+                - CREDIT - Credit card
+                - DEBIT - Debit card 
+                - PREPAID - Prepaid card
+                - UNKNOWN - BIN not found in database 
+           + lastDigits:`1111` (string) - This is the last four digits of the card used for the request, returned in the response.|
+                _Read Only, length=4_
+            + cardExpiry (object) - This is the card's [expiry date](#cardexpiryobject).
+                + month:12 (number) - This is the card expiry month.
+                    _length=2_
+                + year:2020 (number) - This is the card expiry year.
+                    _length=4_
+            
+            + holderName: `John Doe` (string) - This is card holder name.
+            + cardBin: `123456` (string) - This is the card BIN, typically the first six digits.
+                _length=6_
+      
+## `Card Rerun`
+
++  card (object) - These are the details of the [card](#cardobject) used for the request. Only one **card** object can be included in the request.
+    _Read Only_
+    
+    + Properties
+
+         + cardNum:`************1111` (string) - This is the card number used for the request. For security reasons, the card number is masked in the response.
+               _Read Only, length=8-20_
+        + cardExpiry (object) - This is the card's [expiry date](#cardexpiryobject).
+            _Read Only_
+            + month:12 (number) - This is the card expiry month.
+                _length=2_
+            + year:2020 (number) - This is the card expiry year.
+                _length=4_
+        + lastDigits:`1111` (string) - This is the last four digits of the card used for the request, returned in the response.|
+            _Read Only, length=4_
+
+## Current Address
+
++ `currentAddress` (object, required)
+    + `apartment`: `11` (string) -  This is the customer's apartment number, if applicable.
+        _length<=50_
+    + `street`: `100 Queen Street West` (string, required) - This is the first line of the customer's street address.
+        _length<=50_
+    + `street2`: `Building B` (string) - This is the second line of the customer's street address, if required.
+        _length<=50_
+    + `city`: `Toronto` (string, required) - This is the city where the address is located.
+        _length<=40_
+    + `country`: `CA` (string, required) - This is the country where the address is located. See [Country Codes](#countrycodes).
+        _length=2_
+    + `state`: `ON` (string, required) - This is the state/province/region in which the customer lives. For Canada see [Province Codes](#provincecodes). For the United States see [State Codes](#statecodes). 
+        _length<=40_
+    + `zip`: `M5H 2N2` (string, required) - This is the zip or postal code of the customer's address.
+        _length<=10_
+    + `phone`: `647-788-3901` (string) - This is the customer's phone number.
+        _length<=40_
+    + `monthsAtAddress`: `50` (string) - This is the number of months the customer has been living at this address.
+        _length<=1200_
+
+## Current Address Rerun
+
++ `currentAddress` (object)
+    _Read Only_
+    + `apartment`: `11` (string) -  This is the customer's apartment number, if applicable.
+        _Read Only_, _length<=50_
+    + `street`: `100 Queen Street West` - (string) - This is the first line of the customer's street address.
+        _Read Only_, _length<=50_
+    + `street2`: `Building B` (string) - This is the second line of the customer's street address, if required.
+        _Read Only_, _length<=50_
+    + `city`: `Toronto` (string) - This is the city where the address is located.
+        _Read Only_, _length<=40_
+    + `country`: `CA` (string) - This is the country where the address is located. See [Country Codes](#countrycodes).
+        _Read Only_, _length=2_
+    + `state`: `ON` (string) - This is the state/province/region in which the customer lives. For Canada see [Province Codes](#provincecodes). For the United States see [State Codes](#statecodes). 
+        _Read Only_, _length=2_
+    + `zip`: `M5H 2N2` (string) - This is the zip or postal code of the customer's address.
+        _Read Only_, _length<=10_
+    + `phone`: `647-788-3901` (string) - This is the customer's phone number.
+        _Read Only_, _length<=15_
+    + `monthsAtAddress`: `50` (string) - This is the number of months the customer has been living at this address.
+        _Read Only_, _length<=1200_
+
+## Customer Identity Check
+
++ `id`: `25f6dadf-176a-415f-95c9-6ff39ff697ba` (string) - This is the ID returned in the response.
+
+    _Read Only_, _length=36_
+
++ `decision`: `SUCCESS` (enum) - This is the overall Customer Identity Check decision returned by Paysafe, based on responses by downstream providers.
+    _Read Only_
+
+    + Members
+        + `SUCCESS` - The customer has successfully passed the Customer Identity Check.
+        + `FAIL` - The customer has failed the Customer Identity Check.
+        + `ERROR` - The Customer Identity Check could not be processed. In this case you can attempt to [rerun the request](#rerunriskcheckrequest).
+        + `OUTSORT` - The Customer Identity Check was inconclusive. The merchant should collect additional documents to manually verify the customer.
+
++ `merchantRefNum`: `P1234` (string, required) - This is the merchant reference number created by the merchant and submitted as part of the request.
+
+    _length<=255_
+
++ Include Card
++ Include Profile
++ `customerIp`: `1.1.1.1` (string) - This is the customer's IP address.
+    _length<=18_
++ One of
+    + `vendorCheck`: `EID_COMPARE` (string, required) - You must include either *vendorCheck* or *workflowId* but not both. Upon onboarding, Paysafe will instruct the merchant on which parameter to use as well as which value to provide for the parameter.
+        _length<=80_
+    + `workflowId`: `LOW_RISK` (string, required) - You must include either *vendorCheck* or *workflowId* but not both. Upon onboarding, Paysafe will instruct the merchant on which parameter to use as well as which value to provide for the parameter.
++ Include Provider Responses
+
+## Customer Identity Check Rerun
+
++ `id`: `25f6dadf-176a-415f-95c9-6ff39ff697ba` (string) - This is the ID returned in the response.
+
+    _Read Only_, _length=36_
+
++ `decision`: `SUCCESS` (enum) - This is the overall Customer Identity Check decision returned by Paysafe, based on responses by downstream providers.
+    _Read Only_
+
+    + Members
+        + `SUCCESS` - The customer has successfully passed the Customer Identity Check.
+        + `FAIL` - The customer has failed the Customer Identity Check.
+        + `ERROR` - The Customer Identity Check could not be processed. In this case you can attempt to [rerun the request](#rerunriskcheckrequest).
+        + `OUTSORT` - The Customer Identity Check was inconclusive. The merchant should collect additional documents to verify the customer with a manual review.
+
++ `merchantRefNum`: `P1234` (string) - This is the merchant reference number created by the merchant and submitted as part of the request.
+
+    _Read Only_, _length<=255_
+
++ Include Card Rerun
++ Include Profile Rerun
++ `customerIp`: `1.1.1.1` (string) - This is the customer's IP address.
+    _Read Only_, _length<=18_
++ One of
+    + `vendorCheck`: `EID_COMPARE` (string) - This is the  You must include either *vendorCheck* or *workflowId* but not both. Upon onboarding, Paysafe will instruct the merchant on which parameter to use as well as which value to provide for the parameter.
+        _Read Only_, _length<=80_
+    + `workflowId`: `LOW_RISK` (string) - This is the You must include either *vendorCheck* or *workflowId* but not both. Upon onboarding, Paysafe will instruct the merchant on which parameter to use as well as which value to provide for the parameter.
+        _Read Only_
++ Include Provider Responses
+
+## Date of Birth
+
++ `dateOfBirth` (object, required)
+    + `day`: `25` (number, required) - This is the date day.
+        _length=2_, _max=31_
+    + `month`: `12` (number, required) - This is the date month.
+        _length=2_, _max=12_        
+    + `year`: `1980` (number, required) - This is the date year.
+        _length=4_, _min=1900_
+
+## Date of Birth Rerun
+
++ `dateOfBirth` (object)
+    _Read Only_
+    + `day`: `25` (number) - This is the date day.
+        _Read Only_, _length=2_, _max=31_
+    + `month`: `12` (number) - This is the date month.
+        _Read Only_, _length=2_, _max=12_        
+    + `year`: `1980` (number) - This is the date year.
+        _Read Only_, _length=4_, _min=1900_
+
+
+## Dual Source Result
++ `dualSourceResult` (object)
+    _Read Only_
+    + Properties
+         + `isLastNameMatched`: `true` (boolean) - This indicates whether the last name matched.
+            _Read Only_
+        + `isFirstNameMatched`: `true` (boolean) - This indicates whether the first name matched.
+            _Read Only_
+        + `isMiddleNameMatched`: `true` (boolean) - This indicates whether the middle name matched.
+            _Read Only_
+        + `isSuffixNameMatched`: `true` (boolean) - This indicates whether the suffix name matched.
+            _Read Only_
+        + `isAddressCivicMatch`: `true` (boolean) - This indicates whether the civic number of the address matched.
+            _Read Only_
+        + `isAddressStreetNameMatch`: `true` (boolean) - This indicates whether the address street name matched.
+            _Read Only_
+        + `isAddressCityMatch`: `true` (boolean) - This indicates whether the address city matched.
+            _Read Only_
+        + `isAddressPostalCodeMatch`: `true` (boolean) - This indicates whether the address postal code matched.
+            _Read Only_
+        + `isAddressProvinceMatch`: `true` (boolean) - This indicates whether the address province matched.
+            _Read Only_
+        + `isDateOfBirthMatch`: `true` (boolean) - This indicates whether the date of birth matched.
+            _Read Only_
+        + `isAccountNumberMatch`: `true` (boolean) - This indicates whether the account number has been matched.
+            _Read Only_
+        + `isNameAndDobMatch`: `true` (boolean) - This indicates whether the name and date of birth match.
+            _Read Only_
+        + `isNameAndAddressMatch`: `true` (boolean) - This indicates whether the name and address match.
+            _Read Only_
+        + `isNameAndAccountMatch`: `true` (boolean) - This indicates whether the name and account number match.
+            _Read Only_
+        + `tradeStatus`: `0` (string) - This is the trade status retrieved from the downstream provider.
+            _Read Only_
+        + `dateOfBirthAsReported`: `19711130` (string) - This is the date of birth retrieved from the downstream provider output.
+            _Read Only_
+        + `memberNumber`: `481BB01426` (string) - This is the member number retrieved from the downstream provider output.
+            _Read Only_
+        + `dateLastReported`: `20180901` (string) - This is the date the credit file was last reported, retrieved from the downstream provider output.
+            _Read Only_
+        + `dateOpened`: `20170802` (string) - This is the date the credit file was opened, retrieved from the downstream provider output.
+            _Read Only_
+        + `institutionName`: `CIBC` (string) - This is the institution name, retrieved from the downstream provider output.
+            _Read Only_
+        + `accountNumber`: `123456789011111` (string) - This is the account name retrieved from the AML Assist output.
+            _Read Only_
+        + `familyName`: `Roz` (string) - This is the family name retrieved from the AML Assist output. 
+            _Read Only_
+        + `nameAsReported`: `SMITH, JANE` (string) - This is the name retrieved from the downstream provider output.
+            _Read Only_
+        + `addressAsReported`: `11,DORVAL AVE,DORVAL,QC,H3S1G4` (string) - This is the address retrieved from the downstream provider output.
+            _Read Only_
+
+
+## EID Compare
+
++ `eidCompare` (object) - This includes a response from a downstream provider.
+
+    _Read Only_
+    
+    + Properties
+        + `id`: `0f1266b9-ce28-4df2-bc3f-d4b746cc1ced` (string) - This is the ID generated for the request, returned in the response.
+            _length=36_
+        + `status`: `SUCCESS` (enum) - This is the risk decision.
+            
+            + Members
+                - SUCCESS
+                - FAIL
+                - ERROR
+                - OUTSORT
+                - SUCCESS_VERIFY
+        + Include EID Compare Response
+
+## EID Compare Response
+
++ `response` (object) - This is a response from a downstream provider.
+
+    + Properties
+        + Include Assessment Complete
+        + `decision`: `Y` (string) - This is a decision from the downstream provider.
+        + `score`: `25` (string) - This is a score from the downstream provider.
+
+## Empty
++ 
+
+## Previous Addresses
++ `previousAddresses` (array) - This is an array of the customer's previous addresses. **Note:** If *monthsAtAddress* in the *currentAddress* object is 24 or less, the Customer Identity Check request will have a greater probability of being successful if a previous address is included.
+    + (object)
+        + Properties
+            + `apartment`: `11` (string) -  This is the customer's apartment number, if applicable.
+                _length<=50_
+            + `street`: `100 Queen Street West` - (string, required) - This is the first line of the customer's street address.
+                _length<=50_
+            + `street2`: `Building B` (string) - This is the second line of the customer's street address, if required.
+                _length<=50_
+            + `city`: `Toronto` (string, required) - This is the city where the address is located.
+                _length<=40_
+            + `country`: `CA` (string, required) - This is the country where the address is located. See [Country Codes](#countrycodes).
+                _length=2_
+            + `state`: `ON` (string, required) - This is the state/province/region in which the customer lived. For Canada see [Province Codes](#provincecodes). For the United States see [State Codes](#statecodes). 
+                _length<=40_
+            + `zip`: `M5H 2N2` (string, required) - This is the zip or postal code of the customer's address.
+                _length<=10_
+            + `phone`: `647-788-3901` (string) - This is the customer's phone number.
+                _length<=40_
+            + `monthsAtAddress`: `50` (string) - This is the number of months the customer lived at this address.
+                _length<=1200_
+
+## Previous Addresses Rerun
++ `previousAddresses` (array) - This is an array of the customer's previous addresses.
+    
+    + (object)
+        _Read Only_ 
+        + Properties
+            + `apartment`: `11` (string) -  This is the customer's apartment number, if applicable.
+                _Read Only_, _length<=50_
+            + `street`: `100 Queen Street West` - (string) - This is the first line of the customer's street address.
+                _Read Only_, _length<=50_
+            + `street2`: `Building B` (string) - This is the second line of the customer's street address, if required.
+                _Read Only_, _length<=50_
+            + `city`: `Toronto` (string) - This is the city where the address is located.
+                _Read Only_, _length<=40_
+            + `country`: `CA` (string) - This is the country where the address is located. See [Country Codes](#countrycodes).
+                _Read Only_, _length=2_
+            + `state`: `ON` (string) - This is the state/province/region in which the customer lived. For Canada see [Province Codes](#provincecodes). For the United States see [State Codes](#statecodes). 
+                _Read Only_, _length<=40_
+            + `zip`: `M5H 2N2` (string) - This is the zip or postal code of the customer's address.
+                _Read Only_, _length<=10_
+            + `phone`: `647-788-3901` (string) - This is the customer's phone number.
+                _Read Only_, _length<=40_
+            + `monthsAtAddress`: `50` (string) - This is the number of months the customer lived at this address.
+                _Read Only_, _length<=1200_
+
+## Profile
++ `profile` (object, required)
+    + Properties
+        + `firstName`: `John` (string, required) - This is the customer’s first name. 
+            _length<=80_
+        + `middleName`: `James` (string) - This is the customer’s middle name.
+            _length<=80_
+        + `lastName`: `Smith` (string, required) - This is the customer’s last name.
+            _length<=80_
+        + One of
+            + `ssn`: `123456789` (string) - This is the customer's Social Security Number.
+                _length=9_    
+            + `sin`: `123456789` (string) - This is the customer's Social Insurance number
+                _length=9_
+        + `email`: `johnsmith@myemail.com` (string) - This is the customer's email address.
+            _length<=255_
+        + One of
+            + `ssnLastFour`: `6789` (string) - This is the last four digits of the customer's Social Security Number, returned in the response.
+                _Read Only_, _length=4_
+            + `sinLastFour`: `6789` (string) - This is the last four digits of the customer's Social Insurance Number, returned in the response.
+                _Read Only_, _length=4_        
+        + `locale`: `en_CA` (enum) - This indicates the language of the profile.
+
+            + Members
+                + `en_CA`
+                + `fr_CA`
+        + Include Current Address
+        + Include Date of Birth
+        + Include Previous Addresses
+
+## Profile Rerun
++ `profile` (object)
+    _Read Only_
+    + Properties
+        + `firstName`: `John` (string) - This is the customer’s first name. 
+            _Read Only_, _length<=80_
+        + `middleName`: `James` (string) - This is the customer’s middle name.
+            _Read Only_, _length<=80_
+        + `lastName`: `Smith` (string) - This is the customer’s last name.
+            _Read Only_, _length<=80_
+        + `email`: `johnsmith@myemail.com` (string) - This is the customer's email address.
+            _Read Only_, _length<=255_
+        + One of
+            + `ssnLastFour`: `6789` (string) - This is the last four digits of the customer's Social Security Number, returned in the response.
+                _Read Only_, _length=4_
+            + `sinLastFour`: `6789` (string) - This is the last four digits of the customer's Social Insurance Number, returned in the response.
+                _Read Only_, _length=4_        
+        + `locale`: `en_CA` (enum) - This indicates the language of the profile.
+            _Read Only_
+
+            + Members
+                + `en_CA`
+                + `fr_CA`
+        + Include Current Address Rerun
+        + Include Date of Birth Rerun
+        + Include Previous Addresses Rerun
+
+## Provider Responses
++ `providerResponses` (object)
+
+    + Include EID Compare
+    + Include AML Assist
+
+## Reason Codes
++ `reasonCodes` (object) - This is an array of reason codes and descriptions from the downstream provider.
+
+    + Properties
+        + `description`: `Telephone exchange does not match the FSA (first three characters) of the postal code for Current Address.` (string) - This is a comment on the request by the downstream provider.
+        + `code`: `08` (number) - This is a code returned by the downstream provider.
+
+## Single Source Result
++ `singleSourceResult` (object)
+    _Read Only_
+    + Properties
+        + `isLastNameMatched`: `true` (boolean) - This indicates whether the last name matched.
+            _Read Only_
+        + `isFirstNameMatched`: `true` (boolean) - This indicates whether the first name matched.
+            _Read Only_
+        + `isMiddleNameMatched`: `true` (boolean) - This indicates whether the middle name matched.
+            _Read Only_
+        + `isSuffixNameMatched`: `true` (boolean) - This indicates whether the suffix name matched.
+            _Read Only_
+        + `isAddressCivicMatch`: `true` (boolean) - This indicates whether the civic number of the address matched.
+            _Read Only_
+        + `isAddressStreetNameMatch`: `true` (boolean) - This indicates whether the address street name matched.
+            _Read Only_
+        + `isAddressCityMatch`: `true` (boolean) - This indicates whether the address city matched.
+            _Read Only_
+        + `isAddressPostalCodeMatch`: `true` (boolean) - This indicates whether the address postal code matched.
+            _Read Only_
+        + `isAddressProvinceMatch`: `true` (boolean) - This indicates whether the address province matched.
+            _Read Only_
+        + `isDateOfBirthMatch`: `true` (boolean) - This indicates whether the date of birth matched.
+            _Read Only_
+        + `currentAddressReportedDate`: `201811` (string) - This is the date of the current address retrieved from the downstream provider output.
+            _Read Only_
+        + `dateOfBirthAsReported`: `19711130` (string) - This is the date of birth retrieved from the downstream provider output.
+            _Read Only_
+        + `nameAsReported`: `SMITH, JANE` (string) - This is the name retrieved from the downstream provider output.
+            _Read Only_
+        + `addressAsReported`: `11,DORVAL AVE,DORVAL,QC,H3S1G4` (string) - This is the address retrieved from the downstream provider output.
+            _Read Only_
