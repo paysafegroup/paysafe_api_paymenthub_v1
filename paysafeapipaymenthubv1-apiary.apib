@@ -27,6 +27,8 @@ The Paysafe Payments API currently supports the following payment methods:
 - Play+ (Sightline)
 - Skrill
 - Instant ACH (iACH)
+- ACH
+- EFT
 
 
 **Here is a step-by-step guide to get you started:**
@@ -397,6 +399,8 @@ When the merchant wants to process a Skrill payment request, you would do the fo
  5. At this point, the status of the Payment Handle becomes PAYABLE.
  6. Use the *paymentHandleToken* returned in the response to process the Payment request.
  7. Once the Payment request is successfully completed, the funds are immediately transferred to the merchant's account.
+ 
+**API Requests to Use:** [Payment Handles](#paymenthandlerequest) + [Payments](#paymentrequest)
 
 ### Scenario 10: Instant ACH Payment
 
@@ -412,6 +416,24 @@ When the merchant wants to process a Instant ACH payment request, you would do t
  6. Use the *paymentHandleToken* returned in the response to process the Payment request.
  7. Once the Payment request is successfully completed, the funds are immediately transferred to the merchant's account.
  
+**API Requests to Use:** [Payment Handles](#paymenthandlerequest) + [Payments](#paymentrequest)
+
+### Scenario 11: ACH Payment
+
+When the merchant wants to process an ACH payment request, you would do the following:
+ 1. Create a Payment Handle, which should immediately have the *status* of PAYABLE.
+ 2. Use the *paymentHandleToken* returned in the response to process the Payment request &ndash; 
+> **Note:** For ACH Payment, the *settleWithAuth* parameter must be set to *true*. 
+
+**API Requests to Use:** [Payment Handles](#paymenthandlerequest) + [Payments](#paymentrequest)
+
+### Scenario 12: EFT Payment
+
+When the merchant wants to process an EFT payment request, you would do the following:
+ 1. Create a Payment Handle, which should immediately have the *status* of PAYABLE.
+ 2. Use the *paymentHandleToken* returned in the response to process the Payment request &ndash; the *settleWithAuth* parameter must be set to *true* in this case.
+> **Note:** For EFT Payment, the *settleWithAuth* parameter must be set to *true*. 
+
 **API Requests to Use:** [Payment Handles](#paymenthandlerequest) + [Payments](#paymentrequest)
 
 <a name="paymentscheckout" title="Payments Checkout"></a>
@@ -497,6 +519,9 @@ The overlay contains a payment button that creates a payment handle for the data
                     },
                     "sightline": {
                         "consumerId": "123456"
+                    },
+                    "vippreferred":{
+                        "consumerId": "550726575"
                     }
                 }
             }, function(instance, error, result) {
@@ -584,6 +609,9 @@ The overlay contains a withdraw button that creates a payment handle for the dat
                         "paymentId": "3aeb9c63-6386-46a3-9f8e-f452e722228a",
                         "emailSubject": "Instant ACH Payout",
                         "emailMessage": "Your Instant ACH Payout request has been processed"
+                    },
+                    "vippreferred":{
+                        "consumerId": "550726575"
                     }
                 }
             }, function(instance, error, result) {
@@ -686,7 +714,8 @@ paysafe.checkout.setup(apiKey, options, resultCallback, closeCallback?)
 |[paysafecash](#paysafecash)|object|Conditional||Required for Paysafecash payment/withdrawal.|
 |[skrill](#skrill)          |object|Conditional||Required for Skrill withdrawal only. |
 |[instantach](#instantach)  |object|Conditional||Required for Instant ACH withdrawal only. |
-|[sightline](#sightline)    |object|Conditional||Required for Play+ (Sightline) payment/withdrawal. |
+|[sightline](#sightline)    |object|Conditional||Required for Play+|
+|[vippreferred](#vippreferred)|object|Conditional||Required for VIP Preferred|
 
 <a name="payoutconfig"></a>
 **payoutConfig**
@@ -740,6 +769,12 @@ The Paysafe Checkout is displayed when the configuration provided in *options* i
 |detail1Description      |string|no |             |You can show additional details about the product in the More information section in the header of Quick Checkout.|
 |detail1Text             |string|no |             |The detail1Text is shown next to the detail1Description in the More Information section in the header of the payment form with the other payment details. The detail1Description combined with the detail1Text is shown in the more information field of the merchant account history CSV file.|
 The Paysafe Checkout is displayed when the configuration provided in *options* is correctly validated.
+
+<a name="vippreferredobject" title="VIP Preferred"></a>
+**vippreferred**
+|Parameter          |Type|Required|Validations|Description|
+|---                |---|---|---|---|
+|consumerId         |string|yes|`length=9`|This is the customer's Social Security Number.|
 
 <a name="resultcallback"></a>
 #### resultCallback
@@ -948,6 +983,9 @@ The following are the 2 steps are involved.
                     },
                     "sightline": {
                         "consumerId": "123456"
+                    },
+                    "vippreferred":{
+                        "consumerId": "550726575"
                     }
                 },
                 "payout": true,
@@ -1683,6 +1721,28 @@ You will not be able to use your Test credentials to process transaction request
     }
     }
 ```
+<a name="achobject" title="ACH Object"></a>
+## ach
+|Element            |Type                       |Description                        |
+|---                |---                        |---       |
+|accountHolderName  |string <br/>`length<=22`   |This is the name of the customer or company. |
+|payMethod          |enum                       |This is the payment type. Possible values are:<ul><li>WEB (Personal bank accounts only)</li><li>TEL (Personal bank accounts only)</li><li>PPD (Personal bank accounts only)</li><li>CCD (Business bank accounts only)</li></ul>|
+|accountType        |enum                       |This is the bank account type. Possible values are:<ul><li>SAVINGS</li><li>CHECKING</li><li>LOAN</li></ul>|
+|accountNumber      |string<br/>`length=4-17`   |This is the bank account number.|
+|routingNumber      |string<br/>`length=9`      |For USD accounts, this is the 9-digit routing number of the bank.|
+|lastDigits         |string<br/>`length=2`      |This is returned in response. It contains only last 2 digits of bank account.|
+
+```apib
+            {
+           "ach": {
+             "accountHolderName": "XYZ Company",
+             "payMethod": "WEB",
+             "accountType": "CHECKING", 
+             "accountNumber": "988772192", 
+             "routingNumber": "211589828",
+                }
+            }
+```
 
 <a name="addressesobject" title="Addresses Object"></a>
 ## addresses
@@ -1868,6 +1928,27 @@ You will not be able to use your Test credentials to process transaction request
                 }
             }
 ```
+<a name="eftobject" title="EFT Object"></a>
+## eft
+|Element            |Type                       |Description                        |
+|---                |---                        |---       |
+|accountHolderName  |string <br/>`length<=30`   |This is the name of the customer or company. |
+|accountNumber      |string<br/>`length=4-12`   |This is the bank account number.|
+|transitNumber      |string<br/>`length=5`      |This is the 5-digit transit number of the customer's bank branch.|
+|institutionId      |string<br/>`length=3`      |This is the 3-digit institution ID of the customer’s bank branch. |
+|lastDigits         |string<br/>`length=2`      |This is returned in response. It contains only last 2 digits of bank account.|
+
+```apib
+            {
+             "eft": {
+                "accountHolderName": "XYZ Company",
+                "accountNumber": "336612",
+                "transitNumber": "22446",
+                "institutionId": "001",
+                    }
+            }
+```
+
 
 <a name="errorobject" title="error Object"></a>
 ## error
@@ -2123,7 +2204,7 @@ This is an authorization that is approved for an amount lower than the requested
 |transactionType        |enum                       |This specifies the transaction type for which the Payment Handle is created. Possible values are: <ul><li>PAYMENT</li><li> STANDALONE_CREDIT</li><li>ORIGINAL_CREDIT</li><li>VERIFICATION</li></ul>|
 |status                 |enum                       |This is the status of the request. Possible values are:<ul><li>INITIATED &ndash; The request was initiated with the downstream provider.</li><li>PAYABLE &ndash; The merchant can use the Payment Handle for a Payment request.</li><li>PROCESSING &ndash; The Payment Handle was authorized by customer, awaiting PSP response.</li><li>FAILED &ndash; The transaction failed due to either an error or being declined.</li><li>EXPIRED &ndash; The Payment Handle expired because the merchant did not proceed with the Payment transaction.</li><li>COMPLETED &ndash; The Payment request was initiated successfully using the Payment Handle.</li></ul>      |
 |usage                  |enum                       |This specifies how the Payment Handle will be used for Payments. Possible values are:<ul><li>SINGLE_USE &ndash; The Payment Handle can be used for one transaction only and expires if not used.</li><li>MULTI_USE &ndash; The Payment Handle can be used multiple times.</li></ul>|
-|paymentType            |enum                       |This is the payment type associated with this Payment Handle. Possible values are:<ul><li>CARD</li><li>PAYSAFECASH</li><li>PAYSAFECARD</li></ul>|
+|paymentType            |enum                       |This is the payment type associated with this Payment Handle. Possible values are:<ul><li>CARD</li><li>PAYSAFECASH</li><li>PAYSAFECARD</li><li>VIP PREFERRED</li><li>SIGHTLINE</li><li>SKRILL</li><li>INSTANT ACH</li><li>ACH</li><li>EFT</li></ul>|
 |action                 |enum                       |This specifies the next step of the user journey once they proceed to the Payment. Possible values are:<ul><li>NONE &ndash; No action is required, e.g., for a standard credit card payment.</li><li>REDIRECT &ndash; The user must be redirected in order to complete a Payment, e.g., when an alternate payment method like Paysafecard is used.</li></ul>|
 |executionMode          |enum                       |This specifies the action of the merchant server in order to complete the Payment. Possible values are:<ul><li>SYNCHRONOUS &ndash; The status of the Payment request will be returned synchronously to the merchant, e.g., a credit card request.</li><li>ASYNCHRONOUS &ndash; The Payment request is not completed immediately and the merchant [must rely on webhooks](#paymentswebhooks) to retrieve the status of the Payment request.</li></ul>|
 |amount                 |number<br/>`max=99999999999` |This is the amount of the request, in minor units.<br/>**Note:** This field is mandatory if *transactionType* is included. <br/>The *amount* specified in the Payment Handle request must match the *amount* specified in the Payments API request the *paymentHandleToken* is used for. |
@@ -2726,6 +2807,167 @@ The *storedCredential* object is used to identify [authorization requests](#auth
 |402           |ALTERNATE-PAYMENTS-GATEWAY-23 |The KYC documents provided could not be verified. |The KYC documents provided could not be verified.|
 |402           |ALTERNATE-PAYMENTS-GATEWAY-24 |There is an already existing third-party account with the details provided. |There is an already existing third-party account with the details provided.|
 
+<a name="directdebiterrors" title="Direct Debit Errors"></a>
+## Direct Debit Errors
+|HTTP Status Code   |Error Code     |Description|
+|---                |---            |---|
+|400                |2004           |The Direct Debit transaction cannot be found.  |
+|400                |2011           |You have submitted a mandate reference that does not exist.|
+|400                |2012           |You have submitted a mandate reference that is not active yet.|
+|400                |2013           |The mandate reference does not have a valid status.|
+|400                |2014           |The mandate reference is already in use for the specified bank account information.|
+|400                |2017           |The payment token bank scheme does not match the merchant account bank scheme.|
+|402                |4002           |The transaction was declined by our Risk Management department.|
+  
+<a name="directdebitreturncodes" title="Direct Debit Return Codes"></a>
+## Direct Debit Return Codes
+
+Occasionally, a Direct Debit API request will be successful, but can fail at the banking network level, e.g., due to insufficient funds or bank account closure. In such cases, the bank scheme provides a Return Code as an explanation. Because Direct Debit requests can take up to 7 days to clear, you cannot be notified of errors such as these via the API response. 
+However, you can use the [Paysafe Merchant Back Office](https://developer.paysafe.com/en/rest-apis/reference-information/managing-payments/paysafe-merchant-back-office/) to run reports to view Return Codes in the case where a Direct Debit request has failed.
+
+| Code         | Description                                                                                                                                                      | Bank Scheme |
+|--------------|------------------------------------------------------------------------------------------------------------------------------------------------------------------|-------------|
+| RT not found |                                                                                                                                                                  | ACH         |
+| CONFIG       | Client configuration problem                                                                                                                                     | ACH         |
+| LIMIT        | The maximum amount per check was exceeded.                                                                                                                       | ACH         |
+| INVACCT      | Invalid account type.                                                                                                                                            | ACH         |
+| INVDIR       | Invalid direction.                                                                                                                                               | ACH         |
+| NOPOP        | Merchant not configured or not allowed to run POP transactions - Electronic Check Conversion.                                                                    | ACH         |
+| PAPER        | Paper draft and can't send paper.                                                                                                                                | ACH         |
+| PARSE        | Parsing problem                                                                                                                                                  | ACH         |
+| THOMSON      | Reject due to Thomson database.                                                                                                                                  | ACH         |
+| UNKMER       | Unknown merchant.                                                                                                                                                | ACH         |
+| DEMO         | Demonstration transaction/ or merchant.                                                                                                                          | ACH         |
+| R90          | Invalid MOD digit                                                                                                                                                | ACH         |
+| R91          | Invalid ABA. Not nine (9) characters or numeric                                                                                                                  | ACH         |
+| R92          | ABA not active                                                                                                                                                   | ACH         |
+| R93          | Invalid Tran Code SEC combo                                                                                                                                      | ACH         |
+| R94          | Invalid amount for pre-note Tran Code                                                                                                                            | ACH         |
+| R95          | Amount is zero (0)                                                                                                                                               | ACH         |
+| R96          | Not a valid Tran code                                                                                                                                            | ACH         |
+| R97          | Not a valid SEC code                                                                                                                                             | ACH         |
+| R98          | Account decryption error                                                                                                                                         | ACH         |
+| R99          | OFAC possible match                                                                                                                                              | ACH         |
+| R37          | Source Document Presented for Payment                                                                                                                            | ACH         |
+| R38          | Stop  Payment on Source Document                                                                                                                                 | ACH         |
+| R39          | Improper Source Document                                                                                                                                         | ACH         |
+| R53          | Item and ACH Entry Presented for Payment                                                                                                                         | ACH         |
+| R75          | Original Return not a Duplicate                                                                                                                                  | ACH         |
+| R76          | No Errors Found                                                                                                                                                  | ACH         |
+| R83          | Foreign Receiving DFI Unable to Settle                                                                                                                           | ACH         |
+| R84          | Entry Not Processed by OGO                                                                                                                                       | ACH         |
+| R01          | Insufficient funds                                                                                                                                               | ACH         |
+| R02          | Account closed                                                                                                                                                   | ACH         |
+| R03          | No account/unable to locate                                                                                                                                      | ACH         |
+| R04          | Invalid account number                                                                                                                                           | ACH         |
+| R05          | Reserved                                                                                                                                                         | ACH         |
+| R06          | Return requested by ODFI                                                                                                                                         | ACH         |
+| R07          | Authorization revoked Note 2                                                                                                                                     | ACH         |
+| R08          | Stop payment                                                                                                                                                     | ACH         |
+| R09          | Uncollected funds                                                                                                                                                | ACH         |
+| R10          | Not authorizedNote 2                                                                                                                                             | ACH         |
+| R11          | Check truncation entry return                                                                                                                                    | ACH         |
+| R12          | Branch sold to another DFI                                                                                                                                       | ACH         |
+| R13          | RDFI not qualified to participate/or invalid route                                                                                                               | ACH         |
+| R14          | Payee deceased                                                                                                                                                   | ACH         |
+| R15          | Beneficiary deceased                                                                                                                                             | ACH         |
+| R16          | Account frozen                                                                                                                                                   | ACH         |
+| R17          | File record edit criteria                                                                                                                                        | ACH         |
+| R18          | Improper effective entry date                                                                                                                                    | ACH         |
+| R19          | Amount field error                                                                                                                                               | ACH         |
+| R20          | Non transaction account                                                                                                                                          | ACH         |
+| R21          | Invalid company ident.                                                                                                                                           | ACH         |
+| R22          | Invalid individual ID number                                                                                                                                     | ACH         |
+| R23          | Credit entry refused by receiver                                                                                                                                 | ACH         |
+| R24          | Duplicate entry                                                                                                                                                  | ACH         |
+| R25          | Addenda error                                                                                                                                                    | ACH         |
+| R26          | Mandatory field error                                                                                                                                            | ACH         |
+| R27          | Trace number error                                                                                                                                               | ACH         |
+| R28          | Routing # check digit error                                                                                                                                      | ACH         |
+| R29          | Corp cust. adviser not auth.                                                                                                                                     | ACH         |
+| R30          | RDFI non-part truncation prob                                                                                                                                    | ACH         |
+| R31          | Permissible return entry                                                                                                                                         | ACH         |
+| R32          | RDFI non-settlement                                                                                                                                              | ACH         |
+| R33          | Return of XCK entry                                                                                                                                              | ACH         |
+| R34          | Limited participation DFI                                                                                                                                        | ACH         |
+| R35          | Return of improper debit entry                                                                                                                                   | ACH         |
+| R36          | Return of improper credit entry                                                                                                                                  | ACH         |
+| R40          | Return of ENR entry by Fed. Gov.                                                                                                                                 | ACH         |
+| R41          | Invalid transaction code                                                                                                                                         | ACH         |
+| R42          | Routing #/check digit error                                                                                                                                      | ACH         |
+| R43          | Inv. DFI acct. number                                                                                                                                            | ACH         |
+| R44          | Inv. Individual ED number                                                                                                                                        | ACH         |
+| R45          | Inv. individual name/company name                                                                                                                                | ACH         |
+| R46          | Inv. rep. payee indicator                                                                                                                                        | ACH         |
+| R47          | Duplicate enrollment                                                                                                                                             | ACH         |
+| R50          | State Law affecting RCK acceptance                                                                                                                               | ACH         |
+| R51          | Item is ineligible (RCK)                                                                                                                                         | ACH         |
+| R52          | Stop payment on item (RCK)                                                                                                                                       | ACH         |
+| R61          | Dishonor                                                                                                                                                         | ACH         |
+| R62          | Dishonor                                                                                                                                                         | ACH         |
+| R63          | Dishonor                                                                                                                                                         | ACH         |
+| R64          | Dishonor                                                                                                                                                         | ACH         |
+| R65          | Dishonor                                                                                                                                                         | ACH         |
+| R66          | Dishonor                                                                                                                                                         | ACH         |
+| R67          | Dishonor                                                                                                                                                         | ACH         |
+| R68          | Dishonor                                                                                                                                                         | ACH         |
+| R69          | Dishonor                                                                                                                                                         | ACH         |
+| R70          | Dishonor                                                                                                                                                         | ACH         |
+| R71          | ContestedNote 4                                                                                                                                                  | ACH         |
+| R72          | ContestedNote 4                                                                                                                                                  | ACH         |
+| R73          | ContestedNote 4                                                                                                                                                  | ACH         |
+| R74          | ContestedNote 4                                                                                                                                                  | ACH         |
+| R80          | Cross- border payment coding error                                                                                                                               | ACH         |
+| R81          | Non-participant in cross-border pgm.                                                                                                                             | ACH         |
+| R82          | Invalid foreign RDFI ID                                                                                                                                          | ACH         |
+| 900          | Validation Rejection                                                                                                                                             | EFT         |
+| 901          | Not sufficient funds (debits only)                                                                                                                               | EFT         |
+| 902          | Cannot trace                                                                                                                                                     | EFT         |
+| 903          | Payment stopped/recalled                                                                                                                                         | EFT         |
+| 904          | Post dated/stale dated                                                                                                                                           | EFT         |
+| 905          | Account closed                                                                                                                                                   | EFT         |
+| 906          | Account transferred                                                                                                                                              | EFT         |
+| 907          | No chequing privileges                                                                                                                                           | EFT         |
+| 908          | Funds not cleared                                                                                                                                                | EFT         |
+| 909          | Currency/Account Mismatch                                                                                                                                        | EFT         |
+| 910          | Payor/payee deceased                                                                                                                                             | EFT         |
+| 911          | Account frozen                                                                                                                                                   | EFT         |
+| 912          | Invalid/incorrect account number                                                                                                                                 | EFT         |
+| 914          | Incorrect payor/payee name                                                                                                                                       | EFT         |
+| 915          | Refused by payor/payee                                                                                                                                           | EFT         |
+| 916          | Not in accordance with Agreement - Personal                                                                                                                      | EFT         |
+| 917          | Agreement Revoked - Personal                                                                                                                                     | EFT         |
+| 918          | No Pre-Notification - Personal                                                                                                                                   | EFT         |
+| 919          | Not in accordance with Agreement - Business                                                                                                                      | EFT         |
+| 920          | Agreement Revoked - Business                                                                                                                                     | EFT         |
+| 921          | No Pre-Notification - Business                                                                                                                                   | EFT         |
+| 922          | Customer Initiated Return Credit Only                                                                                                                            | EFT         |
+| 990          | Institution in Default                                                                                                                                           | EFT         |
+| 998          | No Return Agreement                                                                                                                                              | EFT         |
+| 4            | TRANSACTION TYPE is invalid or blank. See Appendix 3 for a list of CPA Transaction Types.                                                                        | EFT         |
+| 5            | AMOUNT is blank, or not greater than zero.                                                                                                                       | EFT         |
+| 6            | DUE DATE is invalid or blank.                                                                                                                                    | EFT         |
+| 7            | INSTITUTION (route and/or transit) is not in the correct format, does not exist or is blank.                                                                     | EFT         |
+| 8            | ACCOUNT NUMBER is not a valid format for the specified INSTITUTION.                                                                                              | EFT         |
+| 9            | ITEM TRACE NO. is invalid.                                                                                                                                       | EFT         |
+| 10           | STORED TRANSACTION TYPE is invalid or blank.                                                                                                                     | EFT         |
+| 11           | ORIGINATOR SHORT NAME is blank.                                                                                                                                  | EFT         |
+| 12           | PAYOR/PAYEE NAME is blank.                                                                                                                                       | EFT         |
+| 13           | ORIGINATOR LONG NAME is blank.                                                                                                                                   | EFT         |
+| 14           | Originating Direct Clearer ID is invalid or blank.                                                                                                               | EFT         |
+| 15           | CROSS REFERENCE is blank.                                                                                                                                        | EFT         |
+| 16           | INSTITUTION FOR RETURNS (route and/or transit) is invalid or blank. It should specify your credit union.                                                         | EFT         |
+| 19           | Original item trace number is invalid or blank.                                                                                                                  | EFT         |
+| 21           | DATA ELEMENT ID is invalid or blank.                                                                                                                             | EFT         |
+| E            | Accepted but errors were noted                                                                                                                                   | EFT         |
+| M            | Rejected, message authentication code (MAC) failed                                                                                                               | EFT         |
+| P            | Partially accepted, at least one transaction set was rejected                                                                                                    | EFT         |
+| R            | Rejected                                                                                                                                                         | EFT         |
+| W            | Rejected, assurance failed validity tests                                                                                                                        | EFT         |
+| X            | Rejected, content after decryption could not be analyzed                                                                                                         | EFT         |
+| TR           | Rejected by 824                                                                                                                                                  | EFT         |
+
+
 <a name="support" title="Help and Support"></a>
 # Help and Support
 
@@ -2864,6 +3106,8 @@ Click on **Create a Payment Handle** above to see six examples of how to create 
 * A Payment Handle for a Play+ payment
 * A Payment Handle for a Skrill payment
 * A Payment Handle for an Instant ACH payment
+* A Payment Handle for an ACH payment
+* A Payment Handle for an EFT payment
 * A Payment Handle for a VIP Preferred payment
 * A Payment Handle for a credit card Standalone Credit
 * A Payment Handle for a credit card Verification
@@ -3604,7 +3848,10 @@ Click on **Create a Payment Handle** above to see six examples of how to create 
                     "zip": "M5H 2N2",
                     "country": "CA"
                 },
-                "returnLinks": [{
+                "vippreferred":{
+                    "consumerId": "550726575"
+                },
+               "returnLinks": [{
                         "rel": "on_completed",
                         "href": "https://usgaminggamblig/payment/return/success",
                         "method": "GET"
@@ -3659,6 +3906,161 @@ Click on **Create a Payment Handle** above to see six examples of how to create 
                 }],
                 "timeToLiveSeconds": 899
             }
+
++ Request Create Payment Handle for ACH (application/json)
+
+    + Headers
+
+            Authorization: "Basic YOUR-BASE64-ENCODED-API-KEY"
+            
+    + Body
+
+            {
+              {
+              "merchantRefNum": "02058ac9-926b-468e-b3c7-be99e059ba57",
+              "transactionType": "PAYMENT",
+              "merchantDescriptor": {
+                "dynamicDescriptor": "OnlineStore",
+                "phone": "12345678"
+              },
+              "ach": {
+                "accountHolderName": "ACH HAR AcctHName",
+                "accountType": "SAVINGS",
+                "payMethod": "WEB",
+                "routingNumber": "998772192",
+                "accountNumber": "211589828"
+              },
+              "paymentType": "ACH",
+              "amount": 3000,
+              "currencyCode": "USD",
+              "customerIp": "204.91.0.11",
+              "billingDetails": {
+                "nickName": "Joe",
+                "street": "123 Street1",
+                "street2": "Unit 201",
+                "city": "Toronto",
+                "zip": "M5H 2N2",
+                "country": "CA"
+              }
+            }
+            }
+
++ Response 200 (application/json)
+
+    + Body
+
+             {
+              {
+              "id": "02058ac9-926b-468e-b3c7-be99e059bw34",
+              "merchantRefNum": "02058ac9-926b-468e-b3c7-be99e059ba57",
+              "transactionType": "PAYMENT",
+              "action": "NONE",
+              "usage": "SINGLE_USE",
+              "status": "PAYABLE",
+              "executionMode": "SYNCHRONOUS",
+              "paymentHandleToken": "SCyGZDlUuZ9zxjyd",
+              "merchantDescriptor": {
+                "dynamicDescriptor": "OnlineStore",
+                "phone": "12345678"
+              },
+              "ach": {
+                "lastDigits": "92",
+                "accountHolderName": "ACH HAR AcctHName",
+                "accountType": "SAVINGS",
+                "payMethod": "WEB",
+                "routingNumber": "211589828"
+              },
+              "paymentType": "ACH",
+              "amount": 3000,
+              "currencyCode": "USD",
+              "customerIp": "204.91.0.11",
+              "billingDetails": {
+                "nickName": "Joe",
+                "street": "123 Street1",
+                "street2": "Unit 201",
+                "city": "Toronto",
+                "zip": "M5H 2N2",
+                "country": "CA"
+              }
+            }
+            }
+
++ Request Create Payment Handle for EFT (application/json)
+
+    + Headers
+
+            Authorization: "Basic YOUR-BASE64-ENCODED-API-KEY"
+            
+    + Body
+
+            {
+             {
+                "merchantRefNum": "1cb53843-1a0d-496f-8265-27e7344d71d5",
+                "transactionType": "PAYMENT",
+                "merchantDescriptor": {
+                    "dynamicDescriptor": "OnlineStore",
+                    "phone": "12345678"
+                },
+                "eft": {
+                            "accountHolderName": "First Company",
+                            "accountNumber": "998772192",
+                            "transitNumber": "22446",
+                             "institutionId": "001"
+                },
+                "paymentType": "EFT",
+                "amount": 3000,
+                "currencyCode": "CAD",
+                "customerIp": "204.91.0.11",
+                "billingDetails": {
+                    "nickName": "Joe",
+                    "street": "123 Street1",
+                    "street2": "Unit 201",
+                    "city": "Toronto",
+                    "zip": "M5H 2N2",
+                    "country": "CA"
+                }
+            }
+            }
+
++ Response 200 (application/json)
+
+    + Body
+
+            {
+               {
+                "id" : "02058ac9-926b-468e-b3c7-be99e059bw35",
+                "merchantRefNum": "1cb53843-1a0d-496f-8265-27e7344d71d5",
+                "transactionType": "PAYMENT",
+                 "action": "NONE",
+                "usage": "SINGLE_USE",
+                "status": "PAYABLE",
+                "executionMode": "SYNCHRONOUS",
+                "paymentHandleToken": "SCyGZDlUuZ9zxjye",
+                "merchantDescriptor": {
+                    "dynamicDescriptor": "OnlineStore",
+                    "phone": "12345678"
+                },
+               "eft": {
+                            "accountHolderName": "First Company",
+                            "lastDigits": "92",
+                            "transitNumber": "22446",
+                             "institutionId": "001"
+                        },
+                "paymentType": "EFT",
+                "amount": 3000,
+                "currencyCode": "CAD",
+                "customerIp": "204.91.0.11",
+                "billingDetails": {
+                    "nickName": "Joe",
+                    "street": "123 Street1",
+                    "street2": "Unit 201",
+                    "city": "Toronto",
+                    "zip": "M5H 2N2",
+                    "country": "CA"
+                }
+            }
+            }
+
 
 + Request Create Payment Handle for Card for Standalone Credit (application/json)
 
@@ -5605,7 +6007,7 @@ Click on **Delete an Address** above to see how delete an Address.
 
 Click on **Create a Payment Handle for a Customer** above to create a Payment Handle for a [Customer you have already created](#createcustomerequest).
 
->**Note:** Currently, only CARD is supported as a *paymentType* parameter.
+>**Note:** Currently, only CARD, ACH and EFT are supported as a *paymentType* parameter.
 
 The *paymentHandleToken* returned in the response can be used for [payment requests in the Payments API](#paymentrequest), once it has the *status* of PAYABLE.
 
@@ -5679,7 +6081,7 @@ The single-use Payment Handle Token must still be valid &ndash; i.e., the *timeT
 To use the saved payment instrument, use the multi-use Payment Handle token returned in the response to this request to create another [single-use Payment Handle Token](#paymenthandlerequest) and then use the *paymentHandleToken* in that response to 
 [process a Payment request](#paymentrequest). Once that Payment request is successful, the *status* of the multi-use *paymentHandleToken* will become PAYABLE.
 
->**Note:** Currently, single-use Payment Handle tokens that have CARD as the *paymentType* are supported.
+>**Note:** Currently, single-use Payment Handle tokens that have CARD, ACH and EFT as the *paymentType* are supported.
 
 + Parameters
     + customer_id:`a5f1889d-f1be-4bbf-941d-fd9b8d09d5b1` (string,required) - This is the [ID of the customer](#createcustomerrequest) to which you are adding the Payment Handle.
@@ -6512,6 +6914,10 @@ Use the *singleUseCustomerToken* returned in the response in the Payments Checko
         + SIGHTLINE
         + SKRILL
         + VIPPREFERRED
+        + SIGHTLINE
+        + SKRILL
+        + ACH
+        + EFT
 + `status`:`PENDING` (enum) - This is the status of the transaction request.
     _Read Only_
     + Members
@@ -6549,6 +6955,8 @@ Use the *singleUseCustomerToken* returned in the response in the Payments Checko
             + SKRILL
             + INSTANTACH
             + VIPPREFERRED
+            + ACH
+            + EFT
     + currencyCode:`USD` (string) - This is the [currency of the merchant account](#currencycodes), e.g., USD or CAD.
         _Read Only, max=3_
     + `accountId`: `1009355920` (string) - This is the merchant account for which the payment method and currency are enabled.
@@ -6591,7 +6999,8 @@ Use the *singleUseCustomerToken* returned in the response in the Payments Checko
         + SKRILL
         + INSTANTACH
         + VIPPREFERRED
-        + INSTANTACH
+        + ACH
+        + EFT
 + Include Payment Instrument
 + `action`:`NONE` (enum) - This specifies the next step of the user journey once they proceed to the Payment.
     _Read Only_
@@ -6802,6 +7211,8 @@ Use the *singleUseCustomerToken* returned in the response in the Payments Checko
             + SIGHTLINE
             + SKRILL
             + INSTANTACH
+            + ACH
+            + EFT
             + VIPPREFERRED
     + Include Payment Instrument
     + `action`: (enum) - This specifies the next step of the user journey once they proceed to the Payment.
@@ -6933,6 +7344,45 @@ Use the *singleUseCustomerToken* returned in the response in the Payments Checko
             + `balance`:`20000` (string) - This is the balance on the Play+ (Sightline) prepaid card.
             + `last4ssn`:`6789` (string) - This is the last 4 digits of the customer's SSN, required to make the payments call. This is required only for a Payment transaction.
             + `card`: (object) - This is the card object. This will be present if customer registers with Play+ as part of the card recovery flow or when a customer adds fund to Play+ (Sightline).
+    
+    + ach (object) - These are the details of the [ach account](#achobject) used for the request. Only one payment instrument object (e.g., *card* or *ach*) can be included in the request.
+        + Properties
+            + `accountHolderName`:`XYZ Company` (string, required) - This is the name of the customer or company.
+                _length<=22_
+            + `payMethod` :`WEB`(enum) - This is the payment type.
+            _Read Only_
+                + Members
+                    + WEB - Personal bank accounts only
+                    + TEL - Personal bank accounts only
+                    + PPD - Personal bank accounts only
+                    + CCD - Business bank accounts only
+            + `accountType` :`SAVINGS`(enum) - This is the bank account type.
+            _Read Only_
+                + Members
+                    + SAVINGS
+                    + CHECKING
+                    + LOAN
+            + `accountNumber`:`988772192` (string, required) - This is the bank account number.
+               _length=4-17_
+            + `routingNumber`:`211589828` (string, required) - For USD accounts, this is the 9-digit routing number of the bank.
+                _length<=9_
+            + `lastDigits`:`92` (string) - This is returned in response. It contains only last 2 digits of bank account.
+                _length=2_
+
+    + eft (object) - These are the details of the [eft account](#eftobject) used for the request. Only one payment instrument object (e.g., *card* or *eft*) can be included in the request.
+        + `accountHolderName`:`XYZ Company` (string, required) - This is the name of the customer or company.
+                _length<=30_
+        + `accountNumber`:`988772192` (string, required) - This is the bank account number.
+               _length=4-12_
+        + `transitNumber`:`211589828` (string, required) - This is the 5-digit transit number of the customer's bank branch.
+                _length<=5_
+        + `institutionId`:`001` (string, optional) - This is the 3-digit institution ID of the customer’s bank branch.
+                _length<=3_
+        + `lastDigits`:`92` (string) - This is returned in response. It contains only last 2 digits of bank account.
+                _length=2_
+   
+    + vippreferred (object) - These are the details of the [vip preferred account](#vippreferredobject) used for the request. Only one payment instrument object (e.g., *card* or *vippreferred*) can be included in the request. 
+        + `consumerId`:`550726575` (string, required) - The is the consumer social security number (SSN). As it is sensitive data the consumerId will not be passed in the response. Last 4 digits will be passed as lastDigits. 
 
 ## PaymentsRequest (object)
 
