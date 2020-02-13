@@ -7617,7 +7617,7 @@ Use the *singleUseCustomerToken* returned in the response in the Payments Checko
     _Read Only, length<=36_
 + `merchantRefNum`:`P1234` (string, required) - This is the merchant reference number created by the merchant and submitted as part of the request.
     _length<=255_
-+ `amount`:`100` (number, required) - This is the amount of the request, in minor units.
++ `amount`:`100` (number) - This is the amount of the request, in minor units. *Note*: This will be a required field for partial void auth.
     _max=99999999999_
 + `txnTime`:`2018-12-11T16:33:49Z` (string) - This is the date and time the transaction was processed.
     _Read Only_
