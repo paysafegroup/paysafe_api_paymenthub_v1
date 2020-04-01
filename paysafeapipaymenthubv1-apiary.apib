@@ -520,7 +520,9 @@ The overlay contains a payment button that creates a payment handle for the data
                         "consumerId": "123456"
                     },
                     "sightline": {
-                        "consumerId": "123456"
+                        "consumerId": "123456",
+                        "SSN": "123456789",
+                        accountId:"1009688222
                     },
                     "vippreferred":{
                         "consumerId": "550726575"
@@ -708,10 +710,17 @@ paysafe.checkout.setup(apiKey, options, resultCallback, closeCallback?)
 |month|number|yes|`length=2 max=12`|This is the month of birth.|
 |day|number|yes|`length=2 max=31`|This is the day of birth.|
 
+**merchantDescriptor**
+|Parameter|Type|Required|Validations|Description|
+|---------|-------|---------------|-----------|------------------|
+|dynamicDescriptor|string|yes|`length<=20`|This is a merchant descriptor.|
+|phone|string|yes|`length<=13`|This is the merchant’s phone number, which will be appended to the merchant descriptor.|
+
 <a name="paymentmethoddetails"></a>
 **paymentMethodDetails**
 |Parameter|Type|Required|Validations|Description|
 |---------|-------|---------------|-----------|------------------|
+|accountID |string|`length<=10`|Required when you have more than one account configured for the same payment method and currency.|
 |[paysafecard](#paysafecard)|object|Conditional||Required for Paysafecard payment/withdrawal.|
 |[paysafecash](#paysafecash)|object|Conditional||Required for Paysafecash payment/withdrawal.|
 |[skrill](#skrill)          |object|Conditional||Required for Skrill withdrawal only. |
@@ -742,6 +751,7 @@ paysafe.checkout.setup(apiKey, options, resultCallback, closeCallback?)
 |Parameter|Type|Required|Validations|Description|
 |---------|-------|---------------|-----------|------------------|
 |consumerId|string|yes|`length<=50`|This is a consumer ID that the merchant has stored for Play+ (Sightline) payments. This will be used by Play+ for customer enrollment.|
+|SSN|string|no|`length=9`|This is the customer's Social Security Number.If merchant sends this field, then the last 4 SSN field will be prefilled and locked in enrollment as well as during Payment flow. If not provided, Customer has to enter their full SSN in the enrollment and the last 4 SSN in the Payment flow.|
 
 <a name="skrill"></a>
 **skrill**
