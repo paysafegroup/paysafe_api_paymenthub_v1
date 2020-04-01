@@ -522,10 +522,11 @@ The overlay contains a payment button that creates a payment handle for the data
                     "sightline": {
                         "consumerId": "123456",
                         "SSN": "123456789",
-                        accountId:"1009688222
+                        "accountId":"1009688222"
                     },
                     "vippreferred":{
-                        "consumerId": "550726575"
+                        "consumerId": "550726575",
+                        "accountId":"1009688222"
                     }
                 }
             }, function(instance, error, result) {
@@ -679,6 +680,7 @@ paysafe.checkout.setup(apiKey, options, resultCallback, closeCallback?)
 |[paymentMethodDetails](#paymentmethoddetails)|object|conditional||Required for Paysafecash, Paysafecard, Skrill, Instant ACH, Play+ (Sightline) payment types.|
 |payout |boolean |no | | If true, **Withdrawal** Checkout screen will be launched. If false, **Payment** Checkout will be launched.<br/> Defaults to false. |
 |[payoutConfig](#payoutconfig) |object | conditional | | Required for withdrawal checkout only. This configuration is used to specify withdrawal limitations. |
+|[merchantDescriptor](#merchantDescriptor)|object|no||This is a merchant descriptor.| 
 
 <a name="billingaddress"></a>
 **billingAddress**
@@ -692,6 +694,11 @@ paysafe.checkout.setup(apiKey, options, resultCallback, closeCallback?)
 |country|string|yes|`length=2`|The country of the address, e.g., US. See [Country Codes](#countrycodes).|
 |state|string|yes|`length<=40`|The state of the address. See [State Codes](#statecodes).|
 
+<a name="card"></a>
+**card**
+|Parameter|Type|Required|Validations|Description|
+|---------|-------|---------------|-----------|------------------|
+|accountID |string|Conditional|`length<=10`|Required when you have more than one account configured for the same payment method and currency.|
 
 <a name="customer"></a>
 **customer**
@@ -710,6 +717,7 @@ paysafe.checkout.setup(apiKey, options, resultCallback, closeCallback?)
 |month|number|yes|`length=2 max=12`|This is the month of birth.|
 |day|number|yes|`length=2 max=31`|This is the day of birth.|
 
+<a name="merchantDescriptor"></a>
 **merchantDescriptor**
 |Parameter|Type|Required|Validations|Description|
 |---------|-------|---------------|-----------|------------------|
@@ -720,7 +728,7 @@ paysafe.checkout.setup(apiKey, options, resultCallback, closeCallback?)
 **paymentMethodDetails**
 |Parameter|Type|Required|Validations|Description|
 |---------|-------|---------------|-----------|------------------|
-|accountID |string|`length<=10`|Required when you have more than one account configured for the same payment method and currency.|
+|[card](#card)|object|Conditional|Required if there are multiple card account for the same currency.|
 |[paysafecard](#paysafecard)|object|Conditional||Required for Paysafecard payment/withdrawal.|
 |[paysafecash](#paysafecash)|object|Conditional||Required for Paysafecash payment/withdrawal.|
 |[skrill](#skrill)          |object|Conditional||Required for Skrill withdrawal only. |
@@ -739,19 +747,22 @@ paysafe.checkout.setup(apiKey, options, resultCallback, closeCallback?)
 |Parameter|Type|Required|Validations|Description|
 |---------|-------|---------------|-----------|------------------|
 |consumerId|string|yes|`length<=50`|This is a consumer ID that the merchant has stored for Paysafecard payments.|
+|accountID |string|Conditional|`length<=10`|Required when you have more than one account configured for the same payment method and currency.|
 
 <a name="paysafecash"></a>
 **paysafecash**
 |Parameter|Type|Required|Validations|Description|
 |---------|-------|---------------|-----------|------------------|
 |consumerId|string|yes|`length<=50`|This is a consumer ID that the merchant has stored for Paysafecash payments.|
+|accountID |string|Conditional|`length<=10`|Required when you have more than one account configured for the same payment method and currency.|
 
 <a name="sightline"></a>
 **sightline**
 |Parameter|Type|Required|Validations|Description|
 |---------|-------|---------------|-----------|------------------|
 |consumerId|string|yes|`length<=50`|This is a consumer ID that the merchant has stored for Play+ (Sightline) payments. This will be used by Play+ for customer enrollment.|
-|SSN|string|no|`length=9`|This is the customer's Social Security Number.If merchant sends this field, then the last 4 SSN field will be prefilled and locked in enrollment as well as during Payment flow. If not provided, Customer has to enter their full SSN in the enrollment and the last 4 SSN in the Payment flow.|
+|SSN|string|no|`length=9`|This is the customer's Social Security Number.If provided, then the last 4 SSN field will be prefilled and locked in enrollment as well as during Payment flow. If not provided, Customer has to enter their full SSN in the enrollment and the last 4 SSN in the Payment flow.|
+|accountID |string|Conditional|`length<=10`|Required when you have more than one account configured for the same payment method and currency.|
 
 <a name="skrill"></a>
 **skrill**
@@ -765,6 +776,7 @@ paysafe.checkout.setup(apiKey, options, resultCallback, closeCallback?)
 |logoUrl                 |string|no |             |The URL of the logo which you would like to appear in the top right of the Skrill page. The logo must be accessible via HTTPS or it will not be shown. The logo will be resized to fit. To avoid scaling distortion, the minimum size should be as follows:<br>If the logo width > height - at least 107px wide.<br>If logo width > height - at least 65px high<br>Avoid large images (much greater than 256 by 256px) to minimize the page loading time.|
 |detail1Description      |string|no |             |You can show additional details about the product in the More information section in the header of Quick Checkout.|
 |detail1Text             |string|no |             |The detail1Text is shown next to the detail1Description in the More Information section in the header of the payment form with the other payment details. The detail1Description combined with the detail1Text is shown in the more information field of the merchant account history CSV file.|
+|accountID |string|Conditional|`length<=10`|Required when you have more than one account configured for the same payment method and currency.|
 
 <a name="instantach"></a>
 **instantach**
@@ -779,12 +791,14 @@ paysafe.checkout.setup(apiKey, options, resultCallback, closeCallback?)
 |logoUrl                 |string|no |             |The URL of the logo which you would like to appear in the top right of the Instant ACH page. The logo must be accessible via HTTPS or it will not be shown. The logo will be resized to fit. To avoid scaling distortion, the minimum size should be as follows:<br>If the logo width > height - at least 107px wide.<br>If logo width > height - at least 65px high<br>Avoid large images (much greater than 256 by 256px) to minimize the page loading time.|
 |detail1Description      |string|no |             |You can show additional details about the product in the More information section in the header of Quick Checkout.|
 |detail1Text             |string|no |             |The detail1Text is shown next to the detail1Description in the More Information section in the header of the payment form with the other payment details. The detail1Description combined with the detail1Text is shown in the more information field of the merchant account history CSV file.|
+|accountID |string|Conditional|`length<=10`|Required when you have more than one account configured for the same payment method and currency.|
 
 <a name="vippreferredobject" title="VIP Preferred"></a>
 **vippreferred**
 |Parameter          |Type|Required|Validations|Description|
 |---                |---|---|---|---|
 |consumerId         |string|yes|`length=9`|This is the customer's Social Security Number.|
+|accountID |string|Conditional|`length<=10`|Required when you have more than one account configured for the same payment method and currency.|
 
 The Paysafe Checkout is displayed when the configuration provided in *options* is correctly validated.
 
