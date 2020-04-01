@@ -4302,6 +4302,15 @@ Click on **Get Payment Handle Using Merchant Reference Number** above to see how
 + Parameter
 
     + merchant_ref_num : `13995817730005389` - This is the *merchantRefNum* used in the original Payment Handle creation request.
+         _Mandatory_
+    + limit : `32` (number) - This is the total number of records to return. Default = 10.
+        _Optional_ _Max=50_
+    + offset: `0` (number) - This is the starting position, where 0 is the first record. Default = 0.
+        _Optional_ 
+    + startDate : `2019-01-26` (UTC Date) - This is the start date in UTC. Default = 30 days before the *endDate*.
+        _Optional_
+    + endDate : `2019-03-26` (UTC Date) - This is the end date in UTC. Default = current date and time.
+        _Optional_
 
 + Request Look Up Payment Handle Using Merchant Reference Number (application/json)
 
@@ -4310,6 +4319,9 @@ Click on **Get Payment Handle Using Merchant Reference Number** above to see how
             Authorization: "Basic YOUR-BASE64-ENCODED-API-KEY"
 
 + Response 200 (application/json)
+
+     + Attributes
+        + Include paymenthandles
 
     + Body
 
@@ -4636,6 +4648,15 @@ Click on **Get Payment Using Merchant Reference Number** above to see how to loo
 + Parameter
 
    + merchant_ref_num : `merchantRefNum-145` - This is the merchant reference number created by the merchant and submitted as part of the Payments request.
+    _Mandatory_
+    + limit : `32` (number) - This is the total number of records to return. Default = 10.
+        _Optional_ _Max=50_
+    + offset: `0` (number) - This is the starting position, where 0 is the first record. Default = 0.
+        _Optional_ 
+    + startDate : `2019-01-26` (UTC Date) - This is the start date in UTC. Default = 30 days before the *endDate*.
+        _Optional_
+    + endDate : `2019-03-26` (UTC Date) - This is the end date in UTC. Default = current date and time.
+        _Optional_
 
 + Request Look Up Payment Using Merchant Reference Number (application/json)
 
@@ -4644,6 +4665,9 @@ Click on **Get Payment Using Merchant Reference Number** above to see how to loo
             Authorization: "Basic YOUR-BASE64-ENCODED-API-KEY"
 
 + Response 200 (application/json)
+
+     + Attributes
+        + Include payments
 
     + Body
 
@@ -5261,7 +5285,16 @@ Click on **Get Standalone Credit Using Merchant Reference Number** above to see 
 
 + Parameter
 
-   + merchant_ref_num : "merchantRefNum-151"
+   + merchantRefNum : `merchantRefNum-101` (string) - This is the merchant reference number created by the merchant and submitted as part of the request.
+        _Mandatory_
+    + limit : `32` (number) - This is the total number of records to return. Default = 10.
+        _Optional_ _Max=50_
+    + offset: `0` (number) - This is the starting position, where 0 is the first record. Default = 0.
+        _Optional_ 
+    + startDate : `2019-01-26` (UTC Date) - This is the start date in UTC. Default = 30 days before the *endDate*.
+        _Optional_
+    + endDate : `2019-03-26` (UTC Date) - This is the end date in UTC. Default = current date and time.
+        _Optional_
 
 + Request Look Up Standalone Credit Using Merchant Reference Number (application/json)
 
@@ -5271,6 +5304,9 @@ Click on **Get Standalone Credit Using Merchant Reference Number** above to see 
 
 + Response 200 (application/json)
 
+    + Attributes
+        + Include standalonecredits
+    
     + Body
 
             {
@@ -6871,7 +6907,7 @@ Use the *singleUseCustomerToken* returned in the response in the Payments Checko
     + shipFromZip:90211 (string) - This is the postal/zip code of the address from which the purchased goods are being shipped.
         _length<=10_
     + Include Line Items
-            
+
 ## Line Items
 
 + `lineItems` (object) - This is more [detailed information](#lineitemsobject) about the items that are being purchased.
@@ -7496,6 +7532,15 @@ Use the *singleUseCustomerToken* returned in the response in the Payments Checko
     + `nationality`:`Indian` (string) - This is the customer’s nationality.
         _length<=30_
 
+## paymenthandles
++ Include Metadata Object
++ `paymenthandles`: (array) - An array of Payment Handles.
+
+## payments
++ Include Metadata Object
++ `payments`: (array) - An array of Payments.
+
+
 ## Recipient (object)
 + `recipient` (object) - The recipient is deemed to be the person or party who has the contractual relationship with the merchant/financial institution.
     + `dateOfBirth` (object) - This is the date of birth of the recipient.
@@ -7575,6 +7620,11 @@ Use the *singleUseCustomerToken* returned in the response in the Payments Checko
             + One of
                 + amount:`505` (number) - This is the amount to transfer to the linked account in minor currency units.
                 + percent:`5` (number) - This is the percentage of the total transaction amount to transfer to that account.
+
+## standalonecredits
+    
++ Include Metadata Object
++ `standalonecredits`: (array) - An array of Standalone Credits.
 
 ## statusAttributes (enum) - This is the status of the request.
 + RECEIVED - Our system has received the request and is waiting for the downstream processor’s response.
