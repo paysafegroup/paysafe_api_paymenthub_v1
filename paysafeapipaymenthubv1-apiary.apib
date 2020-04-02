@@ -511,6 +511,9 @@ The overlay contains a payment button that creates a payment handle for the data
                 "environment": "TEST",
                 "merchantRefNum": "1559900597607",
                 "canEditAmount": true,
+                "merchantDescriptor": {   
+                    "dynamicDescriptor": "XYZ",
+                    "phone": "1234567890"}
                 "displayPaymentMethods":["skrill","card"],
                 "paymentMethodDetails": {
                     "paysafecard": {
@@ -526,7 +529,7 @@ The overlay contains a payment button that creates a payment handle for the data
                     },
                     "vippreferred":{
                         "consumerId": "550726575",
-                        "accountId":"1009688456"
+                        "accountId":"1679688456"
                     }
                 }
             }, function(instance, error, result) {
