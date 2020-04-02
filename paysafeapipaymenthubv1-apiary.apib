@@ -526,7 +526,7 @@ The overlay contains a payment button that creates a payment handle for the data
                     },
                     "vippreferred":{
                         "consumerId": "550726575",
-                        "accountId":"1009688222"
+                        "accountId":"1009688456"
                     }
                 }
             }, function(instance, error, result) {
@@ -4465,8 +4465,20 @@ Click on **Get Verification Using Merchant Reference Number** above to see how t
 + Parameter
 
    + merchant_ref_num : 20095817730019123 - This is the merchant reference number created by the merchant and submitted as part of the request. 
+        _Mandatory_
+    + limit : `32` (number) - This is the total number of records to return. Default = 10.
+        _Optional_ _Max=50_
+    + offset: `0` (number) - This is the starting position, where 0 is the first record. Default = 0.
+        _Optional_ 
+    + startDate : `2019-01-26` (UTC Date) - This is the start date in UTC. Default = 30 days before the *endDate*.
+        _Optional_
+    + endDate : `2019-03-26` (UTC Date) - This is the end date in UTC. Default = current date and time.
+        _Optional_
 
 + Response 200 (application/json)
+
+     + Attributes
+        + Include verifications
   
    + Body
 
@@ -4777,6 +4789,15 @@ Click on **Get Void Authorization Using Merchant Reference Number** above to see
 + Parameter
 
    + merchant_ref_num : 1391581772002515624 - This is the merchant reference number created by the merchant and submitted as part of the request. 
+        _Mandatory_
+    + limit : `32` (number) - This is the total number of records to return. Default = 10.
+        _Optional_ _Max=50_
+    + offset: `0` (number) - This is the starting position, where 0 is the first record. Default = 0.
+        _Optional_ 
+    + startDate : `2019-01-26` (UTC Date) - This is the start date in UTC. Default = 30 days before the *endDate*.
+        _Optional_
+    + endDate : `2019-03-26` (UTC Date) - This is the end date in UTC. Default = current date and time.
+        _Optional_
 
 + Request Look Up Void Authorization Using Merchant Reference Number (application/json)
 
@@ -4785,6 +4806,9 @@ Click on **Get Void Authorization Using Merchant Reference Number** above to see
             Authorization: "Basic YOUR-BASE64-ENCODED-API-KEY"
 
 + Response 200 (application/json)
+
+     + Attributes
+        + Include voidAuths
   
    + Body
 
@@ -4961,6 +4985,15 @@ Click on **Get Settlements Using Merchant Reference Number** above to see how to
 + Parameter
 
    + merchant_ref_num : `merchantRefNum-144` - This is the merchant reference number created by the merchant and submitted as part of the request.
+        _Mandatory_
+   + limit : `32` (number) - This is the total number of records to return. Default = 10.
+        _Optional_ _Max=50_
+   + offset: `0` (number) - This is the starting position, where 0 is the first record. Default = 0.
+         _Optional_ 
+   + startDate : `2019-01-26` (UTC Date) - This is the start date in UTC. Default = 30 days before the *endDate*.
+        _Optional_
+   + endDate : `2019-03-26` (UTC Date) - This is the end date in UTC. Default = current date and time.
+        _Optional_
 
 + Request Look Up Settlement Using Merchant Reference Number (application/json)
 
@@ -4969,6 +5002,9 @@ Click on **Get Settlements Using Merchant Reference Number** above to see how to
             Authorization: "Basic YOUR-BASE64-ENCODED-API-KEY"
 
 + Response 200 (application/json)
+    
+     + Attributes
+        + Include settlementsArray
 
     + Body
 
@@ -5137,6 +5173,15 @@ Click on **Get Refunds Using Merchant Reference Number** above to see how to loo
 + Parameter
 
    + merchant_ref_num : `merchantRefNum-118` - This is the merchant reference number created by the merchant and submitted as part of the request.
+        _Mandatory_
+    + limit : `32` (number) - This is the total number of records to return. Default = 10.
+        _Optional_ _Max=50_
+    + offset: `0` (number) - This is the starting position, where 0 is the first record. Default = 0.
+        _Optional_ 
+    + startDate : `2019-01-26` (UTC Date) - This is the start date in UTC. Default = 30 days before the *endDate*.
+        _Optional_
+    + endDate : `2019-03-26` (UTC Date) - This is the end date in UTC. Default = current date and time.
+        _Optional_
 
 + Request Look Up Refund Using Merchant Reference Number (application/json)
 
@@ -5145,6 +5190,9 @@ Click on **Get Refunds Using Merchant Reference Number** above to see how to loo
             Authorization: "Basic YOUR-BASE64-ENCODED-API-KEY"
 
 + Response 200 (application/json)
+    
+     + Attributes
+        + Include refundsArray
 
     + Body
 
@@ -5466,6 +5514,15 @@ Click on **Get Original Credit Using Merchant Reference Number** above to see ho
 + Parameter
 
    + merchant_ref_num : merchantRefNum-151 - This is the merchant reference number created by the merchant and submitted as part of the request. 
+         _Mandatory_
+    + limit : `32` (number) - This is the total number of records to return. Default = 10.
+        _Optional_ _Max=50_
+    + offset: `0` (number) - This is the starting position, where 0 is the first record. Default = 0.
+        _Optional_ 
+    + startDate : `2019-01-26` (UTC Date) - This is the start date in UTC. Default = 30 days before the *endDate*.
+        _Optional_
+    + endDate : `2019-03-26` (UTC Date) - This is the end date in UTC. Default = current date and time.
+        _Optional_
 
 + Request Look Up Original Credit Using Merchant Reference Number (application/json)
 
@@ -5474,7 +5531,10 @@ Click on **Get Original Credit Using Merchant Reference Number** above to see ho
             Authorization: "Basic YOUR-BASE64-ENCODED-API-KEY"
 
 + Response 200 (application/json)
-  
+    
+     + Attributes
+        + Include originalCredits
+
    + Body
 
             {
@@ -6954,6 +7014,10 @@ Use the *singleUseCustomerToken* returned in the response in the Payments Checko
         + `limit`:`10` (number) - This is the number of records returned per page. 
         + `page`:`1` (number) - This is the page of records on which the lookup starts.
 
+## originalCredits
++ Include Metadata Object
++ `originalCredits`: (array) - An array of Original Credits.
+
 ## OriginalCreditResponse (object)
 + `id`:`25f6dadf-176a-415f-95c9-6ff39ff697ba` (string) - This is the ID returned in the response. This ID can be used for future associated requests, e,g., lookups.
     _Read Only, length<=36_
@@ -7554,6 +7618,11 @@ Use the *singleUseCustomerToken* returned in the response in the Payments Checko
     + `accountNumber` - This is the account number of the recipient.
         _length<=25_
 
+## refundsArray
++ Include Metadata Object
++ `refunds`: (array) - An array of Refunds.
+
+
 ## Refunds
 + `id`:`25f6dadf-176a-415f-95c9-6ff39ff697ba` (string) - This is the ID returned in the response. This ID can be used for future associated requests, e,g., Refunds.
     _Read Only, length<=36_
@@ -7582,6 +7651,10 @@ Use the *singleUseCustomerToken* returned in the response in the Payments Checko
 + `riskReasonCode`:`1001` (array) - An array of integers is returned, displaying the detailed risk reason codes if your transaction was declined. It is returned only if your account is configured accordingly.        
 + Include Gateway Response
 + Include Metadata Object
+
+## settlementsArray
++ Include Metadata Object
++ `settlements`: (array) - An array of Settlements.
 
 ## Settlements
 + `id`: `25f6dadf-176a-415f-95c9-6ff39ff697ba` (string) - This is the ID returned in the response. This ID can be used for future associated requests, e,g., Refunds.
@@ -7687,6 +7760,14 @@ Use the *singleUseCustomerToken* returned in the response in the Payments Checko
 + Include Error Attributes
 + Include Metadata Object
 + `riskReasonCode`:`1001` (array) - An array of integers is returned, displaying the detailed risk reason codes if your transaction was declined. It is returned only if your account is configured accordingly.
+
+## verifications
++ Include Metadata Object
++ `verifications`: (array) - An array of Verifications.
+
+## voidAuths
++ Include Metadata Object
++ `voidAuths`: (array) - An array of Void Authorizations.
 
 ## voidAuthResponse (object)
 + `id`:`25f6dadf-176a-415f-95c9-6ff39ff697ba` (string) This is the ID returned in the response. This ID can be used for future associated requests, e,g., lookups.
