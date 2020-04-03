@@ -3,7 +3,7 @@ HOST: https://api.test.paysafe.com/paymenthub/
 
 # Paysafe Payments API 
 
->**NOTE:** The Payments API currently supports iGaming Merchants in the US only.
+>**NOTE:** The Payments API currently supports our Gaming & Gambling Partners in the US only. We’ll keep you updated when the API is made available in other geographies and markets. If you have any queries or concerns, please contact your Account Manager or our Integrations Support Team at integrations@paysafe.com.
 
 >**IMPORTANT:**  Because the Paysafe Payments API uses its [own unique API keys for request authentication](#apikey) and provides its own [Test and Production accounts](#goinglive), you should never click the **SIGN UP** or **LOGIN** buttons at the top right of the 
 Developer Center navigation, as these are used strictly for the other APIs on the Developer Center. Please contact your business relationship manager or reach out to <integrations@paysafe.com> for API keys and Test/Production accounts.
@@ -511,6 +511,10 @@ The overlay contains a payment button that creates a payment handle for the data
                 "environment": "TEST",
                 "merchantRefNum": "1559900597607",
                 "canEditAmount": true,
+                "merchantDescriptor": {   
+                    "dynamicDescriptor": "XYZ",
+                    "phone": "1234567890"
+                    },
                 "displayPaymentMethods":["skrill","card"],
                 "paymentMethodDetails": {
                     "paysafecard": {
@@ -520,10 +524,13 @@ The overlay contains a payment button that creates a payment handle for the data
                         "consumerId": "123456"
                     },
                     "sightline": {
-                        "consumerId": "123456"
+                        "consumerId": "123456",
+                        "SSN": "123456789",
+                        "accountId":"1009688222"
                     },
                     "vippreferred":{
-                        "consumerId": "550726575"
+                        "consumerId": "550726575",
+                        "accountId":"1679688456"
                     }
                 }
             }, function(instance, error, result) {
@@ -677,6 +684,7 @@ paysafe.checkout.setup(apiKey, options, resultCallback, closeCallback?)
 |[paymentMethodDetails](#paymentmethoddetails)|object|conditional||Required for Paysafecash, Paysafecard, Skrill, Instant ACH, Play+ (Sightline) payment types.|
 |payout |boolean |no | | If true, **Withdrawal** Checkout screen will be launched. If false, **Payment** Checkout will be launched.<br/> Defaults to false. |
 |[payoutConfig](#payoutconfig) |object | conditional | | Required for withdrawal checkout only. This configuration is used to specify withdrawal limitations. |
+|[merchantDescriptor](#merchantDescriptor)|object|no||This is a merchant descriptor.| 
 
 <a name="billingaddress"></a>
 **billingAddress**
@@ -690,6 +698,11 @@ paysafe.checkout.setup(apiKey, options, resultCallback, closeCallback?)
 |country|string|yes|`length=2`|The country of the address, e.g., US. See [Country Codes](#countrycodes).|
 |state|string|yes|`length<=40`|The state of the address. See [State Codes](#statecodes).|
 
+<a name="card"></a>
+**card**
+|Parameter|Type|Required|Validations|Description|
+|---------|-------|---------------|-----------|------------------|
+|accountID |string|Conditional|`length<=10`|Required when you have more than one account configured for the same payment method and currency.|
 
 <a name="customer"></a>
 **customer**
@@ -708,10 +721,18 @@ paysafe.checkout.setup(apiKey, options, resultCallback, closeCallback?)
 |month|number|yes|`length=2 max=12`|This is the month of birth.|
 |day|number|yes|`length=2 max=31`|This is the day of birth.|
 
+<a name="merchantDescriptor"></a>
+**merchantDescriptor**
+|Parameter|Type|Required|Validations|Description|
+|---------|-------|---------------|-----------|------------------|
+|dynamicDescriptor|string|yes|`length<=20`|This is a merchant descriptor.|
+|phone|string|yes|`length<=13`|This is the merchant’s phone number, which will be appended to the merchant descriptor.|
+
 <a name="paymentmethoddetails"></a>
 **paymentMethodDetails**
 |Parameter|Type|Required|Validations|Description|
 |---------|-------|---------------|-----------|------------------|
+|[card](#card)|object|Conditional||Required if there are multiple card accounts for the same currency.|
 |[paysafecard](#paysafecard)|object|Conditional||Required for Paysafecard payment/withdrawal.|
 |[paysafecash](#paysafecash)|object|Conditional||Required for Paysafecash payment/withdrawal.|
 |[skrill](#skrill)          |object|Conditional||Required for Skrill withdrawal only. |
@@ -730,18 +751,22 @@ paysafe.checkout.setup(apiKey, options, resultCallback, closeCallback?)
 |Parameter|Type|Required|Validations|Description|
 |---------|-------|---------------|-----------|------------------|
 |consumerId|string|yes|`length<=50`|This is a consumer ID that the merchant has stored for Paysafecard payments.|
+|accountID |string|Conditional|`length<=10`|Required when you have more than one account configured for the same payment method and currency.|
 
 <a name="paysafecash"></a>
 **paysafecash**
 |Parameter|Type|Required|Validations|Description|
 |---------|-------|---------------|-----------|------------------|
 |consumerId|string|yes|`length<=50`|This is a consumer ID that the merchant has stored for Paysafecash payments.|
+|accountID |string|Conditional|`length<=10`|Required when you have more than one account configured for the same payment method and currency.|
 
 <a name="sightline"></a>
 **sightline**
 |Parameter|Type|Required|Validations|Description|
 |---------|-------|---------------|-----------|------------------|
 |consumerId|string|yes|`length<=50`|This is a consumer ID that the merchant has stored for Play+ (Sightline) payments. This will be used by Play+ for customer enrollment.|
+|SSN|string|no|`length=9`|This is the customer's Social Security Number.If provided, then the last 4 SSN field will be prefilled and locked in enrollment as well as during Payment flow. If not provided, Customer has to enter their full SSN in the enrollment and the last 4 SSN in the Payment flow.|
+|accountID |string|Conditional|`length<=10`|Required when you have more than one account configured for the same payment method and currency.|
 
 <a name="skrill"></a>
 **skrill**
@@ -755,6 +780,7 @@ paysafe.checkout.setup(apiKey, options, resultCallback, closeCallback?)
 |logoUrl                 |string|no |             |The URL of the logo which you would like to appear in the top right of the Skrill page. The logo must be accessible via HTTPS or it will not be shown. The logo will be resized to fit. To avoid scaling distortion, the minimum size should be as follows:<br>If the logo width > height - at least 107px wide.<br>If logo width > height - at least 65px high<br>Avoid large images (much greater than 256 by 256px) to minimize the page loading time.|
 |detail1Description      |string|no |             |You can show additional details about the product in the More information section in the header of Quick Checkout.|
 |detail1Text             |string|no |             |The detail1Text is shown next to the detail1Description in the More Information section in the header of the payment form with the other payment details. The detail1Description combined with the detail1Text is shown in the more information field of the merchant account history CSV file.|
+|accountID |string|Conditional|`length<=10`|Required when you have more than one account configured for the same payment method and currency.|
 
 <a name="instantach"></a>
 **instantach**
@@ -769,12 +795,14 @@ paysafe.checkout.setup(apiKey, options, resultCallback, closeCallback?)
 |logoUrl                 |string|no |             |The URL of the logo which you would like to appear in the top right of the Instant ACH page. The logo must be accessible via HTTPS or it will not be shown. The logo will be resized to fit. To avoid scaling distortion, the minimum size should be as follows:<br>If the logo width > height - at least 107px wide.<br>If logo width > height - at least 65px high<br>Avoid large images (much greater than 256 by 256px) to minimize the page loading time.|
 |detail1Description      |string|no |             |You can show additional details about the product in the More information section in the header of Quick Checkout.|
 |detail1Text             |string|no |             |The detail1Text is shown next to the detail1Description in the More Information section in the header of the payment form with the other payment details. The detail1Description combined with the detail1Text is shown in the more information field of the merchant account history CSV file.|
+|accountID |string|Conditional|`length<=10`|Required when you have more than one account configured for the same payment method and currency.|
 
 <a name="vippreferredobject" title="VIP Preferred"></a>
 **vippreferred**
 |Parameter          |Type|Required|Validations|Description|
 |---                |---|---|---|---|
 |consumerId         |string|yes|`length=9`|This is the customer's Social Security Number.|
+|accountID |string|Conditional|`length<=10`|Required when you have more than one account configured for the same payment method and currency.|
 
 The Paysafe Checkout is displayed when the configuration provided in *options* is correctly validated.
 
@@ -4278,6 +4306,15 @@ Click on **Get Payment Handle Using Merchant Reference Number** above to see how
 + Parameter
 
     + merchant_ref_num : `13995817730005389` - This is the *merchantRefNum* used in the original Payment Handle creation request.
+         _Mandatory_
+    + limit : `32` (number) - This is the total number of records to return. Default = 10.
+        _Optional_ _Max=50_
+    + offset: `0` (number) - This is the starting position, where 0 is the first record. Default = 0.
+        _Optional_ 
+    + startDate : `2019-01-26` (UTC Date) - This is the start date in UTC. Default = 30 days before the *endDate*.
+        _Optional_
+    + endDate : `2019-03-26` (UTC Date) - This is the end date in UTC. Default = current date and time.
+        _Optional_
 
 + Request Look Up Payment Handle Using Merchant Reference Number (application/json)
 
@@ -4286,6 +4323,9 @@ Click on **Get Payment Handle Using Merchant Reference Number** above to see how
             Authorization: "Basic YOUR-BASE64-ENCODED-API-KEY"
 
 + Response 200 (application/json)
+
+     + Attributes
+        + Include paymenthandles
 
     + Body
 
@@ -4429,8 +4469,20 @@ Click on **Get Verification Using Merchant Reference Number** above to see how t
 + Parameter
 
    + merchant_ref_num : 20095817730019123 - This is the merchant reference number created by the merchant and submitted as part of the request. 
+        _Mandatory_
+    + limit : `32` (number) - This is the total number of records to return. Default = 10.
+        _Optional_ _Max=50_
+    + offset: `0` (number) - This is the starting position, where 0 is the first record. Default = 0.
+        _Optional_ 
+    + startDate : `2019-01-26` (UTC Date) - This is the start date in UTC. Default = 30 days before the *endDate*.
+        _Optional_
+    + endDate : `2019-03-26` (UTC Date) - This is the end date in UTC. Default = current date and time.
+        _Optional_
 
 + Response 200 (application/json)
+
+     + Attributes
+        + Include verifications
   
    + Body
 
@@ -4612,6 +4664,15 @@ Click on **Get Payment Using Merchant Reference Number** above to see how to loo
 + Parameter
 
    + merchant_ref_num : `merchantRefNum-145` - This is the merchant reference number created by the merchant and submitted as part of the Payments request.
+    _Mandatory_
+    + limit : `32` (number) - This is the total number of records to return. Default = 10.
+        _Optional_ _Max=50_
+    + offset: `0` (number) - This is the starting position, where 0 is the first record. Default = 0.
+        _Optional_ 
+    + startDate : `2019-01-26` (UTC Date) - This is the start date in UTC. Default = 30 days before the *endDate*.
+        _Optional_
+    + endDate : `2019-03-26` (UTC Date) - This is the end date in UTC. Default = current date and time.
+        _Optional_
 
 + Request Look Up Payment Using Merchant Reference Number (application/json)
 
@@ -4620,6 +4681,9 @@ Click on **Get Payment Using Merchant Reference Number** above to see how to loo
             Authorization: "Basic YOUR-BASE64-ENCODED-API-KEY"
 
 + Response 200 (application/json)
+
+     + Attributes
+        + Include payments
 
     + Body
 
@@ -4729,6 +4793,15 @@ Click on **Get Void Authorization Using Merchant Reference Number** above to see
 + Parameter
 
    + merchant_ref_num : 1391581772002515624 - This is the merchant reference number created by the merchant and submitted as part of the request. 
+        _Mandatory_
+    + limit : `32` (number) - This is the total number of records to return. Default = 10.
+        _Optional_ _Max=50_
+    + offset: `0` (number) - This is the starting position, where 0 is the first record. Default = 0.
+        _Optional_ 
+    + startDate : `2019-01-26` (UTC Date) - This is the start date in UTC. Default = 30 days before the *endDate*.
+        _Optional_
+    + endDate : `2019-03-26` (UTC Date) - This is the end date in UTC. Default = current date and time.
+        _Optional_
 
 + Request Look Up Void Authorization Using Merchant Reference Number (application/json)
 
@@ -4737,6 +4810,9 @@ Click on **Get Void Authorization Using Merchant Reference Number** above to see
             Authorization: "Basic YOUR-BASE64-ENCODED-API-KEY"
 
 + Response 200 (application/json)
+
+     + Attributes
+        + Include voidAuths
   
    + Body
 
@@ -4913,6 +4989,15 @@ Click on **Get Settlements Using Merchant Reference Number** above to see how to
 + Parameter
 
    + merchant_ref_num : `merchantRefNum-144` - This is the merchant reference number created by the merchant and submitted as part of the request.
+        _Mandatory_
+   + limit : `32` (number) - This is the total number of records to return. Default = 10.
+        _Optional_ _Max=50_
+   + offset: `0` (number) - This is the starting position, where 0 is the first record. Default = 0.
+         _Optional_ 
+   + startDate : `2019-01-26` (UTC Date) - This is the start date in UTC. Default = 30 days before the *endDate*.
+        _Optional_
+   + endDate : `2019-03-26` (UTC Date) - This is the end date in UTC. Default = current date and time.
+        _Optional_
 
 + Request Look Up Settlement Using Merchant Reference Number (application/json)
 
@@ -4921,6 +5006,9 @@ Click on **Get Settlements Using Merchant Reference Number** above to see how to
             Authorization: "Basic YOUR-BASE64-ENCODED-API-KEY"
 
 + Response 200 (application/json)
+    
+     + Attributes
+        + Include settlementsArray
 
     + Body
 
@@ -5089,6 +5177,15 @@ Click on **Get Refunds Using Merchant Reference Number** above to see how to loo
 + Parameter
 
    + merchant_ref_num : `merchantRefNum-118` - This is the merchant reference number created by the merchant and submitted as part of the request.
+        _Mandatory_
+    + limit : `32` (number) - This is the total number of records to return. Default = 10.
+        _Optional_ _Max=50_
+    + offset: `0` (number) - This is the starting position, where 0 is the first record. Default = 0.
+        _Optional_ 
+    + startDate : `2019-01-26` (UTC Date) - This is the start date in UTC. Default = 30 days before the *endDate*.
+        _Optional_
+    + endDate : `2019-03-26` (UTC Date) - This is the end date in UTC. Default = current date and time.
+        _Optional_
 
 + Request Look Up Refund Using Merchant Reference Number (application/json)
 
@@ -5097,6 +5194,9 @@ Click on **Get Refunds Using Merchant Reference Number** above to see how to loo
             Authorization: "Basic YOUR-BASE64-ENCODED-API-KEY"
 
 + Response 200 (application/json)
+    
+     + Attributes
+        + Include refundsArray
 
     + Body
 
@@ -5237,7 +5337,16 @@ Click on **Get Standalone Credit Using Merchant Reference Number** above to see 
 
 + Parameter
 
-   + merchant_ref_num : "merchantRefNum-151"
+   + merchantRefNum : `merchantRefNum-101` (string) - This is the merchant reference number created by the merchant and submitted as part of the request.
+        _Mandatory_
+    + limit : `32` (number) - This is the total number of records to return. Default = 10.
+        _Optional_ _Max=50_
+    + offset: `0` (number) - This is the starting position, where 0 is the first record. Default = 0.
+        _Optional_ 
+    + startDate : `2019-01-26` (UTC Date) - This is the start date in UTC. Default = 30 days before the *endDate*.
+        _Optional_
+    + endDate : `2019-03-26` (UTC Date) - This is the end date in UTC. Default = current date and time.
+        _Optional_
 
 + Request Look Up Standalone Credit Using Merchant Reference Number (application/json)
 
@@ -5247,6 +5356,9 @@ Click on **Get Standalone Credit Using Merchant Reference Number** above to see 
 
 + Response 200 (application/json)
 
+    + Attributes
+        + Include standalonecredits
+    
     + Body
 
             {
@@ -5406,6 +5518,15 @@ Click on **Get Original Credit Using Merchant Reference Number** above to see ho
 + Parameter
 
    + merchant_ref_num : merchantRefNum-151 - This is the merchant reference number created by the merchant and submitted as part of the request. 
+         _Mandatory_
+    + limit : `32` (number) - This is the total number of records to return. Default = 10.
+        _Optional_ _Max=50_
+    + offset: `0` (number) - This is the starting position, where 0 is the first record. Default = 0.
+        _Optional_ 
+    + startDate : `2019-01-26` (UTC Date) - This is the start date in UTC. Default = 30 days before the *endDate*.
+        _Optional_
+    + endDate : `2019-03-26` (UTC Date) - This is the end date in UTC. Default = current date and time.
+        _Optional_
 
 + Request Look Up Original Credit Using Merchant Reference Number (application/json)
 
@@ -5414,7 +5535,10 @@ Click on **Get Original Credit Using Merchant Reference Number** above to see ho
             Authorization: "Basic YOUR-BASE64-ENCODED-API-KEY"
 
 + Response 200 (application/json)
-  
+    
+     + Attributes
+        + Include originalCredits
+
    + Body
 
             {
@@ -6847,7 +6971,7 @@ Use the *singleUseCustomerToken* returned in the response in the Payments Checko
     + shipFromZip:90211 (string) - This is the postal/zip code of the address from which the purchased goods are being shipped.
         _length<=10_
     + Include Line Items
-            
+
 ## Line Items
 
 + `lineItems` (object) - This is more [detailed information](#lineitemsobject) about the items that are being purchased.
@@ -6893,6 +7017,10 @@ Use the *singleUseCustomerToken* returned in the response in the Payments Checko
         + `numberOfRecords`:`1` (number) - This is the number of records returned in the lookup.
         + `limit`:`10` (number) - This is the number of records returned per page. 
         + `page`:`1` (number) - This is the page of records on which the lookup starts.
+
+## originalCredits
++ Include Metadata Object
++ `originalCredits`: (array) - An array of Original Credits.
 
 ## OriginalCreditResponse (object)
 + `id`:`25f6dadf-176a-415f-95c9-6ff39ff697ba` (string) - This is the ID returned in the response. This ID can be used for future associated requests, e,g., lookups.
@@ -7472,6 +7600,15 @@ Use the *singleUseCustomerToken* returned in the response in the Payments Checko
     + `nationality`:`Indian` (string) - This is the customer’s nationality.
         _length<=30_
 
+## paymenthandles
++ Include Metadata Object
++ `paymenthandles`: (array) - An array of Payment Handles.
+
+## payments
++ Include Metadata Object
++ `payments`: (array) - An array of Payments.
+
+
 ## Recipient (object)
 + `recipient` (object) - The recipient is deemed to be the person or party who has the contractual relationship with the merchant/financial institution.
     + `dateOfBirth` (object) - This is the date of birth of the recipient.
@@ -7484,6 +7621,11 @@ Use the *singleUseCustomerToken* returned in the response in the Payments Checko
         _length<=255_
     + `accountNumber` - This is the account number of the recipient.
         _length<=25_
+
+## refundsArray
++ Include Metadata Object
++ `refunds`: (array) - An array of Refunds.
+
 
 ## Refunds
 + `id`:`25f6dadf-176a-415f-95c9-6ff39ff697ba` (string) - This is the ID returned in the response. This ID can be used for future associated requests, e,g., Refunds.
@@ -7513,6 +7655,10 @@ Use the *singleUseCustomerToken* returned in the response in the Payments Checko
 + `riskReasonCode`:`1001` (array) - An array of integers is returned, displaying the detailed risk reason codes if your transaction was declined. It is returned only if your account is configured accordingly.        
 + Include Gateway Response
 + Include Metadata Object
+
+## settlementsArray
++ Include Metadata Object
++ `settlements`: (array) - An array of Settlements.
 
 ## Settlements
 + `id`: `25f6dadf-176a-415f-95c9-6ff39ff697ba` (string) - This is the ID returned in the response. This ID can be used for future associated requests, e,g., Refunds.
@@ -7551,6 +7697,11 @@ Use the *singleUseCustomerToken* returned in the response in the Payments Checko
             + One of
                 + amount:`505` (number) - This is the amount to transfer to the linked account in minor currency units.
                 + percent:`5` (number) - This is the percentage of the total transaction amount to transfer to that account.
+
+## standalonecredits
+    
++ Include Metadata Object
++ `standalonecredits`: (array) - An array of Standalone Credits.
 
 ## statusAttributes (enum) - This is the status of the request.
 + RECEIVED - Our system has received the request and is waiting for the downstream processor’s response.
@@ -7613,6 +7764,14 @@ Use the *singleUseCustomerToken* returned in the response in the Payments Checko
 + Include Error Attributes
 + Include Metadata Object
 + `riskReasonCode`:`1001` (array) - An array of integers is returned, displaying the detailed risk reason codes if your transaction was declined. It is returned only if your account is configured accordingly.
+
+## verifications
++ Include Metadata Object
++ `verifications`: (array) - An array of Verifications.
+
+## voidAuths
++ Include Metadata Object
++ `voidAuths`: (array) - An array of Void Authorizations.
 
 ## voidAuthResponse (object)
 + `id`:`25f6dadf-176a-415f-95c9-6ff39ff697ba` (string) This is the ID returned in the response. This ID can be used for future associated requests, e,g., lookups.
