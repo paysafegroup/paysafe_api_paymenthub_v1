@@ -871,7 +871,7 @@ The *closeCallback* contains the following elements.
 
 <a name="usingsavedcardscheckout" title="Using Saved Cards and Addresses in Checkout"></a>
 ## Using Saved Cards and Addresses in Checkout
-You can use Payments Checkout to store your customer's credit card and address information, which you can then use for their future transactions. 
+You can use Payments Checkout to store your customer's credit card and address information, which they can then use for their future transactions. 
 This involves two easy steps:
  1. Create a profile for your customer.
  2. Create a single-use customer token, using the *customerId* in the Payments Checkout response (or the *id*, if you use an API call).
@@ -2060,6 +2060,7 @@ This is a read-only raw response returned by an acquirer.
 | responseReasonCode | string | This is the raw response reason code returned by Credorax.                                          |
 | cvvVerification    | enum   | This is the response to the cvv submitted with the transaction request. Possible values are:<ul><li>MATCH</li><li>NO_MATCH</li><li>NO_MATCH</li><li>NOT_PROCESSED</li><li>UNKNOWN</li></ul> |
 | cvv2Result         | string | This is the raw cvv2 result code.                                                                   |
+| orderId             |string  |Unique NETELLER reference for the order. `ie: ORD_7915d463-ccc8-4305-9d33-9e5c9310f12e, SUB_c46645ea-b7b0-4a91-87f7-88c00ec0dea1`|
 
 ## instantach
 
@@ -2171,6 +2172,29 @@ merchants who provide more detailed information when processing card-not-present
     }
     }
 ```
+<a name="linksobject" title="links Object"></a>
+## links
+
+|Element    |Type           |Description|
+|---        |---            |---|
+|rel        |enum           |This is the link type that allows different endpoints to be targeted depending on the end state of the transaction. Possible values are:<ul><li>redirect_payment</li><li>default</li><li>first</li><li>prev</li><li>next</li><li>last</li></ul>|
+|href       |string         |This is the URI of the resource.|
+|method     |string         |This is the HTTP method. |
+
+```apib
+{
+    "links": [{
+            "rel": "on_completed",
+            "href": "https://US_commerce_site/payment/return/success",
+        },
+        {
+            "rel": "on_failed",
+            "href": "https://US_commerce_site/payment/return/failed",
+        }
+    ]
+}
+```
+
 
 <a name="merchantdescriptorobject" title="merchantDescriptor Object"></a>
 ## merchantDescriptor
@@ -2187,6 +2211,25 @@ merchants who provide more detailed information when processing card-not-present
   }
   }
 ```
+
+## meta
+
+|Element    |Type           |Description|
+|---        |---            |---|
+|numberOfRecords|number|This is the number of records returned in the lookup.|
+|limit |number         |This is the number of records returned per page.|
+|page  |number         |This is the page of records on which the lookup starts.|
+
+```apib
+{
+    "meta": {
+               "numberOfRecords": 1,
+               "limit": 10,
+               "page": 1
+            }
+}
+```
+
 
 <a name="metadataobject" title="metadata Object"></a>
 ## metadata
@@ -2270,6 +2313,12 @@ This is an authorization that is approved for an amount lower than the requested
 |returnLinks            |[returnLinks](#returnlinksobject)         |These are links to which to redirect the customer, where applicable. |
 |customerIp             |string<br/>`length<=39`    |This is the customer's IP address. |
 |timeToLiveSeconds      |number<br/>`length<=899`   |This is the period of time, in seconds, the *paymentHandleToken* is valid before expiration.|
+|links            |[links](#linksobject)         |These are links to which to redirect the customer, where applicable. |
+|txnTime                |UTC formatted date               |This is the date and time the request was processed. For example:<br/>2019-01-26T10:32:28Z|
+|gatewayResponse    |[gatewayResponse](#gatewayresponseobject) | This is the read-only raw response returned by an acquirer. It is returned only if your account is configured accordingly.|
+|updatedTime|datetime|ISO 8601 format (UTC) This is the date and time the resource was last updated, e.g., `2014-01-26T10:32:28Z`|
+|statusTime|datetime|ISO 8601 format (UTC) This is the date and time the resource was last updated, e.g., `2014-01-26T10:32:28Z`|
+    
 
 ```apib
 {
@@ -2323,7 +2372,6 @@ This is an authorization that is approved for an amount lower than the requested
 |preAuth            |boolean                                |This indicates whether the Authorization request should be sent as a Pre-Authorization.<br/>**Note:** You should use the *preAuth* element in cases where you are not sure that you can fully settle the Authorization within 4 days. Contact your account manager for more information.|
 |partialAuth        |[partialAuth](#partialauthobject)      |This is an authorization that is approved for an amount lower than the requested amount. The remainder of the amount could be paid by other means.|
 |paymentHandleToken |string<br/>`length<=36`                |This is the Payment Handle token that represents the payment instrument to be used in the Payment request. |
-|authCode           |string<br/>`length<=50`                |This is the Authorization code assigned by the issuing bank and returned in the response.|
 |availableToSettle  |number                                 |This is the amount of the Authorization remaining to settle, in minor units.|
 |childAccountNum    |string<br/>`length<=10`                |This is the child merchant account number. It is returned only if the transaction was processed via a master account.|
 |customerIp         |string<br/>`length<=39`                |This is the customer's IP address.|
@@ -2342,6 +2390,12 @@ This is an authorization that is approved for an amount lower than the requested
 |error              |[error](#errorobject)                  |       |
 |statusReason       |string<br/>`length<=255`               |This is reason for the status. This is present in the case where *status* is ERROR, FAILURE, or HELD. |
 |authentication     |[authentication](#authenticationobject)|These are 3D Secure details.|
+|paymentType            |enum                       |This is the payment type associated with this Payment Handle. Possible values are:<ul><li>CARD</li><li>PAYSAFECASH</li><li>PAYSAFECARD</li><li>VIP PREFERRED</li><li>SIGHTLINE</li><li>SKRILL</li><li>INSTANT ACH</li><li>ACH</li><li>EFT</li></ul>|
+|gatewayReconciliationId |string                 |Transaction identifier that can be used to reconcile this transaction with the provider gateway.<br/><i>Read Only</i>|
+|updatedTime             |datetime               |ISO 8601 format (UTC) </b>This is the date and time the resource was last updated, e.g., `2014-01-26T10:32:28Z`<br/><i>Read Only</i>|
+|statusTime              |datetime               |ISO 8601 format (UTC) </b>This is the date and time the resource status was last updated, e.g., `2014-01-26T10:32:28Z`<br/><i>Read Only</i>|
+|availableToRefund  |number<br/>`max=99999999999`           |This is the amount of this Settlement that is available to Refund, in minor units. For example, US $10.99 would be 1099.|
+|links            |[links](#linksobject)         |These are links to which to redirect the customer, where applicable. |
 
 ```apib
 {
@@ -4324,12 +4378,12 @@ Click on **Get Payment Handle** above to see how to look up a Payment Handle usi
               },
               "returnLinks": [{
                         "rel": "on_completed",
-                        "href": "https://US_commerce_site/payment/return/success",
+                        "href": "https://US_commerce_site/payment/return/success"
                         "method": "GET"
                     },
                     {
                         "rel": "on_failed",
-                        "href": "https://US_commerce_site/payment/return/failed",
+                        "href": "https://US_commerce_site/payment/return/failed"
                         "method": "GET"
                     }
                 ]
@@ -7189,7 +7243,7 @@ Use the *singleUseCustomerToken* returned in the response in the Payments Checko
         + VERIFICATION - Payment Handle is created to continue the Verification request.
 + `accountId`:`9876543210` (string) - This is the merchant account number used for the request. Include this optional parameter if you have more than one merchant account for the currency/payment type combination you are specifying.
     _length<=10_
-+ `status`:`PAYABLE` (enum) - This is the status of the transaction request.
++ `status`:`PAYABLE` (enum) - This is the status of the payment handle.
     _Read Only_
     + Members
         + INITIATED - The transaction was initiated with the downstream provider.
@@ -7252,6 +7306,12 @@ Use the *singleUseCustomerToken* returned in the response in the Payments Checko
 + `timeToLiveSeconds`:`899` (number) - This is the period of time, in seconds, the *paymentHandleToken* is valid before expiration. 
     _Read Only, length<=899_
 + Include Metadata Object
+Include Gateway Response
++ `updatedTime`: `2016-01-01T04:5:55Z` (string) - Indicates the last updated time for the resource.
+    _Read Only_
++`statusTime`: `2016-01-01T04:55:55Z` (string) - Indicates when the status was last updated.
+    _Read Only_
+
 
 ## PaymentHandleRequest Customer
 
