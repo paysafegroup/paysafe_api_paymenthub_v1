@@ -117,7 +117,7 @@ To retrieve your Secret API key from the Business Portal:
 ###  Test URL
 In order to test your integration with Paysafe, use the following Test URL:
 
-`https://api.test.paysafe.com`
+`https://api.test.paysafe.com/paymenthub/v1/`
 
 For example:
 
@@ -126,7 +126,7 @@ For example:
 ### Production URL
 In order to process live requests with Paysafe, use the following Production URL:
 
-`https://api.paysafe.com`
+`https://api.paysafe.com/paymenthub/v1/`
 
 For example:
 
@@ -205,6 +205,14 @@ See [Going Live](#goinglive)
 # API
 
 The Payments API allows merchants to process payment-related requests across a wide variety of payment methods with a simple integration a single API using the REST protocol. The protocol uses JSON for all requests and responses.
+
+* **Message body**: This must contain valid Paysafe JSON objects as required for the type of request. Not all API calls require a message-body; for example, GET requests do not require a body.
+* **Resource ID**: Identifies the unique ID of a resource.
+![Structure of a Typical Payments API Request](http://mweb1-paysafeio-foreign.fra.skrill.net/fileadmin/user_upload/authentication_example_payments.png)
+* **Payment Simulator**: While testing your integration, you can choose whether you want to simulate the actual end customer experience (or) you want to use a page which lets you simulate all payment handle statuses.
+The behavior is controlled by using an HTTP header named “**Simulator**” in your request, which has the following possible values:
+   * **"INTERNAL" (default)** – which redirects you to the **status** simulator page.
+   * **"EXTERNAL"** – which redirects/connects you to the downstream payment method website (Eg: Skrill authentication page)
 
 ## Request Types Supported
 The following request types are supported:
@@ -2007,6 +2015,21 @@ You will not be able to use your Test credentials to process transaction request
    }
 ```
 
+<a name="fieldErrorobject" title= "Field Error Object"></a>
+## fieldError
+
+| Element            | Type   | Description                 |
+|--------------------|--------|-----------------------------|
+|field             |string  |Identifies the JSON request field.|
+|error            |string  |The problem associated with field.|
+
+```apib
+        {
+            "field": "transaction.accountProfile.email",
+            "error": "Required field"
+        }
+```
+
 <a name="gatewayresponseobject" title= "Gateway Response Object"></a>
 ## gatewayResponse
 
@@ -3091,6 +3114,7 @@ Click on **Look Up Payment Methods** above to see how to look up the payment met
     + Headers
 
             Authorization: "Basic YOUR-BASE64-ENCODED-API-KEY"
+            Simulator: "EXTERNAL"
     
 + Response 200 (application/json)
 
@@ -3154,6 +3178,7 @@ Click on **Create a Payment Handle** above to see six examples of how to create 
     + Headers
 
             Authorization: "Basic YOUR-BASE64-ENCODED-API-KEY"
+            Simulator: "EXTERNAL"
     
     + Body
 
@@ -3248,6 +3273,7 @@ Click on **Create a Payment Handle** above to see six examples of how to create 
     + Headers
 
             Authorization: "Basic YOUR-BASE64-ENCODED-API-KEY"
+            Simulator: "EXTERNAL"
             
     + Body
 
@@ -3348,6 +3374,7 @@ Click on **Create a Payment Handle** above to see six examples of how to create 
     + Headers
 
             Authorization: "Basic YOUR-BASE64-ENCODED-API-KEY"
+            Simulator: "EXTERNAL"
             
     + Body
 
@@ -3461,6 +3488,7 @@ Click on **Create a Payment Handle** above to see six examples of how to create 
     + Headers
 
             Authorization: "Basic YOUR-BASE64-ENCODED-API-KEY"
+            Simulator: "EXTERNAL"
             
     + Body
 
@@ -3574,6 +3602,7 @@ Click on **Create a Payment Handle** above to see six examples of how to create 
     + Headers
 
             Authorization: "Basic YOUR-BASE64-ENCODED-API-KEY"
+            Simulator: "EXTERNAL"
             
     + Body
 
@@ -3667,6 +3696,7 @@ Click on **Create a Payment Handle** above to see six examples of how to create 
     + Headers
 
             Authorization: "Basic YOUR-BASE64-ENCODED-API-KEY"
+            Simulator: "EXTERNAL"
             
     + Body
 
@@ -3764,6 +3794,7 @@ Click on **Create a Payment Handle** above to see six examples of how to create 
     + Headers
 
             Authorization: "Basic YOUR-BASE64-ENCODED-API-KEY"
+            Simulator: "EXTERNAL"
             
     + Body
 
@@ -3861,6 +3892,7 @@ Click on **Create a Payment Handle** above to see six examples of how to create 
     + Headers
 
             Authorization: "Basic YOUR-BASE64-ENCODED-API-KEY"
+            Simulator: "EXTERNAL"
             
     + Body
 
@@ -3942,6 +3974,7 @@ Click on **Create a Payment Handle** above to see six examples of how to create 
     + Headers
 
             Authorization: "Basic YOUR-BASE64-ENCODED-API-KEY"
+            Simulator: "EXTERNAL"
             
     + Body
 
@@ -4020,6 +4053,7 @@ Click on **Create a Payment Handle** above to see six examples of how to create 
     + Headers
 
             Authorization: "Basic YOUR-BASE64-ENCODED-API-KEY"
+            Simulator: "EXTERNAL"
             
     + Body
 
@@ -4097,6 +4131,7 @@ Click on **Create a Payment Handle** above to see six examples of how to create 
     + Headers
 
             Authorization: "Basic YOUR-BASE64-ENCODED-API-KEY"
+            Simulator: "EXTERNAL"
             
     + Body
 
@@ -4169,6 +4204,7 @@ Click on **Create a Payment Handle** above to see six examples of how to create 
     + Headers
 
             Authorization: "Basic YOUR-BASE64-ENCODED-API-KEY"
+            Simulator: "EXTERNAL"
             
     + Body
 
@@ -4249,6 +4285,7 @@ Click on **Get Payment Handle** above to see how to look up a Payment Handle usi
     + Headers
 
             Authorization: "Basic YOUR-BASE64-ENCODED-API-KEY"
+            Simulator: "EXTERNAL"
 
 + Response 200 (application/json)
 
@@ -4321,6 +4358,7 @@ Click on **Get Payment Handle Using Merchant Reference Number** above to see how
     + Headers
 
             Authorization: "Basic YOUR-BASE64-ENCODED-API-KEY"
+            Simulator: "EXTERNAL"
 
 + Response 200 (application/json)
 
@@ -4398,6 +4436,7 @@ Click on **Verification** above to see how to submit a Verification request usin
     + Headers
 
             Authorization: "Basic YOUR-BASE64-ENCODED-API-KEY"
+            Simulator: "EXTERNAL"
 
     + Body
 
@@ -4533,6 +4572,7 @@ Click on **Process Payment** above to see two examples of how to create a Paymen
     + Headers
 
             Authorization: "Basic YOUR-BASE64-ENCODED-API-KEY"
+            Simulator: "EXTERNAL"
     
     + Body
 
@@ -4577,6 +4617,7 @@ Click on **Process Payment** above to see two examples of how to create a Paymen
     + Headers
 
             Authorization: "Basic YOUR-BASE64-ENCODED-API-KEY"
+            Simulator: "EXTERNAL"
     
     + Body
 
@@ -4630,6 +4671,7 @@ Click on **Get Payments** above to see how to look up a Payment using the ID ret
     + Headers
 
             Authorization: "Basic YOUR-BASE64-ENCODED-API-KEY"
+            Simulator: "EXTERNAL"
 
 + Response 200 (application/json)
 
@@ -4679,6 +4721,7 @@ Click on **Get Payment Using Merchant Reference Number** above to see how to loo
     + Headers
 
             Authorization: "Basic YOUR-BASE64-ENCODED-API-KEY"
+            Simulator: "EXTERNAL"
 
 + Response 200 (application/json)
 
@@ -4737,6 +4780,7 @@ Click on **Void Authorization** above to see how to submit a Void Authorization 
     + Headers
 
             Authorization: "Basic YOUR-BASE64-ENCODED-API-KEY"
+            Simulator: "EXTERNAL"
             
     + Body
 
@@ -4772,6 +4816,7 @@ Click on **Get Void Authorization** above to see how to look up a Void Authoriza
     + Headers
 
             Authorization: "Basic YOUR-BASE64-ENCODED-API-KEY"
+            Simulator: "EXTERNAL"
 
 + Response 200 (application/json)
 
@@ -4808,6 +4853,7 @@ Click on **Get Void Authorization Using Merchant Reference Number** above to see
     + Headers
 
             Authorization: "Basic YOUR-BASE64-ENCODED-API-KEY"
+            Simulator: "EXTERNAL"
 
 + Response 200 (application/json)
 
@@ -4861,6 +4907,7 @@ Click on **Process Settlement** above to see two examples of how to process a Se
     + Headers
 
             Authorization: "Basic YOUR-BASE64-ENCODED-API-KEY"
+            Simulator: "EXTERNAL"
     
     + Body
 
@@ -4889,6 +4936,7 @@ Click on **Process Settlement** above to see two examples of how to process a Se
     + Headers
 
             Authorization: Basic YOUR-BASE64-ENCODED-API-KEY
+            Simulator: "EXTERNAL"
 
     + Body
 
@@ -4935,6 +4983,7 @@ Click on **Cancel Settlement** above to see how to cancel a Settlement. You must
     + Headers
 
             Authorization: "Basic YOUR-BASE64-ENCODED-API-KEY"
+            Simulator: "EXTERNAL"
     
     + Body
 
@@ -4967,6 +5016,7 @@ Click on **Get Settlements** above to see how to look up a Settlement using the 
     + Headers
 
             Authorization: "Basic YOUR-BASE64-ENCODED-API-KEY"
+            Simulator: "EXTERNAL"
 
 + Response 200 (application/json)
 
@@ -5004,6 +5054,7 @@ Click on **Get Settlements Using Merchant Reference Number** above to see how to
     + Headers
 
             Authorization: "Basic YOUR-BASE64-ENCODED-API-KEY"
+            Simulator: "EXTERNAL"
 
 + Response 200 (application/json)
     
@@ -5054,6 +5105,7 @@ Click on **Process Refund** above to see two examples of how to process a Refund
     + Headers
 
             Authorization: "Basic YOUR-BASE64-ENCODED-API-KEY"
+            Simulator: "EXTERNAL"
     
     + Body
 
@@ -5080,6 +5132,7 @@ Click on **Process Refund** above to see two examples of how to process a Refund
     + Headers
 
             Authorization: "Basic YOUR-BASE64-ENCODED-API-KEY"
+            Simulator: "EXTERNAL"
     
     + Body
 
@@ -5125,6 +5178,7 @@ Click on **Cancel Refund** above to see how to cancel a Refund. You must include
     + Headers
 
             Authorization: "Basic YOUR-BASE64-ENCODED-API-KEY"
+            Simulator: "EXTERNAL"
     
     + Body
 
@@ -5156,6 +5210,7 @@ Click on **Get Refund** above to see how to look up a Refund using the ID return
     + Headers
 
             Authorization: "Basic YOUR-BASE64-ENCODED-API-KEY"
+            Simulator: "EXTERNAL"
 
 + Response 200 (application/json)
 
@@ -5192,6 +5247,7 @@ Click on **Get Refunds Using Merchant Reference Number** above to see how to loo
     + Headers
 
             Authorization: "Basic YOUR-BASE64-ENCODED-API-KEY"
+            Simulator: "EXTERNAL"
 
 + Response 200 (application/json)
     
@@ -5236,6 +5292,7 @@ Click on **Process Standalone Credit** above to see how to process a Standalone 
     + Headers
 
             Authorization: "Basic YOUR-BASE64-ENCODED-API-KEY"
+            Simulator: "EXTERNAL"
             
     + Body
 
@@ -5281,6 +5338,7 @@ Click on **Cancel Standalone Credit** above to see how to cancel a Standalone Cr
     + Headers
 
             Authorization: "Basic YOUR-BASE64-ENCODED-API-KEY"
+            Simulator: "EXTERNAL"
     
     + Body
 
@@ -5313,6 +5371,7 @@ Click on **Get Standalone Credit** above to see how to look up a Standalone Cred
     + Headers
 
             Authorization: "Basic YOUR-BASE64-ENCODED-API-KEY"
+            Simulator: "EXTERNAL"
 
 + Response 200 (application/json)
 
@@ -5353,6 +5412,7 @@ Click on **Get Standalone Credit Using Merchant Reference Number** above to see 
     + Headers
 
             Authorization: "Basic YOUR-BASE64-ENCODED-API-KEY"
+            Simulator: "EXTERNAL"
 
 + Response 200 (application/json)
 
@@ -5414,6 +5474,7 @@ Click on **Process Original Credit** above to see how to process an Original Cre
     + Headers
 
             Authorization: "Basic YOUR-BASE64-ENCODED-API-KEY"
+            Simulator: "EXTERNAL"
     
     + Body
 
@@ -5459,6 +5520,7 @@ Click on **Cancel Original Credit** above to see how to cancel an Original Credi
     + Headers
 
             Authorization: "Basic YOUR-BASE64-ENCODED-API-KEY"
+            Simulator: "EXTERNAL"
     
     + Body
 
@@ -5492,6 +5554,7 @@ Click on **Get Original Credit** above to see how to look up an Original Credit 
     + Headers
 
             Authorization: "Basic YOUR-BASE64-ENCODED-API-KEY"
+            Simulator: "EXTERNAL"
 
 + Response 200 (application/json)
 
@@ -5533,6 +5596,7 @@ Click on **Get Original Credit Using Merchant Reference Number** above to see ho
     + Headers
 
             Authorization: "Basic YOUR-BASE64-ENCODED-API-KEY"
+            Simulator: "EXTERNAL"
 
 + Response 200 (application/json)
     
@@ -5581,6 +5645,7 @@ You can create a customer in order to store credit card information to the custo
     + Headers
     
             Authorization: Basic YOUR-BASE64-ENCODED-API-KEY
+            Simulator: "EXTERNAL"
 
     + Body
 
@@ -5647,6 +5712,7 @@ then if you include those same fields in this request, your values included here
     + Headers
     
             Authorization: Basic YOUR-BASE64-ENCODED-API-KEY
+            Simulator: "EXTERNAL"
 
     + Body
 
@@ -5743,6 +5809,7 @@ Click on **Get Customer** above to see how to look up a Customer using the ID re
     + Headers
     
             Authorization: Basic YOUR-BASE64-ENCODED-API-KEY
+            Simulator: "EXTERNAL"
             
 + Response 200 (application/json)
 
@@ -5824,6 +5891,7 @@ Click on **Get Customer Including Subcomponents** above to see how to look up a 
     + Headers
     
             Authorization: Basic YOUR-BASE64-ENCODED-API-KEY
+            Simulator: "EXTERNAL"
             
 + Response 200 (application/json)
 
@@ -5903,6 +5971,7 @@ Click on **Update a Customer** above to see how update a Customer using the ID r
     + Headers
     
             Authorization: Basic YOUR-BASE64-ENCODED-API-KEY
+            Simulator: "EXTERNAL"
 
     + Body
 
@@ -5965,6 +6034,7 @@ Click on **Delete a Customer** above to see how delete a Customer.
     + Headers
 
             Authorization: Basic YOUR-BASE64-ENCODED-API-KEY
+            Simulator: "EXTERNAL"
             
 + Response 200 (application/json)
 
@@ -5987,6 +6057,7 @@ Click on **Create an Address** above to see how to add an address to [Customer y
     + Headers
     
             Authorization: Basic YOUR-BASE64-ENCODED-API-KEY
+            Simulator: "EXTERNAL"
 
     + Body
 
@@ -6035,6 +6106,7 @@ Click on **Get Address** above to see how to look up an Address using the ID ret
     + Headers
     
             Authorization: Basic YOUR-BASE64-ENCODED-API-KEY
+            Simulator: "EXTERNAL"
             
 + Response 200 (application/json)
 
@@ -6074,6 +6146,7 @@ Click on **Update an Address** above to see how update an Address using the ID r
     + Headers
 
             Authorization: Basic YOUR-BASE64-ENCODED-API-KEY
+            Simulator: "EXTERNAL"
             
     + Body
 
@@ -6122,6 +6195,7 @@ Click on **Delete an Address** above to see how delete an Address.
     + Headers
 
             Authorization: Basic YOUR-BASE64-ENCODED-API-KEY
+            Simulator: "EXTERNAL"
             
 + Response 200 (application/json)
 
@@ -6156,6 +6230,7 @@ If you do not include it when creating the customer Payment Handle, you should t
     + Headers
 
             Authorization: Basic YOUR-BASE64-ENCODED-API-KEY
+            Simulator: "EXTERNAL"
         
     + Body
 
@@ -6223,7 +6298,8 @@ To use the saved payment instrument, use the multi-use Payment Handle token retu
     + Headers
 
             Authorization: Basic YOUR-BASE64-ENCODED-API-KEY
-        
+            Simulator: "EXTERNAL"
+
     + Body
     
              {
@@ -6272,6 +6348,7 @@ Click on **Get Customer Payment Handle** above to see how to look up a Customer 
     + Headers
     
             Authorization: Basic YOUR-BASE64-ENCODED-API-KEY
+            Simulator: "EXTERNAL"
             
 + Response 200 (application/json)
 
@@ -6324,6 +6401,7 @@ with the exception of the *cardNum* element.
     + Headers
 
             Authorization: Basic YOUR-BASE64-ENCODED-API-KEY
+            Simulator: "EXTERNAL"
         
     + Body
 
@@ -6406,6 +6484,7 @@ the *paymentHandleToken* returned in that response as the value for the *payment
     + Headers
 
             Authorization: Basic YOUR-BASE64-ENCODED-API-KEY
+            Simulator: "EXTERNAL"
         
     + Body
 
@@ -6454,6 +6533,7 @@ Click on **Delete a Customer Payment Handle** above to see how delete a Customer
     + Headers        
 
             Authorization: Basic YOUR-BASE64-ENCODED-API-KEY
+            Simulator: "EXTERNAL"
             
 + Response 200 (application/json)
 
@@ -6481,6 +6561,7 @@ Any addresses and/or payment details that have been saved for this *customer_id*
     + Headers
 
             Authorization: Basic YOUR-BASE64-ENCODED-API-KEY
+            Simulator: "EXTERNAL"
         
     + Body
 
@@ -6564,6 +6645,7 @@ Use the *singleUseCustomerToken* returned in the response in the Payments Checko
     + Headers
     
             Authorization: Basic YOUR-BASE64-ENCODED-API-KEY
+            Simulator: "EXTERNAL"
 
 + Response 200  (application/json)
 
