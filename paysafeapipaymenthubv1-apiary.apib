@@ -2062,6 +2062,7 @@ This is a read-only raw response returned by an acquirer.
 | cvv2Result         | string | This is the raw cvv2 result code.                                                                   |
 | orderId             |string  |Unique NETELLER reference for the order. `ie: ORD_7915d463-ccc8-4305-9d33-9e5c9310f12e, SUB_c46645ea-b7b0-4a91-87f7-88c00ec0dea1`|
 
+<a name="instantachobject" title="Instant ACH Object"></a>
 ## instantach
 
 |Element                 |Type                   |Description|
@@ -2290,34 +2291,33 @@ This is an authorization that is approved for an amount lower than the requested
 <a name="paymenthandleobject" title="Payment Handle Object"></a>
 ## Payment Handle
 
-|Element                |Type                       |Description                        |
-|---                    |---                        |---       |
-|id                     |string<br/>`length<=32`    |This is the ID returned in the response. This ID can be used to retrieve the Payment Handle.|
-|accountId              |string<br/>`length<=10`    |This is the merchant account number used for the request. Include this parameter if you have more than one merchant account for the currency/payment type combination you are specifying. |
-|paymentHandleTokenFrom |string<br/>`length<=36`    |This is an existing Payment Handle ID created for a customer, from which the payment instrument and profile details are retrieved. |
-|cvv                    |string<br/>`length=3-4`    |This is the 3- or 4-digit security code that appears on the card following the card number. <br/>**Note:** This is required if *paymentHandleTokenFrom* is included.|
-|merchantRefNum         |string<br/>`length<=255`   |This is the merchant reference number created by the merchant and submitted as part of the request. It must be unique for each request. |
-|transactionType        |enum                       |This specifies the transaction type for which the Payment Handle is created. Possible values are: <ul><li>PAYMENT</li><li> STANDALONE_CREDIT</li><li>ORIGINAL_CREDIT</li><li>VERIFICATION</li></ul>|
-|status                 |enum                       |This is the status of the request. Possible values are:<ul><li>INITIATED &ndash; The request was initiated with the downstream provider.</li><li>PAYABLE &ndash; The merchant can use the Payment Handle for a Payment request.</li><li>PROCESSING &ndash; The Payment Handle was authorized by customer, awaiting PSP response.</li><li>FAILED &ndash; The transaction failed due to either an error or being declined.</li><li>EXPIRED &ndash; The Payment Handle expired because the merchant did not proceed with the Payment transaction.</li><li>COMPLETED &ndash; The Payment request was initiated successfully using the Payment Handle.</li></ul>      |
-|usage                  |enum                       |This specifies how the Payment Handle will be used for Payments. Possible values are:<ul><li>SINGLE_USE &ndash; The Payment Handle can be used for one transaction only and expires if not used.</li><li>MULTI_USE &ndash; The Payment Handle can be used multiple times.</li></ul>|
-|paymentType            |enum                       |This is the payment type associated with this Payment Handle. Possible values are:<ul><li>CARD</li><li>PAYSAFECASH</li><li>PAYSAFECARD</li><li>VIP PREFERRED</li><li>SIGHTLINE</li><li>SKRILL</li><li>INSTANT ACH</li><li>ACH</li><li>EFT</li></ul>|
-|action                 |enum                       |This specifies the next step of the user journey once they proceed to the Payment. Possible values are:<ul><li>NONE &ndash; No action is required, e.g., for a standard credit card payment.</li><li>REDIRECT &ndash; The user must be redirected in order to complete a Payment, e.g., when an alternate payment method like Paysafecard is used.</li></ul>|
-|executionMode          |enum                       |This specifies the action of the merchant server in order to complete the Payment. Possible values are:<ul><li>SYNCHRONOUS &ndash; The status of the Payment request will be returned synchronously to the merchant, e.g., a credit card request.</li><li>ASYNCHRONOUS &ndash; The Payment request is not completed immediately and the merchant [must rely on webhooks](#paymentswebhooks) to retrieve the status of the Payment request.</li></ul>|
-|amount                 |number<br/>`max=99999999999` |This is the amount of the request, in minor units.<br/>**Note:** This field is mandatory if *transactionType* is included. <br/>The *amount* specified in the Payment Handle request must match the *amount* specified in the Payments API request the *paymentHandleToken* is used for. |
-|currencyCode           |string<br/>`length=3`      |This is the currency of the merchant account, e.g., USD or CAD. See [Currency Codes](#currencycodes). <br/>The *currencyCode* specified in the Payment Handle request must match the *currencyCode* specified in the Payments API request the *paymentHandleToken* is used for.|
-|paymentHandleToken     |string                     |This is the payment token generated by Paysafe that will be used by merchants for Payment API requests.|
-|card \| paysafecard \| paysafecash               | [card](#cardobject) \| [paysafecard](#paysafecardobject)\| [paysafecash](#paysafecashobject)        |These are details of the payment instrument used in the request. |
-|billingDetails         |[billingDetails](#billingdetailsobject)         |These are billing details for the request.<br/>**Note:** For single-use Payment Handles, this address information will be ignored if the *paymentHandleTokenFrom* parameter is included and there is already address information associated with that customer.|
-|profile                |[profile](#profileobject)  |This is the customer's profile. |
-|merchantDescriptor     |[merchantDescriptor](#merchantdescriptorobject) |This is the merchant descriptor that will be displayed on the customer's card or bank statement.<br/>**Note:** Not all processing gateways support this parameter. Contact your account manager for more information.|
-|returnLinks            |[returnLinks](#returnlinksobject)         |These are links to which to redirect the customer, where applicable. |
-|customerIp             |string<br/>`length<=39`    |This is the customer's IP address. |
-|timeToLiveSeconds      |number<br/>`length<=899`   |This is the period of time, in seconds, the *paymentHandleToken* is valid before expiration.|
-|links            |[links](#linksobject)         |These are links to which to redirect the customer, where applicable. |
-|txnTime                |UTC formatted date               |This is the date and time the request was processed. For example:<br/>2019-01-26T10:32:28Z|
-|gatewayResponse    |[gatewayResponse](#gatewayresponseobject) | This is the read-only raw response returned by an acquirer. It is returned only if your account is configured accordingly.|
-|updatedTime|datetime|ISO 8601 format (UTC) This is the date and time the resource was last updated, e.g., `2014-01-26T10:32:28Z`|
-|statusTime|datetime|ISO 8601 format (UTC) This is the date and time the resource was last updated, e.g., `2014-01-26T10:32:28Z`|
+|Element                |Type                       |Required|Description                        |
+|---                    |---                        |---  |---     |
+|id                     |string<br/>`length<=32`    |Read Only|This is the ID returned in the response. This ID can be used to retrieve the Payment Handle.|
+|accountId              |string<br/>`length<=10`    |Conditional|This is the merchant account number used for the request. Include this parameter if you have more than one merchant account for the currency/payment type combination you are specifying. |
+|paymentHandleTokenFrom |string<br/>`length<=36`    |Optional|This is an existing Payment Handle Token, from which the payment instrument and profile details are retrieved. |
+|merchantRefNum         |string<br/>`length<=255`   |Mandatory|This is the merchant reference number created by the merchant and submitted as part of the request. It must be unique for each request. |
+|transactionType        |enum                       |Mandatory|This specifies the transaction type for which the Payment Handle is created. Possible values are: <ul><li>PAYMENT</li><li> STANDALONE_CREDIT</li><li>ORIGINAL_CREDIT</li><li>VERIFICATION</li></ul>|
+|status                 |enum                       |Read Only|This is the status of the request. Possible values are:<ul><li>INITIATED &ndash; The request was initiated with the downstream provider.</li><li>PAYABLE &ndash; The merchant can use the Payment Handle for a Payment request.</li><li>PROCESSING &ndash; The Payment Handle was authorized by customer, awaiting PSP response.</li><li>FAILED &ndash; The transaction failed due to either an error or being declined.</li><li>EXPIRED &ndash; The Payment Handle expired because the merchant did not proceed with the Payment transaction.</li><li>COMPLETED &ndash; The Payment request was initiated successfully using the Payment Handle.</li></ul>      |
+|usage                  |enum                       |Read Only|This specifies how the Payment Handle will be used for Payments. Possible values are:<ul><li>SINGLE_USE &ndash; The Payment Handle can be used for one transaction only and expires if not used.</li><li>MULTI_USE &ndash; The Payment Handle can be used multiple times.</li></ul>|
+|paymentType            |enum                       |Mandatory|This is the payment type associated with this Payment Handle. Possible values are:<ul><li>CARD</li><li>PAYSAFECASH</li><li>PAYSAFECARD</li><li>VIP PREFERRED</li><li>SIGHTLINE</li><li>SKRILL</li><li>INSTANT ACH</li><li>ACH</li><li>EFT</li></ul>|
+|action                 |enum                       |Read Only|This specifies the next step of the user journey once they proceed to the Payment. Possible values are:<ul><li>NONE &ndash; No action is required, e.g., for a standard credit card payment.</li><li>REDIRECT &ndash; The user must be redirected in order to complete a Payment, e.g., when an alternate payment method like Paysafecard is used.</li></ul>|
+|executionMode          |enum                       |Read Only|This specifies the action of the merchant server in order to complete the Payment. Possible values are:<ul><li>SYNCHRONOUS &ndash; The status of the Payment request will be returned synchronously to the merchant, e.g., a credit card request.</li><li>ASYNCHRONOUS &ndash; The Payment request is not completed immediately and the merchant [must rely on webhooks](#paymentswebhooks) to retrieve the status of the Payment request.</li></ul>|
+|amount                 |number<br/>`max=99999999999` |Mandatory|This is the amount of the request, in minor units.<br/>**Note:** This field is mandatory if *transactionType* is included. <br/>The *amount* specified in the Payment Handle request must match the *amount* specified in the Payments API request the *paymentHandleToken* is used for. |
+|currencyCode           |string<br/>`length=3`      |Mandatory|This is the currency of the merchant account, e.g., USD or CAD. See [Currency Codes](#currencycodes). <br/>The *currencyCode* specified in the Payment Handle request must match the *currencyCode* specified in the Payments API request the *paymentHandleToken* is used for.|
+|paymentHandleToken     |string                     |Read Only|This is the payment token generated by Paysafe that will be used by merchants for Payment API requests.|
+|card \| paysafecard \| paysafecash \| sightline \| vippreferred \| skrill \| instant ACH \| ACH \|EFT |Mandatory| [card](#cardobject) \| [paysafecard](#paysafecardobject)\| [paysafecash](#paysafecashobject) \|[sightline](#sightlineobject) \| [vippreferred](#vippreferredobject) \| [skrill](#skrillobject) \| [instant ACH](#instantachobject)  \| [ACH](#achobject)    \| [EFT](#eftobject)  |These are details of the payment instrument used in the request. |
+|billingDetails         |[billingDetails](#billingdetailsobject)        |Conditional |These are billing details for the request.<br/>**Note:** For single-use Payment Handles, this address information will be ignored if the *paymentHandleTokenFrom* parameter is included and there is already address information associated with that customer.|
+|profile                |[profile](#profileobject)  |Optional|This is the customer's profile. |
+|merchantDescriptor     |[merchantDescriptor](#merchantdescriptorobject) |Optional|This is the merchant descriptor that will be displayed on the customer's card or bank statement.<br/>**Note:** Not all processing gateways support this parameter. Contact your account manager for more information.|
+|returnLinks            |[returnLinks](#returnlinksobject)         |Conditional|These are links to which to redirect the customer, where applicable. Mandatory for the following Payment Methods: Cards, Skrill, Paysafecash, Paysafecard, Sightline, Vip Preferred. |
+|customerIp             |string<br/>`length<=39`    |Optional|This is the customer's IP address. |
+|timeToLiveSeconds      |number<br/>`length<=899`   |Read Only|This is the period of time, in seconds, the *paymentHandleToken* is valid before expiration.|
+|links            |[links](#linksobject)         |Read Only|These are links to which to redirect the customer, where applicable. |
+|txnTime                |UTC formatted date              |Read Only |This is the date and time the request was processed. For example:<br/>2019-01-26T10:32:28Z|
+|gatewayResponse    |[gatewayResponse](#gatewayresponseobject)| Read Only| This is the read-only raw response returned by an acquirer. It is returned only if your account is configured accordingly.|
+|updatedTime|datetime|Read Only|ISO 8601 format (UTC) This is the date and time the resource was last updated, e.g., `2014-01-26T10:32:28Z`|
+|statusTime|datetime|Read Only|ISO 8601 format (UTC) This is the date and time the resource was last updated, e.g., `2014-01-26T10:32:28Z`|
     
 
 ```apib
@@ -7233,16 +7233,17 @@ Use the *singleUseCustomerToken* returned in the response in the Payments Checko
 
 + `id`:`26359efd-7cfb-4014-a13d-1724e3ff17fa` (string) - This is the ID returned in the response. This ID can be used for future associated requests, e.g., to look up the Payment Handle. 
     _Read Only, length<=36_
-+ `merchantRefNum`:`merchantRefNum-101` (string, required) - This is the merchant reference number created by the merchant and submitted as part of the request. It must be unique for each request.
-    _length<=255_
-+ `transactionType`: (enum, required) - This specifies the transaction type for which the Payment Handle is created.
++ `merchantRefNum`:`merchantRefNum-101` (string) - This is the merchant reference number created by the merchant and submitted as part of the request. It must be unique for each request.
+    _Mandatory, length<=255_
++ `transactionType`: `PAYMENT` (enum) - This specifies the transaction type for which the Payment Handle is created.
+    _Mandatory_
     + Members
         + PAYMENT - Payment Handle is created to continue the Payment.
         + STANDALONE_CREDIT - Payment Handle is created to continue the Standalone Credit.
         + ORIGINAL_CREDIT - Payment Handle is created to continue the Original Credit.
         + VERIFICATION - Payment Handle is created to continue the Verification request.
 + `accountId`:`9876543210` (string) - This is the merchant account number used for the request. Include this optional parameter if you have more than one merchant account for the currency/payment type combination you are specifying.
-    _length<=10_
+    _Conditional, length<=10_
 + `status`:`PAYABLE` (enum) - This is the status of the payment handle.
     _Read Only_
     + Members
@@ -7256,7 +7257,8 @@ Use the *singleUseCustomerToken* returned in the response in the Payments Checko
     _Read Only_
     + Members
         + SINGLE_USE - The Payment Handle can be used for one transaction only and expires if not used.
-+ `paymentType`: (enum, required) - This is the payment type associated with this Payment Handle. If applicable, you need to pass the corresponding payment type object as listed after this parameter.
++ `paymentType`: `CARD` (enum) - This is the payment type associated with this Payment Handle. If applicable, you need to pass the corresponding payment type object as listed after this parameter.
+    _Mandatory_
     + Members
         + CARD
         + PAYSAFECASH
