@@ -1761,14 +1761,14 @@ You will not be able to use your Test credentials to process transaction request
 ```
 <a name="achobject" title="ACH Object"></a>
 ## ach
-|Element            |Type                       |Description                        |
-|---                |---                        |---       |
-|accountHolderName  |string <br/>`length<=22`   |This is the name of the customer or company. |
-|payMethod          |enum                       |This is the payment type. Possible values are:<ul><li>WEB (Personal bank accounts only)</li><li>TEL (Personal bank accounts only)</li><li>PPD (Personal bank accounts only)</li><li>CCD (Business bank accounts only)</li></ul>|
-|accountType        |enum                       |This is the bank account type. Possible values are:<ul><li>SAVINGS</li><li>CHECKING</li><li>LOAN</li></ul>|
-|accountNumber      |string<br/>`length=4-17`   |This is the bank account number.|
-|routingNumber      |string<br/>`length=9`      |For USD accounts, this is the 9-digit routing number of the bank.|
-|lastDigits         |string<br/>`length=2`      |This is returned in response. It contains only last 2 digits of bank account.|
+|Element            |Type                       |Required |Description                        |
+|---                |---                        |--- |---       |
+|accountHolderName  |string <br/>`length<=22`   ||This is the name of the customer or company. |
+|payMethod          |enum                       ||This is the payment type. Possible values are:<ul><li>WEB (Personal bank accounts only)</li><li>TEL (Personal bank accounts only)</li><li>PPD (Personal bank accounts only)</li><li>CCD (Business bank accounts only)</li></ul>|
+|accountType        |enum                       ||This is the bank account type. Possible values are:<ul><li>SAVINGS</li><li>CHECKING</li><li>LOAN</li></ul>|
+|accountNumber      |string<br/>`length=4-17`   ||This is the bank account number.|
+|routingNumber      |string<br/>`length=9`      ||For USD accounts, this is the 9-digit routing number of the bank.|
+|lastDigits         |string<br/>`length=2`      ||This is returned in response. It contains only last 2 digits of bank account.|
 
 ```apib
             {
@@ -1784,19 +1784,19 @@ You will not be able to use your Test credentials to process transaction request
 
 <a name="addressesobject" title="Addresses Object"></a>
 ## addresses
-|Element            |Type                       |Description    |
-|---                |---                        |---       |
-|id                 |string<br/>`length<=36`    |This is the ID for the request.|
-|nickName           |string<br/>`length<=50`    |This is an alias defined by the customer for this address (e.g., "home address").|
-|street             |string<br/>`length<=50`    |This is the first line of the customer's street address.|
-|street2            |string<br/>`length<=50`    |This is the second line of the customer's street address, if required (e.g., apartment number).|
-|city               |string<br/>`length<=40`    |This is the city where the address is located.|
-|country            |string<br/>`length=2`      |This is the country where the address is located. See [Country Codes](#countrycodes).|
-|state              |string<br/>`length<=40`    |This is the state/province/region in which the customer lives.<br/>For Canada see [Province Codes](#provincecodes). For the United States see [State Codes](#statecodes). Other countries have no restrictions. |
-|zip                |string<br/>`length<=10`    |This is the zip, postal, or post code of the customer's address.|
-|phone              |string<br/>`length<=40`    |This is the phone number to contact the recipient at this address, if it is different from the phone number in the customer.|
-|status             |enum                       |This is the status of the address. Possible values are:<ul><li>ACTIVE</li><LI>INITIAL</li></ul>|
-|defaultShippingAddressIndicator|boolean        |Flag to mark this address as the default shipping address.|
+|Element            |Type                       |Required |Description    |
+|---                |---                        |---|---       |
+|id                 |string<br/>`length<=36`    |Read Only|This is the ID for the request.|
+|nickName           |string<br/>`length<=50`    |Optional|This is an alias defined by the customer for this address (e.g., "home address").|
+|street             |string<br/>`length<=50`    |Mandatory|This is the first line of the customer's street address.|
+|street2            |string<br/>`length<=50`    |Optional|This is the second line of the customer's street address, if required (e.g., apartment number).|
+|city               |string<br/>`length<=40`    |Mandatory|This is the city where the address is located.|
+|country            |string<br/>`length=2`      |Mandatory|This is the country where the address is located. See [Country Codes](#countrycodes).|
+|state              |string<br/>`length<=40`    |Optional|This is the state/province/region in which the customer lives.<br/>For Canada see [Province Codes](#provincecodes). For the United States see [State Codes](#statecodes). Other countries have no restrictions. |
+|zip                |string<br/>`length<=10`    |Mandatory|This is the zip, postal, or post code of the customer's address.|
+|phone              |string<br/>`length<=40`    |Optional|This is the phone number to contact the recipient at this address, if it is different from the phone number in the customer.|
+|status             |enum                       |Read Only|This is the status of the address. Possible values are:<ul><li>ACTIVE</li><LI>INITIAL</li></ul>|
+|defaultShippingAddressIndicator|boolean        |Conditional|Flag to mark this address as the default shipping address.|
 
 ```apib
             {
@@ -2064,18 +2064,18 @@ This is a read-only raw response returned by an acquirer.
 <a name="instantachobject" title="Instant ACH Object"></a>
 ## instantach
 
-|Element                 |Type                   |Description|
-|---                     |---                    |---|
-|consumerId              |string<br>`length<=50` |This is the email address of the customer who is making the payment.If provided by merchant, this will be populated in redirected screen for customer to see. |
-|paymentId               |string<br>`length<=36` |This is the ID returned in the response to a prior Payment that the customer made using Instant ACH. Required for withdrawal checkout.|
-|emailSubject            |string<br>`length<=30` |This is the Subject line to use in the customer email. |
-|emailMessage            |string<br>`length<=50` |This is the message to use in the customer email. |
-|recipientDescription    |string<br>`length<=30` |This is a description to be shown on the instantach payment page in the logo area if there is no *logo\_url* parameter. If no value is submitted and there is no logo, the *pay\_to\_email* value is shown as the recipient of the payment.|
-|language                |string<br>`length=2`   |This is the 2-character preferred language code for the consumer (e.g., EN, FR).|
-|logoUrl                 |string                 |This is the URL of the logo that you would like to appear in the top right of the instantach page. The logo must be accessible via HTTPS or it will not be shown. The logo will be resized to fit. To avoid scaling distortion, the minimum size should be as follows:<br>If the logo width > height - at least 107px wide.<br>If logo width > height - at least 65px high<br>Avoid large images (much greater than 256 by 256px) to minimize the page loading time.|
-|detail1Description      |string                 |You can show additional details about the product in the More information section in the header of Quick Checkout.|
-|detail1Text             |string                 |The detail1Text is shown next to the detail1Description in the More Information section in the header of the payment form with the other payment details. The detail1Description combined with the detail1Text is shown in the more information field of the merchant account history CSV file.|
-|descriptor              |string<br>`length<=30` |This is the merchant descriptor that will be displayed on the consumer's bank statement.|
+|Element                 |Type                   |Required|Description|
+|---                     |---                    |---|---|
+|consumerId              |string<br>`length<=50` |Mandatory|This is the email address of the customer who is making the payment.If provided by merchant, this will be populated in redirected screen for customer to see. |
+|paymentId               |string<br>`length<=36` |Mandatory|This is the ID returned in the response to a prior Payment that the customer made using Instant ACH. Required for withdrawal checkout.|
+|emailSubject            |string<br>`length<=30` |Mandatory|This is the Subject line to use in the customer email. |
+|emailMessage            |string<br>`length<=50` |Mandatory|This is the message to use in the customer email. |
+|recipientDescription    |string<br>`length<=30` |Optional|This is a description to be shown on the instantach payment page in the logo area if there is no *logo\_url* parameter. If no value is submitted and there is no logo, the *pay\_to\_email* value is shown as the recipient of the payment.|
+|language                |string<br>`length=2`   |Optional|This is the 2-character preferred language code for the consumer (e.g., EN, FR).|
+|logoUrl                 |string                 |Optional|This is the URL of the logo that you would like to appear in the top right of the instantach page. The logo must be accessible via HTTPS or it will not be shown. The logo will be resized to fit. To avoid scaling distortion, the minimum size should be as follows:<br>If the logo width > height - at least 107px wide.<br>If logo width > height - at least 65px high<br>Avoid large images (much greater than 256 by 256px) to minimize the page loading time.|
+|detail1Description      |string                 |Optional|You can show additional details about the product in the More information section in the header of Quick Checkout.|
+|detail1Text             |string                 |Optional|The detail1Text is shown next to the detail1Description in the More Information section in the header of the payment form with the other payment details. The detail1Description combined with the detail1Text is shown in the more information field of the merchant account history CSV file.|
+|descriptor              |string<br>`length<=30` |Optional|This is the merchant descriptor that will be displayed on the consumer's bank statement.|
 
 ```
      {
@@ -2413,12 +2413,12 @@ This is an authorization that is approved for an amount lower than the requested
 <a name="paysafecardobject" title="paysafecard Object"></a>
 ## paysafecard
 
-|Element                        |Type                   |Description|
-|---                            |---                    |---|
-|consumerId                     |string                 |This is the merchant's unique identifier of the customer. For security purposes, if any personal data is used (e.g., customer's user name, email address, etc.), it has to be encrypted or hashed.|
-|ageRestriction                 |number                 |This is the minimum age restriction for the transaction.|
-|kycLevelRestriction            |string                 |This is the KYC level that will be required for the transaction. Options:<ul><li>FULL</li><li>SIMPLE</li></ul>|
-|countryRestriction             |string<br>`length=2`   |This is the ISO 3166-1 alpha-2 code of the country to which the transaction will be restricted.|
+|Element                        |Type                   |Required|Description|
+|---                            |---                    |---|---|
+|consumerId                     |string                 |Mandatory|This is the merchant's unique identifier of the customer. For security purposes, if any personal data is used (e.g., customer's user name, email address, etc.), it has to be encrypted or hashed.|
+|ageRestriction                 |number                 |Optional|This is the minimum age restriction for the transaction.|
+|kycLevelRestriction            |string                 |Optional|This is the KYC level that will be required for the transaction. Options:<ul><li>FULL</li><li>SIMPLE</li></ul>|
+|countryRestriction             |string<br>`length=2`   |Optional|This is the ISO 3166-1 alpha-2 code of the country to which the transaction will be restricted.|
 
 ```
 "paysafecard": {
@@ -2432,12 +2432,12 @@ This is an authorization that is approved for an amount lower than the requested
 <a name="paysafecashobject" title="paysafecash Object"></a>
 ## paysafecash
 
-|Element                        |Type                   |Description|
-|---                            |---                    |---|
-|consumerId                     |string                 |This is the merchant's unique identifier of the customer. For security purposes, if any personal data is used (e.g., customer's user name, email address, etc.), it has to be encrypted or hashed.|
-|ageRestriction                 |number                 |This is the minimum age restriction for the transaction.|
-|kycLevelRestriction            |string                 |This is the KYC level that will be required for the transaction. Options:<ul><li>FULL</li><li>SIMPLE</li></ul>|
-|countryRestriction             |string<br>`length=2`   |This is the ISO 3166-1 alpha-2 code of the country to which the transaction will be restricted.|
+|Element                        |Type                   |Required|Description|
+|---                            |---                    |---|---|
+|consumerId                     |string                 |Mandatory|This is the merchant's unique identifier of the customer. For security purposes, if any personal data is used (e.g., customer's user name, email address, etc.), it has to be encrypted or hashed.|
+|ageRestriction                 |number                 |Optional|This is the minimum age restriction for the transaction.|
+|kycLevelRestriction            |string                 |Optional|This is the KYC level that will be required for the transaction. Options:<ul><li>FULL</li><li>SIMPLE</li></ul>|
+|countryRestriction             |string<br>`length=2`   |Optional|This is the ISO 3166-1 alpha-2 code of the country to which the transaction will be restricted.|
 
 ```
 "paysafecash": {
@@ -2578,19 +2578,17 @@ If you [look up an authorization request](#getauth)  that used the *visaAddition
 <a name="sightlineobject" title="sightline Object"></a>
 ## sightline
 
-|Element                        |Type                   |Description|
-|---                            |---                    |---|
-|consumerId                     |string                 |This is the Loyalty Membership Number unique to the customer to be enrolled with Play+ (Sightline). This is to be provided by the merchant. |
-|paymentToken                   |string                 |This is the payment token for a card. This will be present if registration is occurring as part of the salvage flow or for a funding the Play+ (Sightline) card flow.|
-|paymentHandleToken             |string                 |This is the payment handle token for a card. This will be present if registration is occurring as part of the salvage flow or for a funding the Play+ (Sightline) card flow.|
-|balance                        |big decimal            |This is the balance on the Play+ (Sightline) prepaid card.|
-|last4ssn                       |string                 |This is the last 4 digits of the customer's SSN, required to make the payments call. This is required only for a Payment transaction. |
-|card                           |[card](#cardobject)    |This is the card object. This will be present if registration is occurring as part of the salvage flow or for a funding the Play+ (Sightline) card flow.|
+|Element                        |Type                   |Required|Description|
+|---                            |---                    |---|---|
+|consumerId                     |string                 |Mandatory|This is the Loyalty Membership Number unique to the customer to be enrolled with Play+ (Sightline). This is to be provided by the merchant. |
+|paymentHandleToken             |string                 |Optional|This is the payment handle token for a card. This will be present if registration is occurring as part of the salvage flow or for a funding the Play+ (Sightline) card flow.|
+|balance                        |big decimal            |Optional|This is the balance on the Play+ (Sightline) prepaid card.|
+|last4ssn                       |string                 |Optional|This is the last 4 digits of the customer's SSN, required to make the payments call. This is required only for a Payment transaction. |
+|card                           |[card](#cardobject)    |Optional|This is the card object. This will be present if registration is occurring as part of the salvage flow or for a funding the Play+ (Sightline) card flow.|
 
 ```
      {
          "consumerId": "12312313",
-         "paymentToken": "CNjEzMTM4NDg1",
          "paymentHandleToken": "SCO3wKcIyLoQbQvw",
          "balance": "20000",
          "last4ssn": "6789",
@@ -2607,17 +2605,17 @@ If you [look up an authorization request](#getauth)  that used the *visaAddition
 <a name="skrillobject" title="skrill Object"></a>
 ## skrill
 
-|Element                 |Type                   |Description|
-|---                     |---                    |---|
-|consumerId              |string<br>`length<=50` |This is the email address of the customer who is making or receiving the payment.This is to be provided by merchant while making a payout. |
-|emailSubject            |string<br>`length<=30` |This is the Subject line to use in the customer email. This is to be provided by merchant while making a payout. |
-|emailMessage            |string<br>`length<=50` |This is the message to use in the customer email.This is to be provided by merchant while making a payout. |
-|recipientDescription    |string<br>`length<=30` |This is a description to be shown on the Skrill payment page in the logo area if there is no *logo\_url* parameter. If no value is submitted and there is no logo, the *pay\_to\_email* value is shown as the recipient of the payment.|
-|language                |string<br>`length=2`   |This is the 2-character preferred language code for the consumer (e.g., EN, FR).|
-|logoUrl                 |string                 |This is the URL of the logo that you would like to appear in the top right of the Skrill page. The logo must be accessible via HTTPS or it will not be shown. The logo will be resized to fit. To avoid scaling distortion, the minimum size should be as follows:<br>If the logo width > height - at least 107px wide.<br>If logo width > height - at least 65px high<br>Avoid large images (much greater than 256 by 256px) to minimize the page loading time.|
-|detail1Description      |string                 |You can show additional details about the product in the More information section in the header of Quick Checkout.|
-|detail1Text             |string                 |The detail1Text is shown next to the detail1Description in the More Information section in the header of the payment form with the other payment details. The detail1Description combined with the detail1Text is shown in the more information field of the merchant account history CSV file.|
-|descriptor              |string<br>`length<=30` |This is the merchant descriptor that will be displayed on the consumer's bank statement.|
+|Element                 |Type                   |Required|Description|
+|---                     |---                    |---|---|
+|consumerId              |string<br>`length<=50` |Mandatory|This is the email address of the customer who is making or receiving the payment.This is to be provided by merchant while making a payout. |
+|emailSubject            |string<br>`length<=30` |Mandatory|This is the Subject line to use in the customer email. This is to be provided by merchant while making a payout. |
+|emailMessage            |string<br>`length<=50` |Mandatory|This is the message to use in the customer email.This is to be provided by merchant while making a payout. |
+|recipientDescription    |string<br>`length<=30` |Optional|This is a description to be shown on the Skrill payment page in the logo area if there is no *logo\_url* parameter. If no value is submitted and there is no logo, the *pay\_to\_email* value is shown as the recipient of the payment.|
+|language                |string<br>`length=2`   |Optional|This is the 2-character preferred language code for the consumer (e.g., EN, FR).|
+|logoUrl                 |string                 |Optional|This is the URL of the logo that you would like to appear in the top right of the Skrill page. The logo must be accessible via HTTPS or it will not be shown. The logo will be resized to fit. To avoid scaling distortion, the minimum size should be as follows:<br>If the logo width > height - at least 107px wide.<br>If logo width > height - at least 65px high<br>Avoid large images (much greater than 256 by 256px) to minimize the page loading time.|
+|detail1Description      |string                 |Optional|You can show additional details about the product in the More information section in the header of Quick Checkout.|
+|detail1Text             |string                 |Optional|The detail1Text is shown next to the detail1Description in the More Information section in the header of the payment form with the other payment details. The detail1Description combined with the detail1Text is shown in the more information field of the merchant account history CSV file.|
+|descriptor              |string<br>`length<=30` |Optional|This is the merchant descriptor that will be displayed on the consumer's bank statement.|
 
 ```
      {
@@ -6782,23 +6780,24 @@ Use the *singleUseCustomerToken* returned in the response in the Payments Checko
 + `id`:`5d4db3bc-34c9-417f-a051-0d992ad9284e` (string) - This is the ID of request, returned in the response.
     _Read Only, length<=36_
 + nickName:`Home` (string) - This is an alias defined by the customer for this address (e.g., "home address").
-    _length<=50_
-+ street:`100 Queen` (string, required) - This is the first line of the customer's street address. **Note:** This is required only when the address is to be used in association with a bank account.
-    _length<=50_
+    _Optional, length<=50_
++ street:`100 Queen` (string) - This is the first line of the customer's street address. **Note:** This is required only when the address is to be used in association with a bank account.
+    _Mandatory, length<=50_
 + street2:`Unit 201` (string) - This is the second line of the customer's street address, if required.
-    _length<=50_
-+ city:`Toronto` (string, required) - This is the city where the address is located. **Note:** This is required only when the address is to be used in association with a bank account.
-    _length<=40_
-+ zip:`M5H 2N2` (string, required) - This is the zip, postal, or post code of the customer's address.
-    _length<=10_
-+ country:`CA` (string, required) - This is the country where the address is located. See [Country Codes](#countrycodes).
-    _length=2_
+    __Optional, length<=50_
++ city:`Toronto` (string) - This is the city where the address is located. **Note:** This is required only when the address is to be used in association with a bank account.
+    _Mandatory, length<=40_
++ zip:`M5H 2N2` (string) - This is the zip, postal, or post code of the customer's address.
+    _Mandatory, length<=10_
++ country:`CA` (string) - This is the country where the address is located. See [Country Codes](#countrycodes).
+    _Mandatory, length=2_
 + state:`ON` (string) - This is the state/province/region in which the customer lives.
-    _length<=40_
+    _Optional, length<=2_
 + phone:`647-788-3901` (string) - This is the customer's phone number.
-    _length<=40_
+    _Optional, length<=40_
 + defaultShippingAddressIndicator:`true` (boolean) - Flag to mark this address as the default shipping address.
-+ status: (enum) - This is the status of the address.
+    _Conditional_
++ status: `ACTIVE`(enum) - This is the status of the address.
     _Read Only_
     + Members
         + ACTIVE
@@ -7548,11 +7547,11 @@ Use the *singleUseCustomerToken* returned in the response in the Payments Checko
 
             + cardNum:`4111111111111111` (string) - This is the card number used for the request.
                 _Mandatory, length=8-20_
-            + cardExpiry (object, required) - This is the card's [expiry date](#cardexpiryobject).
+            + cardExpiry (object) - This is the card's [expiry date](#cardexpiryobject).
                 __Mandatory_
-                + month:12 (number, required) - This is the card expiry month.
+                + month:12 (number) - This is the card expiry month.
                     _length=2_
-                + year:2020 (number, required) - This is the card expiry year.
+                + year:2020 (number) - This is the card expiry year.
                     _length=4_
             + cvv:`123` (string) - This is the 3- or 4-digit security code that appears on the card following the card number.
                 _Conditional, length=3-4_
@@ -7578,68 +7577,87 @@ Use the *singleUseCustomerToken* returned in the response in the Payments Checko
         
     + paysafecard (object) - These are the details of the [paysafecard](#paysafecardobject) used for the request. Only one payment instrument object (e.g., *card* or *paysafecard* or *sightline*) can be included in the request.
         + Properties
-            + `consumerId`:`merchantclientid` (string, required) - This is the merchant's unique identifier of the customer. For security purposes, if any personal data is used (e.g., customer's user name, email address, etc.), it has to be encrypted or hashed.
+            + `consumerId`:`merchantclientid` (string) - This is the merchant's unique identifier of the customer. For security purposes, if any personal data is used (e.g., customer's user name, email address, etc.), it has to be encrypted or hashed.
+                _Mandatory_
             + `ageRestriction`:`18` (number) - This is the minimum age restriction for the transaction.
+                _Optional_
             + `kycLevelRestriction`:`SIMPLE` (string) - This is the KYC level that will be required for the transaction. Possible values are FULL and SIMPLE.
+                _Optional_
             + `countryRestriction`:`DE` (string) - This is the code of the country to which the transaction will be restricted. See [Country Codes](#countrycodes).
-                _length=2_
+                _Optional, length=2_
 
     + paysafecash (object) - These are the details of the [paysafecash account](#paysafecashobject) used for the request. Only one payment instrument object (e.g., *card* or *paysafecash* or *sightline*) can be included in the request.
         + Properties
-            + `consumerId`:`merchantclientid` (string, required) - This is the merchant's unique identifier of the customer. For security purposes, if any personal data is used (e.g., customer's user name, email address, etc.), it has to be encrypted or hashed.
+            + `consumerId`:`merchantclientid` (string ) - This is the merchant's unique identifier of the customer. For security purposes, if any personal data is used (e.g., customer's user name, email address, etc.), it has to be encrypted or hashed.
+                _Mandatory_
             + `ageRestriction`:`18` (number) - This is the minimum age restriction for the transaction.
+                _Optional_
             + `kycLevelRestriction`:`SIMPLE` (string) - This is the KYC level that will be required for the transaction. Possible values are FULL and SIMPLE.
+                _Optional_
             + `countryRestriction`:`DE` (string) - This is the code of the country to which the transaction will be restricted. See [Country Codes](#countrycodes).
-                _length=2_
+                _Optional, length=2_
 
     + skrill (object) - These are the details of the [skrill account](#skrillobject) used for the request. Only one payment instrument object (e.g., *card* or *skrill*) can be included in the request. Skrill Object is required only for withdrawal request.
         + Properties
-            + `consumerId`:`john.doe@email.com` (string, required) - This is the email address of the customer who is receiving the payment. Required for withdrawal request.
-                _length<=50_
-            + `emailSubject`:`Skrill payment` (string, required) - This is the Subject line to use in the customer email. Required for withdrawal request.
-                _length<=30_
-            + `emailMessage`:`Email text` (string, required) - This is the message to use in the customer email. Required for withdrawal request.
-                _length<=50_
-            + `recipientDescription`:`logo_url_alt_text` (string, optional) - This is a description to be shown on the Skrill payment page in the logo area if there is no *logo\_url* parameter. If no value is submitted and there is no logo, the *pay\_to\_email* value is shown as the recipient of the payment.
-                _length<=30_
-            + `language`:`EN` (string, optional) - This is the 2-character preferred language code for the consumer (e.g., EN, FR).
-                _length=2_
-            + `logoUrl`:`http://www.yoursite.com/icon.jpg` (string, optional) - This is the URL of the logo that you would like to appear in the top right of the Skrill page. The logo must be accessible via HTTPS or it will not be shown. The logo will be resized to fit.
-            + `detail1Description`: `Details 1 description` (string, optional) - You can show additional details about the product in the More information section in the header of Quick Checkout.
-            + `detail1Text`:`Details 1 text` (string, optional) - The detail1Text is shown next to the detail1Description in the More Information section in the header of the payment form with the other payment details. The detail1Description combined with the detail1Text is shown in the more information field of the merchant account history CSV file.
-            + `descriptor`:`Merchant's trading name` (string, optional) - This is the merchant descriptor that will be displayed on the consumer's bank statement.
+            + `consumerId`:`john.doe@email.com` (string) - This is the email address of the customer who is receiving the payment. Required for withdrawal request.
+                _Mandatory, length<=50_
+            + `emailSubject`:`Skrill payment` (string) - This is the Subject line to use in the customer email. Required for withdrawal request.
+                _Mandatory, length<=30_
+            + `emailMessage`:`Email text` (string) - This is the message to use in the customer email. Required for withdrawal request.
+                _Mandatory, length<=50_
+            + `recipientDescription`:`logo_url_alt_text` (string) - This is a description to be shown on the Skrill payment page in the logo area if there is no *logo\_url* parameter. If no value is submitted and there is no logo, the *pay\_to\_email* value is shown as the recipient of the payment.
+                _Optional, length<=30_
+            + `language`:`EN` (string) - This is the 2-character preferred language code for the consumer (e.g., EN, FR).
+                _Optional, length=2_
+            + `logoUrl`:`http://www.yoursite.com/icon.jpg` (string) - This is the URL of the logo that you would like to appear in the top right of the Skrill page. The logo must be accessible via HTTPS or it will not be shown. The logo will be resized to fit.
+                _Optional_
+            + `detail1Description`: `Details 1 description` (string) - You can show additional details about the product in the More information section in the header of Quick Checkout.
+                _Optional_
+            + `detail1Text`:`Details 1 text` (string) - The detail1Text is shown next to the detail1Description in the More Information section in the header of the payment form with the other payment details. The detail1Description combined with the detail1Text is shown in the more information field of the merchant account history CSV file.
+                _Optional_
+            + `descriptor`:`Merchant's trading name` (string) - This is the merchant descriptor that will be displayed on the consumer's bank statement.
+                _Optional_
     
     + instantach (object) - These are the details of the [instantach account](#instantachobject) used for the request. Only one payment instrument object (e.g., *card* or *instantach*) can be included in the request. instantach Object is required only for withdrawal request.
         + Properties
-            + `consumerId`:`john.doe@email.com` (string, required) - This is the email address of the customer who is receiving the payment. Required for withdrawal request.
-                _length<=50_
-            + `paymentId` :`3aeb9c63-6386-46a3-9f8e-f452e722228a`(string, required) - This is the ID returned in the response to a prior Payment that the customer made using Instant ACH.
-            + `emailSubject`:`Instant ACH payment` (string, required) - This is the Subject line to use in the customer email. Required for withdrawal request.
-                _length<=30_
-            + `emailMessage`:`Email text` (string, required) - This is the message to use in the customer email. Required for withdrawal request.
-                _length<=50_
-            + `recipientDescription`:`logo_url_alt_text` (string, optional) - This is a description to be shown on the Instant ACH payment page in the logo area if there is no *logo\_url* parameter. If no value is submitted and there is no logo, the *pay\_to\_email* value is shown as the recipient of the payment.
-                _length<=30_
-            + `language`:`EN` (string, optional) - This is the 2-character preferred language code for the consumer (e.g., EN, FR).
-                _length=2_
-            + `logoUrl`:`http://www.yoursite.com/icon.jpg` (string, optional) - This is the URL of the logo that you would like to appear in the top right of the Instant ACH page. The logo must be accessible via HTTPS or it will not be shown. The logo will be resized to fit.
-            + `detail1Description`: `Details 1 description` (string, optional) - You can show additional details about the product in the More information section in the header of Quick Checkout.
-            + `detail1Text`:`Details 1 text` (string, optional) - The detail1Text is shown next to the detail1Description in the More Information section in the header of the payment form with the other payment details. The detail1Description combined with the detail1Text is shown in the more information field of the merchant account history CSV file.
-            + `descriptor`:`Merchant's trading name` (string, optional) - This is the merchant descriptor that will be displayed on the consumer's bank statement.
+            + `consumerId`:`john.doe@email.com` (string) - This is the email address of the customer who is receiving the payment. Required for withdrawal request.
+                _Mandatory, length<=50_
+            + `paymentId` :`3aeb9c63-6386-46a3-9f8e-f452e722228a`(string) - This is the ID returned in the response to a prior Payment that the customer made using Instant ACH.
+                _Mandatory_
+            + `emailSubject`:`Instant ACH payment` (string) - This is the Subject line to use in the customer email. Required for withdrawal request.
+                _Mandatory, length<=30_
+            + `emailMessage`:`Email text` (string) - This is the message to use in the customer email. Required for withdrawal request.
+                _Mandatory, length<=50_
+            + `recipientDescription`:`logo_url_alt_text` (string) - This is a description to be shown on the Instant ACH payment page in the logo area if there is no *logo\_url* parameter. If no value is submitted and there is no logo, the *pay\_to\_email* value is shown as the recipient of the payment.
+                _Optional, length<=30_
+            + `language`:`EN` (string) - This is the 2-character preferred language code for the consumer (e.g., EN, FR).
+                _Optional, length=2_
+            + `logoUrl`:`http://www.yoursite.com/icon.jpg` (string) - This is the URL of the logo that you would like to appear in the top right of the Instant ACH page. The logo must be accessible via HTTPS or it will not be shown. The logo will be resized to fit.
+                _Optional_
+            + `detail1Description`: `Details 1 description` (string) - You can show additional details about the product in the More information section in the header of Quick Checkout.
+                _Optional_
+            + `detail1Text`:`Details 1 text` (string) - The detail1Text is shown next to the detail1Description in the More Information section in the header of the payment form with the other payment details. The detail1Description combined with the detail1Text is shown in the more information field of the merchant account history CSV file.
+                _Optional_
+            + `descriptor`:`Merchant's trading name` (string) - This is the merchant descriptor that will be displayed on the consumer's bank statement.
+                _Optional_
             
     + sightline (object) - These are the details of the [Play+ account](#sightlineobject) used for the request. Only one payment instrument object (e.g., *card* or *sightline*) can be included in the request.
         + Properties
-            + `consumerId`:`12312313` (string, required) - This is the Loyalty Membership Number unique to the customer to be enrolled with Play+ (Sightline). This is to be provided by the merchant. 
-            + `paymentToken`:`CNjEzMTM4NDg1` (string) - This is the payment token for a card. This will be present if registration is occurring as part of the salvage flow or for a funding the Play+ (Sightline) card flow.
+            + `consumerId`:`12312313` (string) - This is the Loyalty Membership Number unique to the customer to be enrolled with Play+ (Sightline). This is to be provided by the merchant. 
+                _Mandatory_
             + `paymentHandleToken`:`SCO3wKcIyLoQbQvw` (string) - This is the payment token for a card. This will be present if registration is occurring as part of the salvage flow or for a funding the Play+ (Sightline) card flow.
+                _Optional_
             + `balance`:`20000` (string) - This is the balance on the Play+ (Sightline) prepaid card.
+                _Optional_
             + `last4ssn`:`6789` (string) - This is the last 4 digits of the customer's SSN, required to make the payments call. This is required only for a Payment transaction.
+                _Optional_
             + `card`: (object) - This is the card object. This will be present if customer registers with Play+ as part of the card recovery flow or when a customer adds fund to Play+ (Sightline).
+                _Optional_
     
     + ach (object) - These are the details of the [ach account](#achobject) used for the request. Only one payment instrument object (e.g., *card* or *ach*) can be included in the request.
         + Properties
-            + `accountHolderName`:`XYZ Company` (string, required) - This is the name of the customer or company.
-                _length<=22_
+            + `accountHolderName`:`XYZ Company` (string) - This is the name of the customer or company.
+                _Mandatory, length<=22_
             + `payMethod` :`WEB`(enum) - This is the payment type.
             _Read Only_
                 + Members
@@ -7653,27 +7671,28 @@ Use the *singleUseCustomerToken* returned in the response in the Payments Checko
                     + SAVINGS
                     + CHECKING
                     + LOAN
-            + `accountNumber`:`988772192` (string, required) - This is the bank account number.
-               _length=4-17_
-            + `routingNumber`:`211589828` (string, required) - For USD accounts, this is the 9-digit routing number of the bank.
-                _length<=9_
+            + `accountNumber`:`988772192` (string) - This is the bank account number.
+               _Mandatory, length=4-17_
+            + `routingNumber`:`211589828` (string) - For USD accounts, this is the 9-digit routing number of the bank.
+                _Mandatory, length<=9_
             + `lastDigits`:`92` (string) - This is returned in response. It contains only last 2 digits of bank account.
                 _length=2_
 
     + eft (object) - These are the details of the [eft account](#eftobject) used for the request. Only one payment instrument object (e.g., *card* or *eft*) can be included in the request.
-        + `accountHolderName`:`XYZ Company` (string, required) - This is the name of the customer or company.
-                _length<=30_
-        + `accountNumber`:`988772192` (string, required) - This is the bank account number.
-               _length=4-12_
-        + `transitNumber`:`211589828` (string, required) - This is the 5-digit transit number of the customer's bank branch.
-                _length<=5_
-        + `institutionId`:`001` (string, optional) - This is the 3-digit institution ID of the customer’s bank branch.
-                _length<=3_
+        + `accountHolderName`:`XYZ Company` (string) - This is the name of the customer or company.
+                _Mandatory, length<=30_
+        + `accountNumber`:`988772192` (string) - This is the bank account number.
+               _Mandatory, length=4-12_
+        + `transitNumber`:`211589828` (string) - This is the 5-digit transit number of the customer's bank branch.
+                _Mandatory, length<=5_
+        + `institutionId`:`001` (string) - This is the 3-digit institution ID of the customer’s bank branch.
+                _Optional, length<=3_
         + `lastDigits`:`92` (string) - This is returned in response. It contains only last 2 digits of bank account.
                 _length=2_
    
     + vippreferred (object) - These are the details of the [vip preferred account](#vippreferredobject) used for the request. Only one payment instrument object (e.g., *card* or *vippreferred*) can be included in the request. 
-        + `consumerId`:`550726575` (string, required) - The is the consumer social security number (SSN). As it is sensitive data the consumerId will not be passed in the response. Last 4 digits will be passed as lastDigits. 
+        + `consumerId`:`550726575` (string) - The is the consumer social security number (SSN). As it is sensitive data the consumerId will not be passed in the response. Last 4 digits will be passed as lastDigits. 
+            _Mandatory_
 
 ## PaymentsRequest (object)
 
