@@ -1874,17 +1874,16 @@ You will not be able to use your Test credentials to process transaction request
 <a name="cardobject" title="card Object"></a>
 ## card
 
-|Element            |Type                       |Description                        |
-|---                |---                        |---                                |
-|cardNum            |string <br/>`length=8-20`  |This is the card number used for the request. |
-|lastDigits         |string<br/>`length=4`      |This is the last four digits of the card used for the request, returned in the response.|
-|cardExpiry         |[cardExpiry](#cardexpiryobject)|This is the card's expiry date.|
-|cvv                |string<br/>`length=3-4`    |This is the 3- or 4-digit security code that appears on the card following the card number.|
-|holderName         |string<br/>`length<=160`   |This is the name of the card holder. |
-|status             |enum                       |       |
-|nickName           |string<br/>`length<=50`    |This is the nickname the merchant has for the card holder. |
-|cardType           |enum                       |This is the type of card used for the request, returned in the response. Possible values are:<br/><ul><li>AM &ndash; American Express</li><li>DI &ndash; Discover</li><li>JC &ndash; JCB</li><li>MC &ndash; Mastercard</li><li>MD &ndash; Maestro</li><li>SO &ndash; Solo</li><li>VI &ndash; Visa</li><li>VD &ndash; Visa Debit</li><li>VE &ndash; Visa Electron</li></ul>
-|cardBin            |string<br/>`length=6`      |This is the card BIN (typically the first 6 digits).|
+|Element            |Type                       |Required|Description|
+|---                |---                        |---|---                                |
+|cardNum            |string <br/>`length=8-20`  |Mandatory|This is the card number used for the request. |
+|lastDigits         |string<br/>`length=4`      |Read Only|This is the last four digits of the card used for the request, returned in the response.|
+|cardExpiry         |[cardExpiry](#cardexpiryobject)|Mandatory|This is the card's expiry date.|
+|cvv                |string<br/>`length=3-4`    |Conditional|This is the 3- or 4-digit security code that appears on the card following the card number.|
+|holderName         |string<br/>`length<=160`   |Optional|This is the name of the card holder. |
+|nickName           |string<br/>`length<=50`    |Optional|This is the nickname the merchant has for the card holder. |
+|cardType           |enum                       |Read Only|This is the type of card used for the request, returned in the response. Possible values are:<br/><ul><li>AM &ndash; American Express</li><li>DI &ndash; Discover</li><li>JC &ndash; JCB</li><li>MC &ndash; Mastercard</li><li>MD &ndash; Maestro</li><li>SO &ndash; Solo</li><li>VI &ndash; Visa</li><li>VD &ndash; Visa Debit</li><li>VE &ndash; Visa Electron</li></ul>
+|cardBin            |string<br/>`length=6`      |Read Only|This is the card BIN (typically the first 6 digits).|
 
 ```apib
     {
@@ -1902,10 +1901,10 @@ You will not be able to use your Test credentials to process transaction request
 <a name="cardexpiryobject" title="cardExpiry Object"></a>
 ## cardExpiry
 
-|Element                 |Type                   |Description|
-|---                     |---                    |---|
-|month                   |number<br/>`length=2`  |This is the card expiry month. |
-|year                    |number<br/>`length=4`  |This is the card expiry year.|
+|Element                 |Type                   |Required|Description|
+|---                     |---                    |----|---|
+|month                   |number<br/>`length=2`  |Mandatory|This is the card expiry month. |
+|year                    |number<br/>`length=4`  |Mandatory|This is the card expiry year.|
 
 ```apib
     {
@@ -6920,23 +6919,35 @@ Use the *singleUseCustomerToken* returned in the response in the Payments Checko
     + Properties
 
         + cardNum:`4111111111111111` (string) - This is the card number used for the request.
-            _length=8-20_
-                
+            _Mandatory, length=8-20_
         + cardExpiry (object) - This is the card's [expiry date](#cardexpiryobject).
+            _Mandatory_
             + month:12 (number) - This is the card expiry month.
                 _length=2_
             + year:2020 (number) - This is the card expiry year.
                 _length=4_
         + cvv:`123` (string) - This is the 3- or 4-digit security code that appears on the card following the card number.
-            _length=3-4_
+            _Conditional, length=3-4_
         + lastDigits:`1111` (string) - These are the last four digits of the card used for the request.
             _Read Only, length=4_
         + holdername:`Jane Smith` (string) - This is the name of the card holder.
             _Read Only_
         + nickName:`Jane's Card` (string) - This is the nickname the merchant has for the card holder.
-            _length<=50_
+            _Optional, length<=50_
         + cardBin:`411111` (string) - This is the card BIN (typically the first 6 digits).
             _Read Only, length=6_
+        + cardType: `AM` (enum) - This is the type of card used for the request, returned in the response.
+            _Read Only_
+            + Members
+                + AM – American Express
+                + DI – Discover
+                + JC – JCB
+                + MC – Mastercard
+                + MD – Maestro
+                + SO – Solo
+                + VI – Visa
+                + VD – Visa Debit
+                + VE – Visa Electron
 
 ## `Card Customer`
 
@@ -6944,15 +6955,16 @@ Use the *singleUseCustomerToken* returned in the response in the Payments Checko
 
     + Properties
 
-        + cardNum:`4111111111111111` (string, required) - This is the card number used for the request.
-            _length=8-20_
-        + cardExpiry (object, required) - This is the card's [expiry date](#cardexpiryobject).
+        + cardNum:`4111111111111111` (string) - This is the card number used for the request.
+            _Mandatory, length=8-20_
+        + cardExpiry (object) - This is the card's [expiry date](#cardexpiryobject).
+            __Mandatory_
             + month:12 (number) - This is the card expiry month.
                 _length=2_
-            + year:2020 (number, required) - This is the card expiry year.
+            + year:2020 (number) - This is the card expiry year.
                 _length=4_
         + cvv:`123` (string) - This is the 3- or 4-digit security code that appears on the card following the card number.
-            _length=3-4_
+            _Conditional, length=3-4_
         + lastDigits:`1111` (string) - These are the last four digits of the card used for the request.
             _Read Only, length=4_
 
@@ -6963,10 +6975,11 @@ Use the *singleUseCustomerToken* returned in the response in the Payments Checko
 
     + Properties
 
-        + cardExpiry (object, required) - This is the card's [expiry date](#cardexpiryobject).
-            + month:12 (number, required) - This is the card expiry month.
+        + cardExpiry (object) - This is the card's [expiry date](#cardexpiryobject).
+        _Mandatory_
+            + month:12 (number) - This is the card expiry month.
                 _length=2_
-            + year:2020 (number, required) - This is the card expiry year.
+            + year:2020 (number) - This is the card expiry year.
                 _length=4_
         + lastDigits:`1111` (string) - These are the last four digits of the card used for the request.
             _Read Only, length=4_
@@ -6978,7 +6991,7 @@ Use the *singleUseCustomerToken* returned in the response in the Payments Checko
     _Read Only, length<=36_
 + merchantCustomerId:`mycustomer10` (string, required) - This is a customer ID that the merchant provides with the request for their own internal customer identification. This value must be unique for each customer belonging to a merchant.
     _length<=100_
-+ locale: (enum, required) - This indicates the language of the customer.
++ locale: `en_US` (enum, required) - This indicates the language of the customer.
     - en_US
     - fr_CA
     - en_GB
@@ -7533,19 +7546,19 @@ Use the *singleUseCustomerToken* returned in the response in the Payments Checko
 
         + Properties
 
-            + cardNum:`4111111111111111` (string, required) - This is the card number used for the request.
-                _length=8-20_
-                
+            + cardNum:`4111111111111111` (string) - This is the card number used for the request.
+                _Mandatory, length=8-20_
             + cardExpiry (object, required) - This is the card's [expiry date](#cardexpiryobject).
+                __Mandatory_
                 + month:12 (number, required) - This is the card expiry month.
                     _length=2_
                 + year:2020 (number, required) - This is the card expiry year.
                     _length=4_
             + cvv:`123` (string) - This is the 3- or 4-digit security code that appears on the card following the card number.
-                _length=3-4_
+                _Conditional, length=3-4_
             + holdername:`Jane Smith` (string) - This is the name of the card holder.
                 _Read Only_
-            + type (enum) - This is type of card used for the request.
+            + cardType (enum) - This is type of card used for the request.
                 _Read Only_
                 - AM – American Express
                 - DI – Discover
@@ -7559,7 +7572,7 @@ Use the *singleUseCustomerToken* returned in the response in the Payments Checko
             + lastDigits:`1111` (string) - These are the last four digits of the card used for the request.
                 _Read Only, length=4_
             + nickName:`Jane's Card` (string) - This is the nickname the merchant has for the card holder.
-                _length<=50_
+                _Optional, length<=50_
             + cardBin:`411111` (string) - This is the card BIN (typically the first 6 digits).
                 _Read Only, length=6_
         
