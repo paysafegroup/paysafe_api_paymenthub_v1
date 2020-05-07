@@ -31,6 +31,7 @@ The Paysafe Payments API currently supports the following payment methods:
 - Instant ACH (iACH)
 - ACH
 - EFT
+- Paypal
 
 
 **Here is a step-by-step guide to get you started:**
@@ -534,6 +535,7 @@ The overlay contains a payment button that creates a payment handle for the data
                     "sightline": {
                         "consumerId": "123456",
                         "SSN": "123456789",
+                        "last4ssn": "6789",
                         "accountId":"1009688222"
                     },
                     "vippreferred":{
@@ -688,7 +690,7 @@ paysafe.checkout.setup(apiKey, options, resultCallback, closeCallback?)
 |singleUseCustomerToken|string|no||This is the *singleUseCustomerToken* that the merchant generated using the [Create a Single-Use Customer Token request](#createcustomersut). Any saved addresses and/or payment details would be displayed in the Checkout.|
 |canEditAmount|boolean|no||If *true*, the customer can edit the amount in the Checkout before clicking Pay. If false, the amount is not editable.|
 |[customer](#customer)|object|no||In case the customer is a first-time user and has no customer profile, the merchant can choose to pass an existing customer profile in the call to create a payment handle.|
-|displayPaymentMethods|Array |no | | If provided, this is the restricted list of payment methods that a customer will see once checkout is launched. <br/> Possibe values are card, paysafecard, paysafecash, sightline, vippreferred, skrill, instantach|
+|displayPaymentMethods|Array |no | | This field serves 2 purposes. You can use it to restrict the payment methods that a customer can see. You can also use it to order the payment methods based on your preference. If this field is present, then a customer will only see those payment methods in the order specified, so ensure that you provide all payment methods if you are using it only for the purpose of payment method ordering. |
 |[paymentMethodDetails](#paymentmethoddetails)|object|conditional||Required for Paysafecash, Paysafecard, Skrill, Instant ACH, Play+ (Sightline) payment types.|
 |payout |boolean |no | | If true, **Withdrawal** Checkout screen will be launched. If false, **Payment** Checkout will be launched.<br/> Defaults to false. |
 |[payoutConfig](#payoutconfig) |object | conditional | | Required for withdrawal checkout only. This configuration is used to specify withdrawal limitations. |
@@ -774,6 +776,7 @@ paysafe.checkout.setup(apiKey, options, resultCallback, closeCallback?)
 |---------|-------|---------------|-----------|------------------|
 |consumerId|string|yes|`length<=50`|This is a consumer ID that the merchant has stored for Play+ (Sightline) payments. This will be used by Play+ for customer enrollment.|
 |SSN|string|no|`length=9`|This is the customer's Social Security Number.If provided, then the last 4 SSN field will be prefilled and locked in enrollment as well as during Payment flow. If not provided, Customer has to enter their full SSN in the enrollment and the last 4 SSN in the Payment flow.|
+|last4ssn|string|no|`length=4`|This the customer’s last 4 digits of Social Security Number. If the customer is already enrolled for Sightline, then instead of sending the full ‘SSN’ field, you can send the last 4 digits of SSN which will get prefilled during Payment flow. If not provided, then the system will check if ‘SSN’ field is present to prefill the last 4 digits. If both these fields are not provided, then the customer has to enter the last 4 digits of SSN to complete the payment.|
 |accountID |string|Conditional|`length<=10`|Required when you have more than one account configured for the same payment method and currency.|
 
 <a name="skrill"></a>
@@ -2580,7 +2583,8 @@ If you [look up an authorization request](#getauth)  that used the *visaAddition
 |consumerId                     |string                 |Mandatory|This is the Loyalty Membership Number unique to the customer to be enrolled with Play+ (Sightline). This is to be provided by the merchant. |
 |paymentHandleToken             |string                 |Optional|This is the payment handle token for a card. This will be present if registration is occurring as part of the salvage flow or for a funding the Play+ (Sightline) card flow.|
 |balance                        |big decimal            |Optional|This is the balance on the Play+ (Sightline) prepaid card.|
-|last4ssn                       |string                 |Optional|This is the last 4 digits of the customer's SSN, required to make the payments call. This is required only for a Payment transaction. |
+|SSN                            |string                 |Optional|This the customer's SSN number.|
+|last4ssn                       |string                 |Optional|This the customer’s last 4 digits of Social Security Number. If the customer is already enrolled for Sightline, then instead of sending the full ‘SSN’ field, you can send the last 4 digits of SSN which will get prefilled during Payment flow. If not provided, then the system will check if ‘SSN’ field is present to prefill the last 4 digits. If both these fields are not provided, then the customer has to enter the last 4 digits of SSN to complete the payment.|
 |card                           |[card](#cardobject)    |Optional|This is the card object. This will be present if registration is occurring as part of the salvage flow or for a funding the Play+ (Sightline) card flow.|
 
 ```
@@ -2588,6 +2592,7 @@ If you [look up an authorization request](#getauth)  that used the *visaAddition
          "consumerId": "12312313",
          "paymentHandleToken": "SCO3wKcIyLoQbQvw",
          "balance": "20000",
+         "SSN": "123456789",
          "last4ssn": "6789",
          "card": {
              "cardNum": "12345678912",
@@ -7655,10 +7660,13 @@ Use the *singleUseCustomerToken* returned in the response in the Payments Checko
                 _Optional_
             + `balance`:`20000` (string) - This is the balance on the Play+ (Sightline) prepaid card.
                 _Optional_
-            + `last4ssn`:`6789` (string) - This is the last 4 digits of the customer's SSN, required to make the payments call. This is required only for a Payment transaction.
+            + `SSN` : `123456789` (string) - This is the customer's SSN number.
                 _Optional_
-            + `card`: (object) - This is the card object. This will be present if customer registers with Play+ as part of the card recovery flow or when a customer adds fund to Play+ (Sightline).
+            + `last4ssn`:`6789` (string) - This the customer’s last 4 digits of Social Security Number. If the customer is already enrolled for Sightline, then instead of sending the full ‘SSN’ field, you can send the last 4 digits of SSN which will get prefilled during Payment flow. If not provided, then the system will check if ‘SSN’ field is present to prefill the last 4 digits. If both these fields are not provided, then the customer has to enter the last 4 digits of SSN to complete the payment.
                 _Optional_
+            + `card`: `` (object) - This is the card object. This will be present if customer registers with Play+ as part of the card recovery flow or when a customer adds fund to Play+ (Sightline).
+                _Optional_
+            
     
     + ach (object) - These are the details of the [ach account](#achobject) used for the request. Only one payment instrument object (e.g., *card* or *ach*) can be included in the request.
         + Properties
