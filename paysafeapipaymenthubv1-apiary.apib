@@ -31,6 +31,7 @@ The Paysafe Payments API currently supports the following payment methods:
 - Instant ACH (iACH)
 - ACH
 - EFT
+- Paypal
 
 
 **Here is a step-by-step guide to get you started:**
@@ -428,7 +429,22 @@ When the merchant wants to process a Instant ACH payment request, you would do t
  
 **API Requests to Use:** [Payment Handles](#paymenthandlerequest) + [Payments](#paymentrequest)
 
-### Scenario 11: ACH Payment
+### Scenario 11: Paypal Payment
+
+When the merchant wants to process a Paypal payment request, you would do the following:
+ 1. Create a Payment Handle with the *transactionType* parameter set to PAYMENT and the *paymentType* parameter set to PAYPAL.
+ 2. Since the customer has to complete payment authentication by providing Paypal details, Paysafe returns a response with the following:
+    * The *action* parameter is set to REDIRECT
+    * A *payment_redirect* link points to the Paypal redirect URL
+ 3. Redirect the customer to the Paypal redirect URL so they can provide the email address and password details to complete the money transfer.
+ 4. Upon successful customer authentication, the merchant gets notified at the URL specified in the *on_completed* parameter included with their request.
+ 5. At this point, the status of the Payment Handle becomes PAYABLE.
+ 6. Use the *paymentHandleToken* returned in the response to process the Payment request.
+ 7. Once the Payment request is successfully completed, the funds are immediately transferred to the merchant's account.
+ 
+**API Requests to Use:** [Payment Handles](#paymenthandlerequest) + [Payments](#paymentrequest)
+
+### Scenario 12: ACH Payment
 
 When the merchant wants to process an ACH payment request, you would do the following:
  1. Create a Payment Handle, which should immediately have the *status* of PAYABLE.
@@ -437,7 +453,7 @@ When the merchant wants to process an ACH payment request, you would do the foll
 
 **API Requests to Use:** [Payment Handles](#paymenthandlerequest) + [Payments](#paymentrequest)
 
-### Scenario 12: EFT Payment
+### Scenario 13: EFT Payment
 
 When the merchant wants to process an EFT payment request, you would do the following:
  1. Create a Payment Handle, which should immediately have the *status* of PAYABLE.
@@ -534,6 +550,7 @@ The overlay contains a payment button that creates a payment handle for the data
                     "sightline": {
                         "consumerId": "123456",
                         "SSN": "123456789",
+                        "last4ssn": "6789",
                         "accountId":"1009688222"
                     },
                     "vippreferred":{
@@ -629,6 +646,11 @@ The overlay contains a withdraw button that creates a payment handle for the dat
                     },
                     "vippreferred":{
                         "consumerId": "550726575"
+                    },
+                    "paypal": {
+                        "consumerId": "sb-cpfxo1472281@personal.example.com",
+                        "consumerMessage": "Paysafe note to payer",
+                         "recipientType": "PAYPAL_ID"
                     }
                 }
             }, function(instance, error, result) {
@@ -688,8 +710,8 @@ paysafe.checkout.setup(apiKey, options, resultCallback, closeCallback?)
 |singleUseCustomerToken|string|no||This is the *singleUseCustomerToken* that the merchant generated using the [Create a Single-Use Customer Token request](#createcustomersut). Any saved addresses and/or payment details would be displayed in the Checkout.|
 |canEditAmount|boolean|no||If *true*, the customer can edit the amount in the Checkout before clicking Pay. If false, the amount is not editable.|
 |[customer](#customer)|object|no||In case the customer is a first-time user and has no customer profile, the merchant can choose to pass an existing customer profile in the call to create a payment handle.|
-|displayPaymentMethods|Array |no | | If provided, this is the restricted list of payment methods that a customer will see once checkout is launched. <br/> Possibe values are card, paysafecard, paysafecash, sightline, vippreferred, skrill, instantach|
-|[paymentMethodDetails](#paymentmethoddetails)|object|conditional||Required for Paysafecash, Paysafecard, Skrill, Instant ACH, Play+ (Sightline) payment types.|
+|displayPaymentMethods|Array |no | | This field serves 2 purposes. You can use it to restrict the payment methods that a customer can see. You can also use it to order the payment methods based on your preference. If this field is present, then a customer will only see those payment methods in the order specified, so ensure that you provide all payment methods if you are using it only for the purpose of payment method ordering. |
+|[paymentMethodDetails](#paymentmethoddetails)|object|conditional||Required for Paysafecash, Paysafecard, Skrill, Instant ACH, Paypal, Play+ (Sightline) payment types.|
 |payout |boolean |no | | If true, **Withdrawal** Checkout screen will be launched. If false, **Payment** Checkout will be launched.<br/> Defaults to false. |
 |[payoutConfig](#payoutconfig) |object | conditional | | Required for withdrawal checkout only. This configuration is used to specify withdrawal limitations. |
 |[merchantDescriptor](#merchantDescriptor)|object|no||This is a merchant descriptor.| 
@@ -745,6 +767,7 @@ paysafe.checkout.setup(apiKey, options, resultCallback, closeCallback?)
 |[paysafecash](#paysafecash)|object|Conditional||Required for Paysafecash payment/withdrawal.|
 |[skrill](#skrill)          |object|Conditional||Required for Skrill withdrawal only. |
 |[instantach](#instantach)  |object|Conditional||Required for Instant ACH withdrawal only. |
+|[paypal](#paypal)          |object|Conditional||Required for Paypal withdrawal only.|
 |[sightline](#sightline)    |object|Conditional||Required for Play+|
 |[vippreferred](#vippreferred)|object|Conditional||Required for VIP Preferred|
 
@@ -774,6 +797,7 @@ paysafe.checkout.setup(apiKey, options, resultCallback, closeCallback?)
 |---------|-------|---------------|-----------|------------------|
 |consumerId|string|yes|`length<=50`|This is a consumer ID that the merchant has stored for Play+ (Sightline) payments. This will be used by Play+ for customer enrollment.|
 |SSN|string|no|`length=9`|This is the customer's Social Security Number.If provided, then the last 4 SSN field will be prefilled and locked in enrollment as well as during Payment flow. If not provided, Customer has to enter their full SSN in the enrollment and the last 4 SSN in the Payment flow.|
+|last4ssn|string|no|`length=4`|This the customer’s last 4 digits of Social Security Number. If the customer is already enrolled for Sightline, then instead of sending the full ‘SSN’ field, you can send the last 4 digits of SSN which will get prefilled during Payment flow. If not provided, then the system will check if ‘SSN’ field is present to prefill the last 4 digits. If both these fields are not provided, then the customer has to enter the last 4 digits of SSN to complete the payment.|
 |accountID |string|Conditional|`length<=10`|Required when you have more than one account configured for the same payment method and currency.|
 
 <a name="skrill"></a>
@@ -811,6 +835,18 @@ paysafe.checkout.setup(apiKey, options, resultCallback, closeCallback?)
 |---                |---|---|---|---|
 |consumerId         |string|yes|`length=9`|This is the customer's Social Security Number.|
 |accountID |string|Conditional|`length<=10`|Required when you have more than one account configured for the same payment method and currency.|
+
+<a name="paypal"></a>
+**paypal**
+|Parameter|Type|Required|Validations|Description|
+|---------|-------|---------------|-----------|------------------|
+|consumerId              |string|yes|`length<=50` |The source of funds for this payment, the email address of the consumer or payer.|
+|recipientDescription    |string|no |`length<=127`|A label that overrides the business name in the merchant's PayPal account on the PayPal checkout pages.|
+|language                |string|no |`length=2`   |The 2-character preferred language code for the consumer (e.g., AU, AT, BE, BR, CA, CH, CN, DE, ES, GB, FR, IT, NL, PL, PT, RU, or US.) or A five-character code is also valid for languages in these countries (e.g: da_DK, he_IL, id_ID, ja_JP, no_NO, pt_BR, ru_RU, sv_SE, th_TH, zh_CN, zh_HK, and zh_TW).|
+|shippingPreference      |enum  |no |             |The shipping preference. The possible values are:<ul><li>NO_SHIPPING - Redacts the shipping address from the PayPal pages. Recommended for digital goods.</li><li>GET_FROM_FILE - Uses the customer-selected shipping address on PayPal pages.</li><li>SET_PROVIDED_ADDRESS. If available, uses the merchant-provided shipping address, which the customer cannot change on the PayPal pages. If the merchant does not provide an address, the customer can enter the address on PayPal pages.</li></ul>|
+|consumerMessage         |string|no |             |Note to be displayed on the PayPal page.|
+|orderDescription        |string|no |             |Order description to display on PayPal page. If merchant does not set this field it defaults to 'Payment for order'.|
+|recipientType           |string|yes|             |Type of payout recipient. The only supported value is 'PAYPAL_ID'.|
 
 The Paysafe Checkout is displayed when the configuration provided in *options* is correctly validated.
 
@@ -2297,17 +2333,17 @@ This is an authorization that is approved for an amount lower than the requested
 |transactionType        |enum                       |Mandatory|This specifies the transaction type for which the Payment Handle is created. Possible values are: <ul><li>PAYMENT</li><li> STANDALONE_CREDIT</li><li>ORIGINAL_CREDIT</li><li>VERIFICATION</li></ul>|
 |status                 |enum                       |Read Only|This is the status of the request. Possible values are:<ul><li>INITIATED &ndash; The request was initiated with the downstream provider.</li><li>PAYABLE &ndash; The merchant can use the Payment Handle for a Payment request.</li><li>PROCESSING &ndash; The Payment Handle was authorized by customer, awaiting PSP response.</li><li>FAILED &ndash; The transaction failed due to either an error or being declined.</li><li>EXPIRED &ndash; The Payment Handle expired because the merchant did not proceed with the Payment transaction.</li><li>COMPLETED &ndash; The Payment request was initiated successfully using the Payment Handle.</li></ul>      |
 |usage                  |enum                       |Read Only|This specifies how the Payment Handle will be used for Payments. Possible values are:<ul><li>SINGLE_USE &ndash; The Payment Handle can be used for one transaction only and expires if not used.</li><li>MULTI_USE &ndash; The Payment Handle can be used multiple times.</li></ul>|
-|paymentType            |enum                       |Mandatory|This is the payment type associated with this Payment Handle. Possible values are:<ul><li>CARD</li><li>PAYSAFECASH</li><li>PAYSAFECARD</li><li>VIP PREFERRED</li><li>SIGHTLINE</li><li>SKRILL</li><li>INSTANT ACH</li><li>ACH</li><li>EFT</li></ul>|
+|paymentType            |enum                       |Mandatory|This is the payment type associated with this Payment Handle. Possible values are:<ul><li>CARD</li><li>PAYSAFECASH</li><li>PAYSAFECARD</li><li>VIP PREFERRED</li><li>SIGHTLINE</li><li>SKRILL</li><li>INSTANT ACH</li><li>PAYPAL</li><li>ACH</li><li>EFT</li></ul>|
 |action                 |enum                       |Read Only|This specifies the next step of the user journey once they proceed to the Payment. Possible values are:<ul><li>NONE &ndash; No action is required, e.g., for a standard credit card payment.</li><li>REDIRECT &ndash; The user must be redirected in order to complete a Payment, e.g., when an alternate payment method like Paysafecard is used.</li></ul>|
 |executionMode          |enum                       |Read Only|This specifies the action of the merchant server in order to complete the Payment. Possible values are:<ul><li>SYNCHRONOUS &ndash; The status of the Payment request will be returned synchronously to the merchant, e.g., a credit card request.</li><li>ASYNCHRONOUS &ndash; The Payment request is not completed immediately and the merchant [must rely on webhooks](#paymentswebhooks) to retrieve the status of the Payment request.</li></ul>|
 |amount                 |number<br/>`max=99999999999` |Mandatory|This is the amount of the request, in minor units.<br/>**Note:** This field is mandatory if *transactionType* is included. <br/>The *amount* specified in the Payment Handle request must match the *amount* specified in the Payments API request the *paymentHandleToken* is used for. |
 |currencyCode           |string<br/>`length=3`      |Mandatory|This is the currency of the merchant account, e.g., USD or CAD. See [Currency Codes](#currencycodes). <br/>The *currencyCode* specified in the Payment Handle request must match the *currencyCode* specified in the Payments API request the *paymentHandleToken* is used for.|
 |paymentHandleToken     |string                     |Read Only|This is the payment token generated by Paysafe that will be used by merchants for Payment API requests.|
-|card \| paysafecard \| paysafecash \| sightline \| vippreferred \| skrill \| instant ACH \| ACH \|EFT |Mandatory| [card](#cardobject) \| [paysafecard](#paysafecardobject)\| [paysafecash](#paysafecashobject) \|[sightline](#sightlineobject) \| [vippreferred](#vippreferredobject) \| [skrill](#skrillobject) \| [instant ACH](#instantachobject)  \| [ACH](#achobject)    \| [EFT](#eftobject)  |These are details of the payment instrument used in the request. |
+|card \| paysafecard \| paysafecash \| sightline \| vippreferred \| skrill \| instant ACH \| paypal \| ACH \|EFT |Mandatory| [card](#cardobject) \| [paysafecard](#paysafecardobject)\| [paysafecash](#paysafecashobject) \|[sightline](#sightlineobject) \| [vippreferred](#vippreferredobject) \| [skrill](#skrillobject) \| [instant ACH](#instantachobject)  \| [paypal](#paypalobject) \| [ACH](#achobject)    \| [EFT](#eftobject)  |These are details of the payment instrument used in the request. |
 |billingDetails         |[billingDetails](#billingdetailsobject)        |Conditional |These are billing details for the request.<br/>**Note:** For single-use Payment Handles, this address information will be ignored if the *paymentHandleTokenFrom* parameter is included and there is already address information associated with that customer.|
 |profile                |[profile](#profileobject)  |Optional|This is the customer's profile. |
 |merchantDescriptor     |[merchantDescriptor](#merchantdescriptorobject) |Optional|This is the merchant descriptor that will be displayed on the customer's card or bank statement.<br/>**Note:** Not all processing gateways support this parameter. Contact your account manager for more information.|
-|returnLinks            |[returnLinks](#returnlinksobject)         |Conditional|These are links to which to redirect the customer, where applicable. Mandatory for the following Payment Methods: Cards, Skrill, Paysafecash, Paysafecard, Sightline, Vip Preferred. |
+|returnLinks            |[returnLinks](#returnlinksobject)         |Conditional|These are links to which to redirect the customer, where applicable. Mandatory for the following Payment Methods: Cards, Skrill, Paypal, Paysafecash, Paysafecard, Sightline, Vip Preferred. |
 |customerIp             |string<br/>`length<=39`    |Optional|This is the customer's IP address. |
 |timeToLiveSeconds      |number<br/>`length<=899`   |Read Only|This is the period of time, in seconds, the *paymentHandleToken* is valid before expiration.|
 |links            |[links](#linksobject)         |Read Only|These are links to which to redirect the customer, where applicable. |
@@ -2387,7 +2423,7 @@ This is an authorization that is approved for an amount lower than the requested
 |error              |[error](#errorobject)                  |Read Only| Details of the error.    |
 |statusReason       |string<br/>`length<=255`               |Read Only|This is reason for the status. This is present in the case where *status* is ERROR, FAILURE, or HELD. |
 |authentication     |[authentication](#authenticationobject)|Read Only|These are 3D Secure details.|
-|paymentType            |enum                       |Optional|This is the payment type associated with this Payment Handle. Possible values are:<ul><li>CARD</li><li>PAYSAFECASH</li><li>PAYSAFECARD</li><li>VIP PREFERRED</li><li>SIGHTLINE</li><li>SKRILL</li><li>INSTANT ACH</li><li>ACH</li><li>EFT</li></ul>|
+|paymentType            |enum                       |Optional|This is the payment type associated with this Payment Handle. Possible values are:<ul><li>CARD</li><li>PAYSAFECASH</li><li>PAYSAFECARD</li><li>VIP PREFERRED</li><li>SIGHTLINE</li><li>SKRILL</li><li>INSTANT ACH</li><li>PAYPAL</li><li>ACH</li><li>EFT</li></ul>|
 |gatewayReconciliationId |string                 |Optional|Transaction identifier that can be used to reconcile this transaction with the provider gateway.<br/><i>Read Only</i>|
 |updatedTime             |datetime               |Optional|ISO 8601 format (UTC) </b>This is the date and time the resource was last updated, e.g., `2014-01-26T10:32:28Z`<br/><i>Read Only</i>|
 |statusTime              |datetime               |Optional|ISO 8601 format (UTC) </b>This is the date and time the resource status was last updated, e.g., `2014-01-26T10:32:28Z`<br/><i>Read Only</i>|
@@ -2405,6 +2441,33 @@ This is an authorization that is approved for an amount lower than the requested
     "customerIp": "10.10.12.64",
     "description": "Gaming Request"
 }
+```
+
+<a name="paypalobject" title="paypal Object"></a>
+## paypal
+
+|Element                 |Type                   |Required|Description|
+|---                     |---                    |---|---|
+|consumerId              |string<br>`length<=50` |Mandatory|The source of funds for this payment, the email address of the consumer or payer.|
+|recipientDescription    |string<br>`length<=127`|Optional|A label that overrides the business name in the merchant's PayPal account on the PayPal checkout pages.|
+|language                |string<br>`length=2`   |Optional|The 2-character preferred language code for the consumer (e.g., AU, AT, BE, BR, CA, CH, CN, DE, ES, GB, FR, IT, NL, PL, PT, RU, or US.) or A five-character code is also valid for languages in these countries (e.g: da_DK, he_IL, id_ID, ja_JP, no_NO, pt_BR, ru_RU, sv_SE, th_TH, zh_CN, zh_HK, and zh_TW).|
+|shippingPreference      |enum <br>              |Optional|The shipping preference. The possible values are:<ul><li>NO_SHIPPING - Redacts the shipping address from the PayPal pages. Recommended for digital goods.</li><li>GET_FROM_FILE - Uses the customer-selected shipping address on PayPal pages.</li><li>SET_PROVIDED_ADDRESS. If available, uses the merchant-provided shipping address, which the customer cannot change on the PayPal pages. If the merchant does not provide an address, the customer can enter the address on PayPal pages.</li></ul>|
+|consumerMessage         |string<br>             |Optional|Note to be displayed on the PayPal page.|
+|orderDescription        |string<br>             |Optional|Order description to display on PayPal page. If merchant does not set this field it defaults to 'Payment for order'.|
+|recipientType           |string<br>             |Mandatory|Type of payout recipient. The only supported value is 'PAYPAL_ID'.|
+
+```
+     {
+        "paypal": {
+        "consumerId": "groll75@gmail.com",
+        "recipientDescription": "My store description",
+        "language": "US",
+        "shippingPreference": "NO_SHIPPING",
+        "consumerMessage": "My note to payer",
+        "orderDescription": "My order description",
+        "recipientType": "PAYPAL_ID"
+        }
+     }
 ```
 
 <a name="paysafecardobject" title="paysafecard Object"></a>
@@ -2580,7 +2643,8 @@ If you [look up an authorization request](#getauth)  that used the *visaAddition
 |consumerId                     |string                 |Mandatory|This is the Loyalty Membership Number unique to the customer to be enrolled with Play+ (Sightline). This is to be provided by the merchant. |
 |paymentHandleToken             |string                 |Optional|This is the payment handle token for a card. This will be present if registration is occurring as part of the salvage flow or for a funding the Play+ (Sightline) card flow.|
 |balance                        |big decimal            |Optional|This is the balance on the Play+ (Sightline) prepaid card.|
-|last4ssn                       |string                 |Optional|This is the last 4 digits of the customer's SSN, required to make the payments call. This is required only for a Payment transaction. |
+|SSN                            |string                 |Optional|This the customer's Social Security Number.|
+|last4ssn                       |string                 |Optional|This the customer’s last 4 digits of Social Security Number. If the customer is already enrolled for Sightline, then instead of sending the full ‘SSN’ field, you can send the last 4 digits of SSN which will get prefilled during Payment flow. If not provided, then the system will check if ‘SSN’ field is present to prefill the last 4 digits. If both these fields are not provided, then the customer has to enter the last 4 digits of SSN to complete the payment.|
 |card                           |[card](#cardobject)    |Optional|This is the card object. This will be present if registration is occurring as part of the salvage flow or for a funding the Play+ (Sightline) card flow.|
 
 ```
@@ -2588,6 +2652,7 @@ If you [look up an authorization request](#getauth)  that used the *visaAddition
          "consumerId": "12312313",
          "paymentHandleToken": "SCO3wKcIyLoQbQvw",
          "balance": "20000",
+         "SSN": "123456789",
          "last4ssn": "6789",
          "card": {
              "cardNum": "12345678912",
@@ -2662,7 +2727,7 @@ If you [look up an authorization request](#getauth)  that used the *visaAddition
 |merchantRefNum     |string <br/>`length<=255`              |Mandatory|This is the merchant reference number created by the merchant and submitted as part of the request. It must be unique for each request.|
 |paymentHandleToken |string                                 |Mandatory|This is the payment token generated by Paysafe that will be used by merchants for Standalone Credit requests.|
 |currencyCode       |string<br/>`length=3`                  |Mandatory|This is the currency of the merchant account, e.g., USD or CAD, returned in the request response. See [Currency Codes](#currencycodes). <br/>**Note:** The *currencyCode* specified in the Credit request must match the *currencyCode* specified in the Payment Handle request from which the *paymentHandleToken* is taken.|
-|card \| paysafecard \| paysafecash \| sightline \| vippreferred \| skrill \| instant ACH \| ACH \|EFT |[card](#cardobject) \| [paysafecard](#paysafecardobject)\| [paysafecash](#paysafecashobject) \|[sightline](#sightlineobject) \| [vippreferred](#vippreferredobject) \| [skrill](#skrillobject) \| [instant ACH](#instantachobject)  \| [ACH](#achobject)    \| [EFT](#eftobject)  |Read Only|These are the details of the payment method used.|
+|card \| paysafecard \| paysafecash \| sightline \| vippreferred \| skrill \| instant ACH \| paypal \| ACH \|EFT |[card](#cardobject) \| [paysafecard](#paysafecardobject)\| [paysafecash](#paysafecashobject) \|[sightline](#sightlineobject) \| [vippreferred](#vippreferredobject) \| [skrill](#skrillobject) \| [instant ACH](#instantachobject)  \| [paypal](#paypalobject) \| [ACH](#achobject)    \| [EFT](#eftobject)  |Read Only|These are the details of the payment method used.|
 |billingDetails     |[billingDetails](#billingdetailsobject)|Optional|These are the billing details for the request.|
 |customerIp         |string<br/>`length<=39`                |Optional|This is the customer's IP address.|
 |description        |string<br/>`length<=255`               |Optional|This is a description of the transaction, provided by the merchant.|
@@ -3209,6 +3274,7 @@ Click on **Create a Payment Handle** above to see six examples of how to create 
 * A Payment Handle for a Play+ payment
 * A Payment Handle for a Skrill payment
 * A Payment Handle for an Instant ACH payment
+* A Payment Handle for a Paypal payment
 * A Payment Handle for an ACH payment
 * A Payment Handle for an EFT payment
 * A Payment Handle for a VIP Preferred payment
@@ -3934,6 +4000,124 @@ Click on **Create a Payment Handle** above to see six examples of how to create 
                 "transactionType": "PAYMENT",
                 "updatedTime": "2019-06-24T14:18:33Z",
                 "statusTime": "2019-06-24T14:18:33Z"
+            }
+
++ Request Create Payment Handle for Paypal (application/json)
+
+    + Headers
+
+            Authorization: "Basic YOUR-BASE64-ENCODED-API-KEY"
+            Simulator: "EXTERNAL"
+            
+    + Body
+
+            {
+                "merchantRefNum": "{{$guid}}",
+                "transactionType": "PAYMENT",
+                "paymentType": "PAYPAL",
+                "amount": 500,
+                "currencyCode": "USD",
+                "customerIp": "172.0.0.1",
+                "billingDetails": {
+                    "nickName": "Home",
+                    "street": "100 Queen",
+                    "street2": "Unit 201",
+                    "city": "Toronto",
+                    "zip": "M5H 2N2",
+                    "country": "CA"
+                },
+                "profile": {
+                    "firstName": "John",
+                    "lastName": "Doe",
+                    "email": "john.doe@paysafe.com"
+                },
+                "merchantDescriptor": {
+                    "dynamicDescriptor": "OnlineStore",
+                    "phone": "12345678"
+                },
+                "returnLinks": [
+                    {
+                        "rel": "default",
+                        "href": "https://usgaminggamblig.com/payment/return/success"
+                    },
+                    {
+                        "rel": "on_failed",
+                        "href": "https://usgaminggamblig.com/payment/return/failed"
+                    },
+                    {
+                        "rel": "on_cancelled",
+                        "href": "https://usgaminggamblig.com/payment/return/cancelled"
+                    }
+                ]
+            }
+
++ Response 200 (application/json)
+
+    + Body
+
+            {
+                "id": "9b6f3d64-0588-4b3b-84dd-22f659019455",
+                "paymentType": "PAYPAL",
+                "paymentHandleToken": "PHqdsODRptrUwddD",
+                "merchantRefNum": "3096c389-3562-4eeb-bcd5-aa83a2c1b0dc",
+                "currencyCode": "USD",
+                "txnTime": "2020-05-07T12:53:25.000+0000",
+                "billingDetails": {
+                    "street": "100 Queen",
+                    "street2": "Unit 201",
+                    "city": "Toronto",
+                    "zip": "M5H 2N2",
+                    "country": "CA"
+                },
+                "customerIp": "172.0.0.1",
+                "status": "INITIATED",
+                "links": [
+                    {
+                        "rel": "redirect_payment",
+                        "href": "https://api.qa.paysafe.com/alternatepayments/v1/redirect?accountId=1013718110&paymentHandleId=9b6f3d64-0588-4b3b-84dd-22f659019455&token=eyJhbGciOiJIUzI1NiJ9.eyJhY2QiOiIxMDEzNzE4MTEwIiwicHlkIjoiOWI2ZjNkNjQtMDU4OC00YjNiLTg0ZGQtMjJmNjU5MDE5NDU1IiwiZXhwIjoxNTg4ODU3ODA1fQ.Q6Bvq5BgZG4SV_LRRR3pbNVS394f4PGlfiuQ7KO0xSg"
+                    }
+                ],
+                "liveMode": false,
+                "usage": "SINGLE_USE",
+                "action": "REDIRECT",
+                "executionMode": "SYNCHRONOUS",
+                "amount": 500,
+                "merchantDescriptor": {
+                    "dynamicDescriptor": "OnlineStore",
+                    "phone": "12345678"
+                },
+                "timeToLiveSeconds": 899,
+                "gatewayResponse": {
+                    "id": "PAY-CWEKYH7VBDP4YH38LMROPBIK",
+                    "processor": "PAYPAL"
+                },
+                "returnLinks": [
+                    {
+                        "rel": "on_cancelled",
+                        "href": "https://usgaminggamblig.com/payment/return/cancelled"
+                    },
+                    {
+                        "rel": "default",
+                        "href": "https://usgaminggamblig.com/payment/return/success"
+                    },
+                    {
+                        "rel": "on_failed",
+                        "href": "https://usgaminggamblig.com/payment/return/failed"
+                    }
+                ],
+                "transactionType": "PAYMENT",
+                "updatedTime": "2020-05-07T12:53:25Z",
+                "statusTime": "2020-05-07T12:53:25Z",
+                "paypal": {
+                    "consumerId": "sb-cpfxo1472281@personal.example.com",
+                    "consumerMessage": "Paysafe note to payer",
+                    "recipientType": "PAYPAL_ID"
+                },
+                "profile": {
+                    "firstName": "John",
+                    "lastName": "Doe",
+                    "email": "john.doe@paysafe.com"
+                }
             }
 
 + Request Create Payment Handle for VIP Preferred (application/json)
@@ -7196,9 +7380,10 @@ Use the *singleUseCustomerToken* returned in the response in the Payments Checko
         + SKRILL
         + VIPPREFERRED
         + SIGHTLINE
-        + SKRILL
+        + INSTANTACH
         + ACH
         + EFT
+        + PAYPAL
 + `status`: `PENDING` (enum) - This is the status of the transaction request.
     _Read Only_
     + Members
@@ -7238,6 +7423,7 @@ Use the *singleUseCustomerToken* returned in the response in the Payments Checko
             + VIPPREFERRED
             + ACH
             + EFT
+            + PAYPAL
     + currencyCode:`USD` (string) - This is the [currency of the merchant account](#currencycodes), e.g., USD or CAD.
         _Read Only, max=3_
     + `accountId`: `1009355920` (string) - This is the merchant account for which the payment method and currency are enabled.
@@ -7281,6 +7467,7 @@ Use the *singleUseCustomerToken* returned in the response in the Payments Checko
         + SIGHTLINE
         + SKRILL
         + INSTANTACH
+        + PAYPAL
         + VIPPREFERRED
         + ACH
         + EFT
@@ -7507,6 +7694,7 @@ Use the *singleUseCustomerToken* returned in the response in the Payments Checko
             + SIGHTLINE
             + SKRILL
             + INSTANTACH
+            + PAYPAL
             + ACH
             + EFT
             + VIPPREFERRED
@@ -7646,7 +7834,28 @@ Use the *singleUseCustomerToken* returned in the response in the Payments Checko
                 _Optional_
             + `descriptor`:`Merchant's trading name` (string) - This is the merchant descriptor that will be displayed on the consumer's bank statement.
                 _Optional_
-            
+          
+    + paypal (object) - These are the details of the [paypal account](#paypalobject) used for the request.
+        + Properties
+            + `consumerId`:`john.doe@email.com` (string) - The source of funds for this payment, the email address of the consumer or payer.
+                _Mandatory, length<=50_
+            + `recipientDescription`:`logo_url_alt_text` (string) - A label that overrides the business name in the merchant's PayPal account on the PayPal checkout pages.
+                _Optional, length<=127_
+            + `language`:`EN` (string) - The locale of pages that the PayPal payment experience displays. A valid value is AU, AT, BE, BR, CA, CH, CN, DE, ES, GB, FR, IT, NL, PL, PT, RU, or US.  A five-character code is also valid for languages in these countries: da_DK, he_IL, id_ID, ja_JP, no_NO, pt_BR, ru_RU, sv_SE, th_TH, zh_CN, zh_HK, and zh_TW.
+                _Optional, length=5_
+            + `shippingPreference` :`NO_SHIPPING`(enum) - The shipping preference. The possible values are:
+            _Read Only_
+                + Members
+                    + NO_SHIPPING - Redacts the shipping address from the PayPal pages. Recommended for digital goods.
+                    + GET_FROM_FILE - Uses the customer-selected shipping address on PayPal pages.
+                    + SET_PROVIDED_ADDRESS - If available, uses the merchant-provided shipping address, which the customer cannot change on the PayPal pages. If the merchant does not provide an address, the customer can enter the address on PayPal pages.
+            + `consumerMessage`: `Details 1 description` (string) - Note to display on PayPal page.
+                _Optional_
+            + `orderDescription`:`Order Description` (string) - Order description to display on PayPal page. If merchant does not set this field it defaults to 'Payment for order'.
+                _Optional_
+            + `recipientType`:`PAYPAL_ID` (string) - Type of payout recipient. The only supported value is 'PAYPAL_ID'.
+                _Optional_
+                
     + sightline (object) - These are the details of the [Play+ account](#sightlineobject) used for the request. Only one payment instrument object (e.g., *card* or *sightline*) can be included in the request.
         + Properties
             + `consumerId`:`12312313` (string) - This is the Loyalty Membership Number unique to the customer to be enrolled with Play+ (Sightline). This is to be provided by the merchant. 
@@ -7655,10 +7864,13 @@ Use the *singleUseCustomerToken* returned in the response in the Payments Checko
                 _Optional_
             + `balance`:`20000` (string) - This is the balance on the Play+ (Sightline) prepaid card.
                 _Optional_
-            + `last4ssn`:`6789` (string) - This is the last 4 digits of the customer's SSN, required to make the payments call. This is required only for a Payment transaction.
+            + `SSN` : `123456789` (string) - This is the customer's Social Security Number.
                 _Optional_
-            + `card`: (object) - This is the card object. This will be present if customer registers with Play+ as part of the card recovery flow or when a customer adds fund to Play+ (Sightline).
+            + `last4ssn`:`6789` (string) - This the customer’s last 4 digits of Social Security Number. If the customer is already enrolled for Sightline, then instead of sending the full ‘SSN’ field, you can send the last 4 digits of SSN which will get prefilled during Payment flow. If not provided, then the system will check if ‘SSN’ field is present to prefill the last 4 digits. If both these fields are not provided, then the customer has to enter the last 4 digits of SSN to complete the payment.
                 _Optional_
+            + `card`: `` (object) - This is the card object. This will be present if customer registers with Play+ as part of the card recovery flow or when a customer adds fund to Play+ (Sightline).
+                _Optional_
+            
     
     + ach (object) - These are the details of the [ach account](#achobject) used for the request. Only one payment instrument object (e.g., *card* or *ach*) can be included in the request.
         + Properties
@@ -7736,7 +7948,10 @@ Use the *singleUseCustomerToken* returned in the response in the Payments Checko
         + SIGHTLINE
         + SKRILL
         + INSTANTACH
+        + PAYPAL
         + VIPPREFERRED
+        + ACH
+        + EFT
 + `status`: `HELD`(enum) - This is the status of the transaction request.
     _Read Only_
     + Members
