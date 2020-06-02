@@ -466,13 +466,13 @@ When the merchant wants to process an EFT payment request, you would do the foll
 
 ### Scenario 14: BACS Payment for a new Customer
 
-When the merchant wants to process an BACS payment request for a new customer, you would do the following:
+When the merchant wants to process a BACS payment request for a new customer, you would do the following:
  1. Create a new customer using the merchantCustomerId and other details.
  2. Create a multi-use Payment Handle for the customer with the *paymentType* parameter set to BACS.
- 3. Multi use payment handle token gets created in PAYABLE status after mandate reference number validations. Mandate reference along with status "PENDING" is returned in response.
- 4. Use the multi-use *paymentHandleToken* returned in the response to process the Payment request &ndash; the *settleWithAuth* parameter must be set to *true* in this case. Merchant can use the flag payOnActiveMandates as true to block the payments on non active mandates. Default value for payOnActiveMandates is false.   
- 5. After 7 days, once the mandate becomes Active, payment status will become COMPLETED and a webhook notification will be sent to merchant. Merchant will receive webhooks for the mandate status changes as well. 
- 6. After setting payment status to COMPLETED, settlement resource will be created in PENDING and respective webhook notification will be sent to merchant. Settlement will batched for the next batch. After settlement gets batched, it will be set to COMPLETED and respective webhook will be sent to merchant.
+ 3. Multi-use payment handle token gets created in PAYABLE status after mandate reference number validations. Mandate reference along with status "PENDING" is returned in response.
+ 4. Use the multi-use *paymentHandleToken* returned in response to process the Payment request &ndash; the *settleWithAuth* parameter must be set to *true* in this case. Merchant can use the flag *payOnActiveMandates* as *true* to block the payments on non active mandates. Default value for *payOnActiveMandates* is *false*.   
+ 5. After 7 days, once the mandate becomes Active, the payment status will become COMPLETED, and a webhook notification will be sent to the merchant. Merchant will receive webhooks for the changes in the mandate status as well. 
+ 6. After setting payment status to COMPLETED, settlement resource will be created in PENDING, and respective webhook notification will be sent to the merchant. The settlement will be batched in the next batch. After settlement gets batched, it will be set to COMPLETED, and the respective webhook will be sent to the merchant.
 
 > **Note:** Payment will fail if merchant tries to trigger payment using a single use payment handle token. For BACS Payment, the *settleWithAuth* parameter must be set to *true*. 
 
@@ -480,13 +480,13 @@ When the merchant wants to process an BACS payment request for a new customer, y
 
 ### Scenario 15: SEPA Payment for a new Customer
 
-When the merchant wants to process an SEPA payment request for a new customer, you would do the following:
+When the merchant wants to process a SEPA payment request for a new customer, you would do the following:
  1. Create a new customer using the merchantCustomerId and other details.
  2. Create a multi-use Payment Handle for the customer with the *paymentType* parameter set to SEPA.
- 3. Multi use payment handle token gets created in PAYABLE status after mandate reference number validations. Mandate reference along with status "PENDING" is returned in response.
+ 3. Multi-use payment handle token gets created in PAYABLE status after mandate reference number validations. Mandate reference along with status "PENDING" is returned in response.
  4. Use the multi-use *paymentHandleToken* returned in the response to process the Payment request &ndash; the *settleWithAuth* parameter must be set to *true* in this case. Merchant can use the flag payOnActiveMandates as true to block the payments on non active mandates. Default value for payOnActiveMandates is false.   
- 5. After 7 days, once the mandate becomes Active, payment status will become COMPLETED and a webhook notification will be sent to merchant. Merchant will receive webhooks for the mandate status changes as well. 
- 6. After setting payment status to COMPLETED, settlement resource will be created in PENDING and respective webhook notification will be sent to merchant. Settlement will batched for the next batch. After settlement gets batched, it will be set to COMPLETED and respective webhook will be sent to merchant.
+ 5. After 7 days, once the mandate becomes Active, the payment status will become COMPLETED, and a webhook notification will be sent to the merchant. Merchant will receive webhooks for the changes in the mandate status as well. 
+ 6. After setting payment status to COMPLETED, settlement resource will be created in PENDING, and respective webhook notification will be sent to the merchant. The settlement will be batched in the next batch. After settlement gets batched, it will be set to COMPLETED, and the respective webhook will be sent to the merchant.
 
 > **Note:** Payment will fail if merchant tries to trigger payment using a single use payment handle token. For SEPA Payment, the *settleWithAuth* parameter must be set to *true*. 
 
@@ -6800,76 +6800,6 @@ Click on **Delete an Address** above to see how delete an Address.
             
 + Response 200 (application/json)
 
-# Group Mandate
-
-## Mandate [v1/mandates]
-
-A Mandate is an authorisation for payments to be collected from a customer in the future. This is an legal agreement between the customer and merchant that informs users that they are agreeing to have their bank account debited periodically and also provides them with full details of their refund rights.
-
-### Setting Up A Mandate
-In order to set up a Mandate a form must be completed in one of three ways: 
-* Paper: A hand completed paper form is the most traditional way of completing the action. 
-* Telephone: Customers can phone their Direct Debit provider and details can be collated in that manner, if customers prefer to have an actual conversation. 
-* Online: Using bank-approved payment pages, Service Users can collect customer detail in what is a more private, non-rushed manner.
-
-### Look Up Mandate Status [GET /v1/mandates/{mandateId}]
-
-Click **Look Up Mandate Status** above to see the status of the mandate.
-    
-+ Parameters
-    + mandateId: `abcdc28d-486e-4b0a-bbf9-314033863542` (string,required) - This is the ID of the mandate that got created.
-
-+ Request Look Up Mandate Status(application/json)
-    
-    + Headers
-    
-            Authorization: Basic YOUR-BASE64-ENCODED-API-KEY
-            Simulator: "EXTERNAL"
-            
-+ Response 200 (application/json)
-
-    + Body
-
-            {
-               "id" : "abcdc28d-486e-4b0a-bbf9-314033863542",
-               "reference" : "ABCDEF0796",
-               "status" : "PENDING"
-            }
-
-### Cancel a Mandate [PUT /v1/mandates/{mandate_Id}]
-
-Merchant can cancel a mandate by using PUT call. The respective payment handle will also becomes CANCELLED with statusReasonCode as MANDATE_CANCELLED. 
-Webhooks notification for payment handle will be sent to merchant. 
-
-Click  **Cancel a Mandate** above to see how to cancel a Mandate.
-
-+ Parameter
-
-    + mandate_Id : `d9bcfd85-8aa6-469d-80a3-e2ca196544da` - This is the ID of the mandate that got created
-
-+ Request Cancel a Mandate (application/json)
-
-    + Headers
-
-            Authorization: "Basic YOUR-BASE64-ENCODED-API-KEY"
-            Simulator: "EXTERNAL"
-    
-    + Body
-
-            {
-              "status": "CANCELLED"
-            }
-                        
-+ Response 200 (application/json)
-
-    + Body
-
-            {
-              "id": "ea49ab6c-cf9b-4efd-bde8-2fa3bb5ccd85",
-              "reference" : "ABCDEF0796",
-              "status": "CANCELLED"
-            }
-            
 
 # Customer Payment Handles [/paymenthandles]
 <a name="paymenthandlerequest" title="Payment Handle Request"></a>
@@ -6877,7 +6807,11 @@ Click  **Cancel a Mandate** above to see how to cancel a Mandate.
 ## Create a Payment Handle for a Customer [POST /v1/customers/{customer_id}/paymenthandles]
 <a name="createcustomerpaymenthandlerequest" title="Create a Customer Payment Handle"></a>
 
-Click  **Create a Payment Handle for a Customer** above to create a Payment Handle for a [Customer you have already created](#createcustomerequest).
+Click  **Create a Payment Handle for a Customer** above to see examples of how to  create a Payment Handle for a [Customer you have already created](#createcustomerequest):
+
+* A Payment Handle for an CARD payment
+* A Payment Handle for an BACS payment
+* A Payment Handle for an SEPA payment
 
 >**Note:** Currently, only CARD, ACH, EFT, BACS and SEPA are supported as a *paymentType* parameter.
 
@@ -7519,6 +7453,75 @@ Use the *singleUseCustomerToken* returned in the response in the Payments Checko
                      }
                  }]
              }
+
+# Group Mandate
+
+A Mandate is an authorisation for payments to be collected from a customer in the future. This is an legal agreement between the customer and merchant that informs users that they are agreeing to have their bank account debited periodically and also provides them with full details of their refund rights.
+
+### Setting Up A Mandate
+In order to set up a Mandate a form must be completed in one of three ways: 
+* Paper: A hand completed paper form is the most traditional way of completing the action. 
+* Telephone: Customers can phone their Direct Debit provider and details can be collated in that manner, if customers prefer to have an actual conversation. 
+* Online: Using bank-approved payment pages, Service Users can collect customer detail in what is a more private, non-rushed manner.
+
+### Look Up Mandate Status [GET /v1/mandates/{mandateId}]
+
+Click **Look Up Mandate Status** above to see the status of the mandate.
+    
++ Parameters
+    + mandateId: `abcdc28d-486e-4b0a-bbf9-314033863542` (string,required) - This is the ID of the mandate that got created.
+
++ Request Look Up Mandate Status(application/json)
+    
+    + Headers
+    
+            Authorization: Basic YOUR-BASE64-ENCODED-API-KEY
+            Simulator: "EXTERNAL"
+            
++ Response 200 (application/json)
+
+    + Body
+
+            {
+               "id" : "abcdc28d-486e-4b0a-bbf9-314033863542",
+               "reference" : "ABCDEF0796",
+               "status" : "PENDING"
+            }
+
+### Cancel a Mandate [PUT /v1/mandates/{mandate_Id}]
+
+Merchant can cancel a mandate by using PUT call. The respective payment handle will also becomes CANCELLED with statusReasonCode as MANDATE_CANCELLED. 
+Webhooks notification for payment handle will be sent to merchant. 
+
+Click  **Cancel a Mandate** above to see how to cancel a Mandate.
+
++ Parameter
+
+    + mandate_Id : `d9bcfd85-8aa6-469d-80a3-e2ca196544da` - This is the ID of the mandate that got created
+
++ Request Cancel a Mandate (application/json)
+
+    + Headers
+
+            Authorization: "Basic YOUR-BASE64-ENCODED-API-KEY"
+            Simulator: "EXTERNAL"
+    
+    + Body
+
+            {
+              "status": "CANCELLED"
+            }
+                        
++ Response 200 (application/json)
+
+    + Body
+
+            {
+              "id": "ea49ab6c-cf9b-4efd-bde8-2fa3bb5ccd85",
+              "reference" : "ABCDEF0796",
+              "status": "CANCELLED"
+            }
+            
 
 
 # Data Structures
@@ -8542,11 +8545,54 @@ Use the *singleUseCustomerToken* returned in the response in the Payments Checko
 
 + One of
 
-    + Include Card Customer
+    + card (object, required) - These are the details of the [card](#cardobject) used for the request.
+       
+        + Properties
+
+            + cardNum:`4111111111111111` (string) - This is the card number used for the request.
+                _Mandatory, length=8-20_
+            + cardExpiry (object) - This is the card's [expiry date](#cardexpiryobject).
+                __Mandatory_
+                + month:12 (number) - This is the card expiry month.
+                    _length=2_
+                + year:2020 (number) - This is the card expiry year.
+                    _length=4_
+            + cvv:`123` (string) - This is the 3- or 4-digit security code that appears on the card following the card number.
+                _Conditional, length=3-4_
+            + lastDigits:`1111` (string) - These are the last four digits of the card used for the request.
+                _Read Only, length=4_
+        
+    + bacs (object) - These are the details of the [bacs](#bacsobject) used for the request.
+
+        + Properties
     
-    + Include Bacs
+            + nickName: `Sally's Barclays Account` (string) - This is an alias for this bank account.
+                _Optional, length<=50_
+            + accountHolderName: `XYZ Company` (string) - This is the name of the customer or company that owns the bank account.
+                _Mandatory, length<=18_
+            + accountNumber: `98877219` (string) - This is the bank account number.
+                _Mandatory, length=8_
+            + sortCode:`Jane's Card` (string) - This is the 6-digit sort code that identifies the financial institution and branch of the customer’s bank.
+                _Mandatory, length=6_
+            + Include Mandate
+            + lastDigits: `11` (string) - These are the last two digits of the account number.
+                _Read Only, length=2_
     
-    + Include Sepa
+    + sepa (object) - These are the details of the [sepa](#sepaobject) used for the request.
+
+        + Properties
+    
+            + nickName: `Sally's Barclays Account` (string) - This is an alias for this bank account.
+                _Optional, length<=50_
+            + accountHolderName: `XYZ Company` (string) - This is the name of the customer or company that owns the bank account.
+                _Mandatory, length<=32_
+            + bic: `ABNANL2APIP` (string) - This is the Bank Identifier Code for the consumer's bank account.
+                _Optional, length=8-11_
+            + iban: `DE89370400440532013000` (string) - This is the International Bank Account Number for the costumer's bank account.
+                _Mandatory, length=8-34_
+            + Include Mandate
+            + lastDigits:`11` (string) - These are the last two digits of the iban.
+                _Read Only, length=2_
 
     + ach (object) - These are the details of the [ach account](#achobject) used for the request. Only one payment instrument object (e.g., *card* or *ach*) can be included in the request.
         + Properties
