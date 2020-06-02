@@ -7942,7 +7942,7 @@ Click  **Cancel a Mandate** above to see how to cancel a Mandate.
              _Read Only_
         + `reference`: `ABCDEF0796` (string) - This is the identifier of the mandate in the banking system.
             _Mandatory_
-        + `status`: `PENDING` (number) - This is the status of the mandate.
+        + `status`: `PENDING` (string) - This is the status of the mandate.
              _Read Only_
 
 ## Merchant Descriptor
@@ -8562,7 +8562,7 @@ Click  **Cancel a Mandate** above to see how to cancel a Mandate.
             + lastDigits:`1111` (string) - These are the last four digits of the card used for the request.
                 _Read Only, length=4_
         
-    + bacs (object) - These are the details of the [bacs](#bacsobject) used for the request.
+    + bacs (object) - These are the details of the [bacs object](#bacsobject) used for the request.
 
         + Properties
     
@@ -8574,11 +8574,22 @@ Click  **Cancel a Mandate** above to see how to cancel a Mandate.
                 _Mandatory, length=8_
             + sortCode:`Jane's Card` (string) - This is the 6-digit sort code that identifies the financial institution and branch of the customer’s bank.
                 _Mandatory, length=6_
-            + Include Mandate
+            + `mandate` (object) - This object contains mandate information like id, reference and status of mandate.
+                _Mandatory_
+            
+                + Properties
+                    + `id`: `abcdc28d-486e-4b0a-bbf9-314033863542` (string) - This is the id of the mandate that got created.
+                         _Read Only_
+                    + `reference`: `ABCDEF0796` (string) - This is the identifier of the mandate in the banking system.
+                        _Mandatory_
+                    + `status`: `PENDING` (string) - This is the status of the mandate.
+                         _Read Only_
             + lastDigits: `11` (string) - These are the last two digits of the account number.
                 _Read Only, length=2_
+            
     
-    + sepa (object) - These are the details of the [sepa](#sepaobject) used for the request.
+    
+    + sepa (object) - These are the details of the [sepa object](#sepaobject) used for the request.
 
         + Properties
     
@@ -8590,7 +8601,16 @@ Click  **Cancel a Mandate** above to see how to cancel a Mandate.
                 _Optional, length=8-11_
             + iban: `DE89370400440532013000` (string) - This is the International Bank Account Number for the costumer's bank account.
                 _Mandatory, length=8-34_
-            + Include Mandate
+            + `mandate` (object) - This object contains mandate information like id, reference and status of mandate.
+                _Mandatory_
+            
+                + Properties
+                    + `id`: `abcdc28d-486e-4b0a-bbf9-314033863542` (string) - This is the id of the mandate that got created.
+                         _Read Only_
+                    + `reference`: `ABCDEF0796` (string) - This is the identifier of the mandate in the banking system.
+                        _Mandatory_
+                    + `status`: `PENDING` (string) - This is the status of the mandate.
+                         _Read Only_
             + lastDigits:`11` (string) - These are the last two digits of the iban.
                 _Read Only, length=2_
 
