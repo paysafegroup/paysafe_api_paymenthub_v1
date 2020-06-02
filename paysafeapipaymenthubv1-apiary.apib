@@ -32,6 +32,8 @@ The Paysafe Payments API currently supports the following payment methods:
 - ACH
 - EFT
 - Paypal
+- BACS
+- SEPA
 
 
 **Here is a step-by-step guide to get you started:**
@@ -461,6 +463,34 @@ When the merchant wants to process an EFT payment request, you would do the foll
 > **Note:** For EFT Payment, the *settleWithAuth* parameter must be set to *true*. 
 
 **API Requests to Use:** [Payment Handles](#paymenthandlerequest) + [Payments](#paymentrequest)
+
+### Scenario 14: BACS Payment for a new Customer
+
+When the merchant wants to process an BACS payment request for a new customer, you would do the following:
+ 1. Create a new customer using the merchantCustomerId and other details.
+ 2. Create a multi-use Payment Handle for the customer with the *paymentType* parameter set to BACS.
+ 3. Multi use payment handle token gets created in PAYABLE status after mandate reference number validations. Mandate reference along with status "PENDING" is returned in response.
+ 4. Use the multi-use *paymentHandleToken* returned in the response to process the Payment request &ndash; the *settleWithAuth* parameter must be set to *true* in this case. Merchant can use the flag payOnActiveMandates as true to block the payments on non active mandates. Default value for payOnActiveMandates is false.   
+ 5. After 7 days, once the mandate becomes Active, payment status will become COMPLETED and a webhook notification will be sent to merchant. Merchant will receive webhooks for the mandate status changes as well. 
+ 6. After setting payment status to COMPLETED, settlement resource will be created in PENDING and respective webhook notification will be sent to merchant. Settlement will batched for the next batch. After settlement gets batched, it will be set to COMPLETED and respective webhook will be sent to merchant.
+
+> **Note:** Payment will fail if merchant tries to trigger payment using a single use payment handle token. For BACS Payment, the *settleWithAuth* parameter must be set to *true*. 
+
+**API Requests to Use:** [Customer](#createcustomerrequest) + [Multi-Use Payment Handle for Customer](#createcustomerpaymenthandlerequest)+ [Payments](#paymentrequest)
+
+### Scenario 15: SEPA Payment for a new Customer
+
+When the merchant wants to process an SEPA payment request for a new customer, you would do the following:
+ 1. Create a new customer using the merchantCustomerId and other details.
+ 2. Create a multi-use Payment Handle for the customer with the *paymentType* parameter set to SEPA.
+ 3. Multi use payment handle token gets created in PAYABLE status after mandate reference number validations. Mandate reference along with status "PENDING" is returned in response.
+ 4. Use the multi-use *paymentHandleToken* returned in the response to process the Payment request &ndash; the *settleWithAuth* parameter must be set to *true* in this case. Merchant can use the flag payOnActiveMandates as true to block the payments on non active mandates. Default value for payOnActiveMandates is false.   
+ 5. After 7 days, once the mandate becomes Active, payment status will become COMPLETED and a webhook notification will be sent to merchant. Merchant will receive webhooks for the mandate status changes as well. 
+ 6. After setting payment status to COMPLETED, settlement resource will be created in PENDING and respective webhook notification will be sent to merchant. Settlement will batched for the next batch. After settlement gets batched, it will be set to COMPLETED and respective webhook will be sent to merchant.
+
+> **Note:** Payment will fail if merchant tries to trigger payment using a single use payment handle token. For SEPA Payment, the *settleWithAuth* parameter must be set to *true*. 
+
+**API Requests to Use:** [Customer](#createcustomerrequest) + [Multi-Use Payment Handle for Customer](#createcustomerpaymenthandlerequest)+ [Payments](#paymentrequest)
 
 <a name="paymentscheckout" title="Payments Checkout"></a>
 # Payments Checkout
@@ -1877,6 +1907,33 @@ You will not be able to use your Test credentials to process transaction request
   }
 ```
 
+<a name="bacsobject" title="BACS Object"></a>
+## bacs
+|Element            |Type                       |Required |Description                        |
+|---                |---                        |--- |---       |
+|nickName           |string <br/>`length<=50`   |Optional |This is an alias for this bank account.|
+|accountHolderName  |string <br/>`length<=18`   |Mandatory|This is the name of the customer or company that owns the bank account. |
+|accountNumber      |string<br/>`length=8`      |Mandatory|This is the bank account number.|
+|sortCode           |string<br/>`length=6`      |Mandatory|This is the 6-digit sort code that identifies the financial institution and branch of the customer’s bank.|
+|[mandate](#mandateobject)|object               |Mandatory|This object contains mandate information like id, reference and status of mandate.|
+|lastDigits         |string<br/>`length=2`      |Read Only|This is returned in response. It contains only last 2 digits of bank account.|
+
+```apib
+        {
+            "bacs": {
+                "accountHolderName": "XYZ Company",
+                "sortCode": "321654",
+                "accountNumber": "98877219",
+                "nickName": "Sally's Barclays Account",
+                "mandate" : {
+                    "id" : "20de4b06-d4dc-4388-99be-1f390627d7b0",
+                    "reference" : "ABCDEF0796",
+                    "status" : "ACTIVE"
+                    }
+                }
+        }
+
+```
 
 <a name="billingdetailsobject" title="Billing Details Object"></a>
 ## billingDetails
@@ -2230,6 +2287,26 @@ merchants who provide more detailed information when processing card-not-present
 }
 ```
 
+<a name="mandateobject" title="mandate Object"></a>
+## mandate
+
+|Element    |Type           |Required|Description|
+|---        |---            |---|---|
+|id         |string         |Read Only|This is the id of the mandate that got created.|
+|reference  |string         |Mandatory|This is the identifier of the mandate in the banking system.|
+|status     |enum           |Read Only|This is the status of the mandate.|
+
+```apib
+{
+    {
+     "meta": {
+               "id" : "abcdc28d-486e-4b0a-bbf9-314033863542",
+               "reference" : "ABCDEF0796",
+               "status" : "PENDING"
+            }
+    }
+}
+```
 
 <a name="merchantdescriptorobject" title="merchantDescriptor Object"></a>
 ## merchantDescriptor
@@ -2333,13 +2410,13 @@ This is an authorization that is approved for an amount lower than the requested
 |transactionType        |enum                       |Mandatory|This specifies the transaction type for which the Payment Handle is created. Possible values are: <ul><li>PAYMENT</li><li> STANDALONE_CREDIT</li><li>ORIGINAL_CREDIT</li><li>VERIFICATION</li></ul>|
 |status                 |enum                       |Read Only|This is the status of the request. Possible values are:<ul><li>INITIATED &ndash; The request was initiated with the downstream provider.</li><li>PAYABLE &ndash; The merchant can use the Payment Handle for a Payment request.</li><li>PROCESSING &ndash; The Payment Handle was authorized by customer, awaiting PSP response.</li><li>FAILED &ndash; The transaction failed due to either an error or being declined.</li><li>EXPIRED &ndash; The Payment Handle expired because the merchant did not proceed with the Payment transaction.</li><li>COMPLETED &ndash; The Payment request was initiated successfully using the Payment Handle.</li></ul>      |
 |usage                  |enum                       |Read Only|This specifies how the Payment Handle will be used for Payments. Possible values are:<ul><li>SINGLE_USE &ndash; The Payment Handle can be used for one transaction only and expires if not used.</li><li>MULTI_USE &ndash; The Payment Handle can be used multiple times.</li></ul>|
-|paymentType            |enum                       |Mandatory|This is the payment type associated with this Payment Handle. Possible values are:<ul><li>CARD</li><li>PAYSAFECASH</li><li>PAYSAFECARD</li><li>VIP PREFERRED</li><li>SIGHTLINE</li><li>SKRILL</li><li>INSTANT ACH</li><li>PAYPAL</li><li>ACH</li><li>EFT</li></ul>|
+|paymentType            |enum                       |Mandatory|This is the payment type associated with this Payment Handle. Possible values are:<ul><li>CARD</li><li>PAYSAFECASH</li><li>PAYSAFECARD</li><li>VIP PREFERRED</li><li>SIGHTLINE</li><li>SKRILL</li><li>INSTANT ACH</li><li>PAYPAL</li><li>ACH</li><li>EFT</li><li>BACS</li><li>SEPA</li></ul>|
 |action                 |enum                       |Read Only|This specifies the next step of the user journey once they proceed to the Payment. Possible values are:<ul><li>NONE &ndash; No action is required, e.g., for a standard credit card payment.</li><li>REDIRECT &ndash; The user must be redirected in order to complete a Payment, e.g., when an alternate payment method like Paysafecard is used.</li></ul>|
 |executionMode          |enum                       |Read Only|This specifies the action of the merchant server in order to complete the Payment. Possible values are:<ul><li>SYNCHRONOUS &ndash; The status of the Payment request will be returned synchronously to the merchant, e.g., a credit card request.</li><li>ASYNCHRONOUS &ndash; The Payment request is not completed immediately and the merchant [must rely on webhooks](#paymentswebhooks) to retrieve the status of the Payment request.</li></ul>|
 |amount                 |number<br/>`max=99999999999` |Mandatory|This is the amount of the request, in minor units.<br/>**Note:** This field is mandatory if *transactionType* is included. <br/>The *amount* specified in the Payment Handle request must match the *amount* specified in the Payments API request the *paymentHandleToken* is used for. |
 |currencyCode           |string<br/>`length=3`      |Mandatory|This is the currency of the merchant account, e.g., USD or CAD. See [Currency Codes](#currencycodes). <br/>The *currencyCode* specified in the Payment Handle request must match the *currencyCode* specified in the Payments API request the *paymentHandleToken* is used for.|
 |paymentHandleToken     |string                     |Read Only|This is the payment token generated by Paysafe that will be used by merchants for Payment API requests.|
-|card \| paysafecard \| paysafecash \| sightline \| vippreferred \| skrill \| instant ACH \| paypal \| ACH \|EFT |Mandatory| [card](#cardobject) \| [paysafecard](#paysafecardobject)\| [paysafecash](#paysafecashobject) \|[sightline](#sightlineobject) \| [vippreferred](#vippreferredobject) \| [skrill](#skrillobject) \| [instant ACH](#instantachobject)  \| [paypal](#paypalobject) \| [ACH](#achobject)    \| [EFT](#eftobject)  |These are details of the payment instrument used in the request. |
+|card \| paysafecard \| paysafecash \| sightline \| vippreferred \| skrill \| instant ACH \| paypal \| ACH \|EFT \| bacs \| sepa |Mandatory| [card](#cardobject) \| [paysafecard](#paysafecardobject)\| [paysafecash](#paysafecashobject) \|[sightline](#sightlineobject) \| [vippreferred](#vippreferredobject) \| [skrill](#skrillobject) \| [instant ACH](#instantachobject)  \| [paypal](#paypalobject) \| [ACH](#achobject)    \| [EFT](#eftobject) \| [BACS](#bacsobject)\| [SEPA](#sepaobject) |These are details of the payment instrument used in the request. |
 |billingDetails         |[billingDetails](#billingdetailsobject)        |Conditional |These are billing details for the request.<br/>**Note:** For single-use Payment Handles, this address information will be ignored if the *paymentHandleTokenFrom* parameter is included and there is already address information associated with that customer.|
 |profile                |[profile](#profileobject)  |Optional|This is the customer's profile. |
 |merchantDescriptor     |[merchantDescriptor](#merchantdescriptorobject) |Optional|This is the merchant descriptor that will be displayed on the customer's card or bank statement.<br/>**Note:** Not all processing gateways support this parameter. Contact your account manager for more information.|
@@ -2423,7 +2500,7 @@ This is an authorization that is approved for an amount lower than the requested
 |error              |[error](#errorobject)                  |Read Only| Details of the error.    |
 |statusReason       |string<br/>`length<=255`               |Read Only|This is reason for the status. This is present in the case where *status* is ERROR, FAILURE, or HELD. |
 |authentication     |[authentication](#authenticationobject)|Read Only|These are 3D Secure details.|
-|paymentType            |enum                       |Optional|This is the payment type associated with this Payment Handle. Possible values are:<ul><li>CARD</li><li>PAYSAFECASH</li><li>PAYSAFECARD</li><li>VIP PREFERRED</li><li>SIGHTLINE</li><li>SKRILL</li><li>INSTANT ACH</li><li>PAYPAL</li><li>ACH</li><li>EFT</li></ul>|
+|paymentType            |enum                       |Optional|This is the payment type associated with this Payment Handle. Possible values are:<ul><li>CARD</li><li>PAYSAFECASH</li><li>PAYSAFECARD</li><li>VIP PREFERRED</li><li>SIGHTLINE</li><li>SKRILL</li><li>INSTANT ACH</li><li>PAYPAL</li><li>ACH</li><li>EFT</li><li>BACS</li><li>SEPA</li></ul>|
 |gatewayReconciliationId |string                 |Optional|Transaction identifier that can be used to reconcile this transaction with the provider gateway.<br/><i>Read Only</i>|
 |updatedTime             |datetime               |Optional|ISO 8601 format (UTC) </b>This is the date and time the resource was last updated, e.g., `2014-01-26T10:32:28Z`<br/><i>Read Only</i>|
 |statusTime              |datetime               |Optional|ISO 8601 format (UTC) </b>This is the date and time the resource status was last updated, e.g., `2014-01-26T10:32:28Z`<br/><i>Read Only</i>|
@@ -2610,6 +2687,34 @@ If you [look up an authorization request](#getauth)  that used the *visaAddition
 }
 ```
 
+<a name="sepaobject" title="SEPA Object"></a>
+## sepa
+|Element            |Type                       |Required |Description                        |
+|---                |---                        |--- |---       |
+|nickName           |string <br/>`length<=50`   |Optional |This is an alias for this bank account.|
+|accountHolderName  |string <br/>`length<=32`   |Mandatory|This is the name of the customer or company that owns the bank account. |
+|bic                |string<br/>`length=8-11`   |Optional |This is the Bank Identifier Code for the consumer's bank account.|
+|iban                |string<br/>`length=8-34`  |Mandatory|This is the International Bank Account Number for the costumer's bank account.|
+|[mandate](#mandateobject)|object               |Mandatory|This object contains mandate information like id, reference and status of mandate.|
+|lastDigits         |string<br/>`length=2`      |Read Only|This is returned in response. It contains only last 2 digits of iban.|
+
+```apib
+        {
+           "sepa": {
+                "nickName": "Sally's Barclays Account",
+                "accountHolderName": "John Doe",
+                "bic": "ABNANL2APIP",
+                "iban": "DE89370400440532013000",
+                "mandate" : {
+                     "id" : "20de4b06-d4dc-4388-99be-1f390627d7b0",
+                     "reference" : "ABCDEF0796",
+                     "status" : "ACTIVE"
+                }
+            }
+        }
+
+```
+
 <a name="settlementsobject" title="settlements Object"></a>
 ## settlement
 |Element            |Type                                   |Required|Description                        |
@@ -2727,7 +2832,7 @@ If you [look up an authorization request](#getauth)  that used the *visaAddition
 |merchantRefNum     |string <br/>`length<=255`              |Mandatory|This is the merchant reference number created by the merchant and submitted as part of the request. It must be unique for each request.|
 |paymentHandleToken |string                                 |Mandatory|This is the payment token generated by Paysafe that will be used by merchants for Standalone Credit requests.|
 |currencyCode       |string<br/>`length=3`                  |Mandatory|This is the currency of the merchant account, e.g., USD or CAD, returned in the request response. See [Currency Codes](#currencycodes). <br/>**Note:** The *currencyCode* specified in the Credit request must match the *currencyCode* specified in the Payment Handle request from which the *paymentHandleToken* is taken.|
-|card \| paysafecard \| paysafecash \| sightline \| vippreferred \| skrill \| instant ACH \| paypal \| ACH \|EFT |[card](#cardobject) \| [paysafecard](#paysafecardobject)\| [paysafecash](#paysafecashobject) \|[sightline](#sightlineobject) \| [vippreferred](#vippreferredobject) \| [skrill](#skrillobject) \| [instant ACH](#instantachobject)  \| [paypal](#paypalobject) \| [ACH](#achobject)    \| [EFT](#eftobject)  |Read Only|These are the details of the payment method used.|
+|card \| paysafecard \| paysafecash \| sightline \| vippreferred \| skrill \| instant ACH \| paypal \| ACH \|EFT \| BACS \| SEPA \|[card](#cardobject) \| [paysafecard](#paysafecardobject)\| [paysafecash](#paysafecashobject) \|[sightline](#sightlineobject) \| [vippreferred](#vippreferredobject) \| [skrill](#skrillobject) \| [instant ACH](#instantachobject)  \| [paypal](#paypalobject) \| [ACH](#achobject)    \| [EFT](#eftobject) \| [BACS](#bacsobject) \| [SEPA](#sepaobject)|Read Only|These are the details of the payment method used.|
 |billingDetails     |[billingDetails](#billingdetailsobject)|Optional|These are the billing details for the request.|
 |customerIp         |string<br/>`length<=39`                |Optional|This is the customer's IP address.|
 |description        |string<br/>`length<=255`               |Optional|This is a description of the transaction, provided by the merchant.|
@@ -3087,6 +3192,71 @@ However, you can use the [Paysafe Merchant Back Office](https://developer.paysaf
 | R80          | Cross- border payment coding error                                                                                                                               | ACH         |
 | R81          | Non-participant in cross-border pgm.                                                                                                                             | ACH         |
 | R82          | Invalid foreign RDFI ID                                                                                                                                          | ACH         |
+| YE           | Transaction code unauthorised for originating Account                                                                                                            | BACS        |
+| 0            | Refer to Payer                                                                                                                                                   | BACS        |
+| 1            | Instruction cancelled by payer                                                                                                                                   | BACS        |
+| 2            | Payer Deceased                                                                                                                                                   | BACS        |
+| 3            | Account Transferred                                                                                                                                              | BACS        |
+| 4            | Advance Notice Disputed                                                                                                                                          | BACS        |
+| 5            | No Account                                                                                                                                                       | BACS        |
+| 6            | No Instruction                                                                                                                                                   | BACS        |
+| 7            | Amount Differs                                                                                                                                                   | BACS        |
+| 8            | Amount not yet due                                                                                                                                               | BACS        |
+| 9            | Presentation Overdue                                                                                                                                             | BACS        |
+| A            | Service User Differs                                                                                                                                             | BACS        |
+| B            | Account Closed                                                                                                                                                   | BACS        |
+| E            | Instruction amended                                                                                                                                              | BACS        |
+| AE           | Originating sort code and/or Account number invalid (bank originated)                                                                                            | BACS        |
+| BE           | Originating sort code and/or Account number invalid (customer originated)                                                                                        | BACS        |
+| CE           | Destination sort code and originating sort code and/or Account number invalid (bank originated)                                                                  | BACS        |
+| DE           | Destination sort code and originating sort code and/or Account number invalid (customer originated)                                                              | BACS        |
+| EE           | Destination sort code invalid                                                                                                                                    | BACS        |
+| FE           | Account type and originating sort code and/or Account number invalid (bank originated)                                                                           | BACS        |
+| GE           | Account type and originating sort code and/or Account number invalid (customer originated)                                                                       | BACS        |
+| HE           | Destination sort code and Account type and originating sort code and/or Account number invalid (bank originated)                                                 | BACS        |
+| IE           | Destination sort code and Account type and originating sort code and/or Account number invalid (customer originated)                                             | BACS        |
+| JE           | Destination sort code and Account type invalid                                                                                                                   | BACS        |
+| KE           | Account type invalid                                                                                                                                             | BACS        |
+| LE           | Destination Account number and destination Account name and other fields invalid                                                                                 | BACS        |
+| ME           | Destination Account number and destination Account name invalid                                                                                                  | BACS        |
+| NE           | Contra record was amended                                                                                                                                        | BACS        |
+| OE           | Reference number was invalid                                                                                                                                     | BACS        |
+| PE           | Originating Account does not support the file currency                                                                                                           | BACS        |
+| QE           | Automated reversal due to an error                                                                                                                               | BACS        |
+| RE           | Reversal of another item (same day)                                                                                                                              | BACS        |
+| SE           | Automated recall                                                                                                                                                 | BACS        |
+| TE           | Originating Account invalid and was substituted with the default main Account details, but this Account does not support the file currency (customer originated) | BACS        |
+| UE           | Unpaid direct debit reference was in error (bank originated)                                                                                                     | BACS        |
+| XE           | Originator's service user number invalid (bank originated)                                                                                                       | BACS        |
+| ZE           | Unpaid direct debit reference and other fields were in error (bank originated)                                                                                   | BACS        |
+| 1I           | Amount and / or date of Direct Debit differ from Advance Notice                                                                                                  | BACS        |
+| 2I           | No Advance Notice received by Payer/or the amount quoted is disputed                                                                                             | BACS        |
+| 3I           | DDI cancelled by paying bank                                                                                                                                     | BACS        |
+| 4I           | Payer has cancelled DDI direct with service user                                                                                                                 | BACS        |
+| 5I           | AUDDIS service users only - No Instruction held. Payer disputes having given authority                                                                           | BACS        |
+| 6I           | AUDDIS service users only - Signature on DDI is fraudulent or not in accordance with account authorised signature(s)                                             | BACS        |
+| 7I           | Claim raised at service users request after Direct Debit applied to payers account                                                                               | BACS        |
+| 8I           | Service user name disputed. Payer does not recognise service user collecting Direct Debit                                                                        | BACS        |
+| CC           | Requested by originator                                                                                                                                          | BACS        |
+| 0C           | Invalid details                                                                                                                                                  | BACS        |
+| 2C           | Beneficiary deceased                                                                                                                                             | BACS        |
+| 3C           | Account transferred                                                                                                                                              | BACS        |
+| 5C           | No account                                                                                                                                                       | BACS        |
+| BC           | Account closed                                                                                                                                                   | BACS        |
+| C            | Account transferred to a different branch of bank / building society                                                                                             | BACS        |
+| D            | Advance notice disputed                                                                                                                                          | BACS        |
+| F            | Invalid account type                                                                                                                                             | BACS        |
+| G            | Bank will not accept Direct Debits on account                                                                                                                    | BACS        |
+| H            | Instruction has expired                                                                                                                                          | BACS        |
+| I            | Payer reference is not unique                                                                                                                                    | BACS        |
+| K            | Instruction cancelled by paying bank                                                                                                                             | BACS        |
+| L            | Incorrect payer's account details                                                                                                                                | BACS        |
+| M            | Transaction code / user status incompatible                                                                                                                      | BACS        |
+| N            | Transaction disallowed at payer's branch                                                                                                                         | BACS        |
+| O            | Invalid reference                                                                                                                                                | BACS        |
+| P            | Payer's Name not present                                                                                                                                         | BACS        |
+| Q            | Service user's name blank                                                                                                                                        | BACS        |
+| R            | Instruction re-instated (maximum 2 months from original DDI cancellation date)                                                                                   | BACS        |
 | 900          | Validation Rejection                                                                                                                                             | EFT         |
 | 901          | Not sufficient funds (debits only)                                                                                                                               | EFT         |
 | 902          | Cannot trace                                                                                                                                                     | EFT         |
@@ -3133,6 +3303,42 @@ However, you can use the [Paysafe Merchant Back Office](https://developer.paysaf
 | W            | Rejected, assurance failed validity tests                                                                                                                        | EFT         |
 | X            | Rejected, content after decryption could not be analyzed                                                                                                         | EFT         |
 | TR           | Rejected by 824                                                                                                                                                  | EFT         |
+| AC01         | Account identifier incorrect                                                                                                                                     | SEPA        |
+| UPAY         | Undue payment                                                                                                                                                    | SEPA        |
+| AC06         | Account blocked                                                                                                                                                  | SEPA        |
+| AC13         | Invalid debtor account type                                                                                                                                      | SEPA        |
+| AG01         | Direct debit forbidden                                                                                                                                           | SEPA        |
+| AG02         | Invalid bank operation code                                                                                                                                      | SEPA        |
+| AGNT         | Incorrect agent                                                                                                                                                  | SEPA        |
+| AM04         | Insufficient funds                                                                                                                                               | SEPA        |
+| AM05         | Duplication                                                                                                                                                      | SEPA        |
+| BE04         | Missing creditor address                                                                                                                                         | SEPA        |
+| BE05         | Unrecognized creditor                                                                                                                                            | SEPA        |
+| CURR         | Incorrect currency                                                                                                                                               | SEPA        |
+| CUST         | Recall by customer                                                                                                                                               | SEPA        |
+| CUTA         | Recall due to investigation request                                                                                                                              | SEPA        |
+| DT01         | Invalid date                                                                                                                                                     | SEPA        |
+| DUPL         | Duplicate payment                                                                                                                                                | SEPA        |
+| ED05         | Settlement failed                                                                                                                                                | SEPA        |
+| FF01         | Invalid file format                                                                                                                                              | SEPA        |
+| FF05         | Direct debit type incorrect                                                                                                                                      | SEPA        |
+| FRAD         | Fraud                                                                                                                                                            | SEPA        |
+| MD01         | No valid mandate                                                                                                                                                 | SEPA        |
+| MD02         | Mandate data missing or incorrect                                                                                                                                | SEPA        |
+| MD06         | Disputed authorized transaction                                                                                                                                  | SEPA        |
+| MD07         | Debtor deceased                                                                                                                                                  | SEPA        |
+| MS02         | Refusal by debtor                                                                                                                                                | SEPA        |
+| MS03         | Reason not specified                                                                                                                                             | SEPA        |
+| PY01         | Not routable                                                                                                                                                     | SEPA        |
+| RC01         | Bank identifier incorrect                                                                                                                                        | SEPA        |
+| RR01         | Missing debtor account or identification                                                                                                                         | SEPA        |
+| RR02         | Missing debtor name or address                                                                                                                                   | SEPA        |
+| RR03         | Missing creditor name or address                                                                                                                                 | SEPA        |
+| RR04         | Regulatory reason                                                                                                                                                | SEPA        |
+| SL01         | Specific service offered by debtor agent                                                                                                                         | SEPA        |
+| TECH         | Payment in error due to technical problem                                                                                                                        | SEPA        |
+| TM01         | Invalid cut off time                                                                                                                                             | SEPA        |
+| AC04         | Account closed                                                                                                                                                   | SEPA        |
 
 
 <a name="support" title="Help and Support"></a>
@@ -4795,7 +5001,8 @@ Click on **Process Payment** above to see two examples of how to create a Paymen
 
 * A Payment request that will have to be settled later
 * A Payment request that authorizes and settles the Payment in a single request by setting the *settleWithAuth* parameter to *true*
-
+* A Payment request using multi-use payment handle token for BACS & SEPA. 
+> Once the status of MANDATE is ACTIVE after 7 days, payment status will become COMPLETED and a webhook notification will be sent to merchant. Merchant will receive webhooks for the mandate status changes as well. After setting payment status to COMPLETED, settlement resource will be created in PENDING and respective webhook notification will be sent to merchant. Settlement will batched for the next batch.  After settlement gets batched, it will be set to COMPLETED and respective webhook will be sent to merchant.
 
 + Attributes 
     + Include PaymentsRequest
@@ -4890,6 +5097,137 @@ Click on **Process Payment** above to see two examples of how to create a Paymen
               }
             }
 
++ Request Process a BACS Payment (application/json)
+
+    + Headers
+
+            Authorization: "Basic YOUR-BASE64-ENCODED-API-KEY"
+            Simulator: "EXTERNAL"
+    
+    + Body
+
+            {
+               {
+               "merchantRefNum": "Oc019787c398",
+               "paymentHandleToken": "MAOO1DIuygoQfNH6",
+               "payOnActiveMandates" : false,
+               "amount": 123459,
+               "settleWithAuth": "true",
+               "currencyCode": "USD",
+               "customerIp": "204.91.0.0",
+               "dupCheck": false,
+               "description":"Magazine subscription"
+                }
+            }
+            
++ Response 200 (application/json)
+
+    + Body
+
+            {
+              {
+                "id" : "abcdc28d-486e-4b0a-bbf9-314033863544",
+                "merchantRefNum": "Oc019787c398",
+                "amount": 123459,
+                "status": "PENDING",
+                "statusReasonCode" : "MANDATE_IN_PENDING",
+                "payOnActiveMandates" : false,
+                "settleWithAuth":"true",
+                "bacs": {
+                   "nickName": "Sally's Barclays Account",
+                   "accountHolderName": "Sally Barnes",
+                   "lastDigits": "71",
+                   "sortCode": "086081",
+                   "mandate": {
+                      "id" : "abcdc28d-486e-4b0a-bbf9-314033863542",
+                      "reference" : "ABCDEF0796",
+                   }
+                },
+                "billingDetails": {
+                    "street": "100 Queens",
+                    "street2": "Unit 201",
+                    "city": "Toronto",
+                    "country": "CA",
+                    "zip": "M5H 2N2",
+                    "nickName": "Homefdsffds"
+                },
+                "dupCheck": true,
+                "description":"Magazine subscription"
+                "txnTime": "2020-01-27T09:43:28Z",
+                "currencyCode": "USD",
+                "settleWithAuth": true,
+                "paymentHandleToken": "MAOO1DIuygoQfNH6"
+            }
+            }
+
+
++ Request Process a SEPA Payment (application/json)
+
+    + Headers
+
+            Authorization: "Basic YOUR-BASE64-ENCODED-API-KEY"
+            Simulator: "EXTERNAL"
+    
+    + Body
+
+           {
+               "merchantRefNum": "Oc019787c398",
+               "paymentHandleToken": "MAOO1DIuygoQfNH6",
+               "amount": 123459,
+               "settleWithAuth": "true",
+               "currencyCode": "GBP",
+               "customerIp": "204.91.0.0",
+               "dupCheck": false,
+               "description":"Magazine subscription"
+            }
+
++ Response 200 (application/json)
+
+    + Body
+
+            {
+              {
+                "id" : "abcdc28d-486e-4b0a-bbf9-314033863544",
+                "merchantRefNum": "Oc019787c398",
+                "amount": 123459,
+                "status": "COMPLETED",
+                "settleWithAuth": "true",
+                "sepa": {
+                   "nickName": "Sally's Barclays Account",
+                   "accountHolderName": "Sally Barnes",
+                   "lastDigits": "71",
+                   "bic": "ABNANL2A",
+                   "mandate": {
+                      "id" : "abcdc28d-486e-4b0a-bbf9-314033863542",
+                      "reference" : "MNBVCX0796"
+                   }
+                },
+                "billingDetails": {
+                    "street": "100 Queens",
+                    "street2": "Unit 201",
+                    "city": "Toronto",
+                    "country": "CA",
+                    "zip": "M5H 2N2",
+                    "nickName": "Homefdsffds"
+                },
+                "dupCheck": true,
+                "txnTime": "2020-01-27T09:43:28Z",
+                "currencyCode": "GBP",
+                "settleWithAuth": true,
+                "paymentHandleToken": "Mp3BkVTbLU13ytW",
+                "settlements" : [
+                     {
+                         "id" : "abcdc28d-486e-4b0a-bbf9-314033863123",
+                         "amount" : 123459,
+                         "currencyCode" : "GBP",
+                         "status" : "PENDING"
+                     }
+                 ],
+                "description":"Magazine subscription"
+            }
+            }
+
+
 ### Get Payments [GET /v1/payments/{payment_id}]
 <a name="getpayment" title="Look Up a Payment"></a>
 
@@ -4930,7 +5268,7 @@ Click on **Get Payments** above to see how to look up a Payment using the ID ret
                 "cvvVerification": "MATCH"
               }
             }
-            
+
 ### Get Payments Using Merchant Reference number [GET /v1/payments?merchantRefNum={merchant_ref_num}]
 <a name="getpaymentmerchantrefnum" title="Look Up a Payment Using a Merchant Reference Number"></a>
 
@@ -4989,7 +5327,43 @@ Click on **Get Payment Using Merchant Reference Number** above to see how to loo
                 }
               ]
             }
-            
+
+### Cancel Payments [PUT /v1/payments/{paymentId}]
+<a name="cancelpayment" title="Cancel a Payment"></a>
+
+Click on **Cancel Payments** above to see how to cancel a Payment using the ID returned in the response to the original request. This is only valid for BACS And SEPA.
+
++ Parameter
+
+   + paymentId : `dac421cc-c6e9-44ba-b1ce-4c13a3860544` - This is the ID returned in the response to the Payments request.
+   
++ Attributes
+        + status : `CANCELLED` - This is the status sent to cancel the Payments request.
+    
++ Request Cancel Payment (application/json)
+    
+    + Headers
+    
+        Authorization: "Basic YOUR-BASE64-ENCODED-API-KEY"
+        Simulator: "EXTERNAL"
+
+    + Body
+    
+            {
+            "status":"CANCELLED"
+             }
+
++ Response 200 (application/json)
+
+    + Body
+
+             {
+                "id": "dac421cc-c6e9-44ba-b1ce-4c13a3860544",
+                "txnTime": "2020-03-30T06:31:23.000+0000",
+                "status": "CANCELLED"
+             }
+
+
 # Group Void Authorizations 
 
 A Void Authorization request allows you to void (or cancel) an authorization request, provided the authorization has not yet been settled. An authorization is part of a [payment request](#paymentrequest). If *settleWithAuth* is set to *true* in the payment request, then 
@@ -6426,15 +6800,86 @@ Click on **Delete an Address** above to see how delete an Address.
             
 + Response 200 (application/json)
 
+# Group Mandate
+
+## Mandate [v1/mandates]
+
+A Mandate is an authorisation for payments to be collected from a customer in the future. This is an legal agreement between the customer and merchant that informs users that they are agreeing to have their bank account debited periodically and also provides them with full details of their refund rights.
+
+### Setting Up A Mandate
+In order to set up a Mandate a form must be completed in one of three ways: 
+* Paper: A hand completed paper form is the most traditional way of completing the action. 
+* Telephone: Customers can phone their Direct Debit provider and details can be collated in that manner, if customers prefer to have an actual conversation. 
+* Online: Using bank-approved payment pages, Service Users can collect customer detail in what is a more private, non-rushed manner.
+
+### Look Up Mandate Status [GET /v1/mandates/{mandateId}]
+
+Click **Look Up Mandate Status** above to see the status of the mandate.
+    
++ Parameters
+    + mandateId: `abcdc28d-486e-4b0a-bbf9-314033863542` (string,required) - This is the ID of the mandate that got created.
+
++ Request Look Up Mandate Status(application/json)
+    
+    + Headers
+    
+            Authorization: Basic YOUR-BASE64-ENCODED-API-KEY
+            Simulator: "EXTERNAL"
+            
++ Response 200 (application/json)
+
+    + Body
+
+            {
+               "id" : "abcdc28d-486e-4b0a-bbf9-314033863542",
+               "reference" : "ABCDEF0796",
+               "status" : "PENDING"
+            }
+
+### Cancel a Mandate [PUT /v1/mandates/{mandate_Id}]
+
+Merchant can cancel a mandate by using PUT call. The respective payment handle will also becomes CANCELLED with statusReasonCode as MANDATE_CANCELLED. 
+Webhooks notification for payment handle will be sent to merchant. 
+
+Click  **Cancel a Mandate** above to see how to cancel a Mandate.
+
++ Parameter
+
+    + mandate_Id : `d9bcfd85-8aa6-469d-80a3-e2ca196544da` - This is the ID of the mandate that got created
+
++ Request Cancel a Mandate (application/json)
+
+    + Headers
+
+            Authorization: "Basic YOUR-BASE64-ENCODED-API-KEY"
+            Simulator: "EXTERNAL"
+    
+    + Body
+
+            {
+              "status": "CANCELLED"
+            }
+                        
++ Response 200 (application/json)
+
+    + Body
+
+            {
+              "id": "ea49ab6c-cf9b-4efd-bde8-2fa3bb5ccd85",
+              "reference" : "ABCDEF0796",
+              "status": "CANCELLED"
+            }
+            
+
 # Customer Payment Handles [/paymenthandles]
 <a name="paymenthandlerequest" title="Payment Handle Request"></a>
 
 ## Create a Payment Handle for a Customer [POST /v1/customers/{customer_id}/paymenthandles]
 <a name="createcustomerpaymenthandlerequest" title="Create a Customer Payment Handle"></a>
 
-Click on **Create a Payment Handle for a Customer** above to create a Payment Handle for a [Customer you have already created](#createcustomerequest).
+Click  **Create a Payment Handle for a Customer** above to create a Payment Handle for a [Customer you have already created](#createcustomerequest).
 
->**Note:** Currently, only CARD, ACH and EFT are supported as a *paymentType* parameter.
+>**Note:** Currently, only CARD, ACH, EFT, BACS and SEPA are supported as a *paymentType* parameter.
 
 The *paymentHandleToken* returned in the response can be used for [payment requests in the Payments API](#paymentrequest), once it has the *status* of PAYABLE.
 
@@ -6452,7 +6897,7 @@ If you do not include it when creating the customer Payment Handle, you should t
 + Attributes 
     + Include PaymentHandleRequest Customer
 
-+ Request Create a Payment Handle for a Customer (application/json)
++ Request Create a Multi-Use Payment Handle for a CARD Payment (application/json)
 
     + Headers
 
@@ -6499,6 +6944,147 @@ If you do not include it when creating the customer Payment Handle, you should t
                      }
                  }
              }
+
++ Request Create a Multi-Use Payment Handle for a BACS Payment (application/json)
+
+    + Headers
+
+            Authorization: Basic YOUR-BASE64-ENCODED-API-KEY
+            Simulator: "EXTERNAL"
+        
+    + Body
+
+            {
+                {
+               "merchantRefNum": "Oc019787c398-fd45-4e8e-906f-47fd741asdsbavz803",
+               "paymentType": "BACS",
+               "bacs": {
+                  "nickName": "Sally's Barclays Account",
+                  "accountHolderName": "Sally Barnes",
+                  "accountNumber": "51120171",
+                  "sortCode": "086081",
+                  "mandate": {
+                     "reference" : "ABCDEF0796"
+                  }
+               },
+               "billingDetails": {
+                  "nickName": "sam",
+                  "street": "123 Street1",
+                  "city": "Toronto",
+                  "state": "ON",
+                  "country": "CA",
+                  "zip": "M5H2N2"
+               },
+               "customerIp": "204.91.0.0"
+            }
+            }
+
++ Response 200 (application/json)
+    
+    + Body
+
+             {
+                {
+               "id": "fe60c28d-486e-4b0a-bbf9-314033863542",
+               "merchantRefNum": "Oc019787c398-fd45-4e8e-906f-47fd741asdsbavz803",
+               "usage": "MULTI_USE", 
+               "status": "PAYABLE",
+               "paymentType": "BACS",
+               "paymentHandleToken": "MAbz0rAAOIIEqu79",
+               "executionMode" : "ASYNCHRONOUS",
+               "bacs": {
+                  "nickName": "Sally's Barclays Account",
+                  "accountHolderName": "Sally Barnes",
+                  "lastDigits": "71",
+                  "sortCode": "086081",
+                  "mandate": {
+                     "id" : "abcdc28d-486e-4b0a-bbf9-314033863542",
+                     "reference" : "ABCDEF0796",
+                     "status" : "PENDING"
+                  }
+               },
+               "billingDetails": {
+                  "nickName": "sam",
+                  "street": "123 Street1",
+                  "city": "Toronto",
+                  "state": "ON",
+                  "country": "CA",
+                  "zip": "M5H2N2"
+               },
+               "customerIp": "204.91.0.0"
+            }
+            }
+
++ Request Create a Multi-Use Payment Handle for a SEPA Payment (application/json)
+
+    + Headers
+
+            Authorization: Basic YOUR-BASE64-ENCODED-API-KEY
+            Simulator: "EXTERNAL"
+        
+    + Body
+
+            {
+               {
+               "merchantRefNum": "Oc019787c398-fd45-4e8e-906f-47fd741asdsbavz803",
+               "paymentType": "SEPA",
+               "sepa": {
+                    "nickName": "Sally's Barclays Account",
+                    "accountHolderName": "Sally Barnes",
+                    "iban": "NL77ABNA0492122466",
+                    "bic": "ABNANL2A",
+                    "mandate": {
+                     "reference" : "ABCDEF0796"
+                  }
+               },
+               "billingDetails": {
+                  "nickName": "sam",
+                  "street": "123 Street1",
+                  "city": "Toronto",
+                  "state": "ON",
+                  "country": "CA",
+                  "zip": "M5H2N2"
+               },
+               "customerIp": "204.91.0.0"
+            }
+            }
+
++ Response 200 (application/json)
+    
+    + Body
+
+             {
+                {
+               "id": "fe60c28d-486e-4b0a-bbf9-314033863542",
+               "merchantRefNum": "Oc019787c398-fd45-4e8e-906f-47fd741asdsbavz803",
+               "usage": "MULTI_USE", 
+               "status": "PAYABLE",
+               "paymentType": "SEPA",
+               "executionMode": "SYNCHRONOUS",
+               "paymentHandleToken": "Mbz0rAAOIIEqu79",
+               "sepa": {
+                  "nickName": "Sally's Barclays Account",
+                  "accountHolderName": "Sally Barnes",
+                  "lastDigits": "71",
+                  "bic": "ABNANL2A",
+                  "mandate": {
+                     "id" : "20de4b06-d4dc-4388-99be-1f390627d7b0",
+                     "reference" : "ABCDEF0796",
+                     "status" : "ACTIVE"
+                  }
+               },
+               "billingDetails": {
+                  "nickName": "sam",
+                  "street": "123 Street1",
+                  "city": "Toronto",
+                  "state": "ON",
+                  "country": "CA",
+                  "zip": "M5H2N2"
+               },
+               "customerIp": "204.91.0.0"
+            }
+            }
+
 
 ## Create a Multi-Use Payment Handle Using a Single-Use Payment Handle Token [POST /v1/customers/{customer_id}/paymenthandles]
 <a name="createpaymenthandlerequestsut" title="Create a Payment Handle Using a Single-Use Payment Handle Token"></a>
@@ -7049,6 +7635,25 @@ Use the *singleUseCustomerToken* returned in the response in the Payments Checko
         + `field`:`amount` (string) - Field name.
         + `error`:`Contain invalid characters` (string)  - Error associated with the field name.
 
+## `Bacs`
+
++ bacs (object) - These are the details of the [bacs](#bacsobject) used for the request.
+
+    + Properties
+
+        + nickName: `Sally's Barclays Account` (string) - This is an alias for this bank account.
+            _Optional, length<=50_
+        + accountHolderName: `XYZ Company` (string) - This is the name of the customer or company that owns the bank account.
+            _Mandatory, length<=18_
+        + accountNumber: `98877219` (string) - This is the bank account number.
+            _Mandatory, length=8_
+        + sortCode:`Jane's Card` (string) - This is the 6-digit sort code that identifies the financial institution and branch of the customer’s bank.
+            _Mandatory, length=6_
+        + Include Mandate
+        + lastDigits: `11` (string) - These are the last two digits of the account number.
+            _Read Only, length=2_
+       
+        
 ## Billing Details
 + billingDetails (object) - These are the customer's billing details. **Note:** For single-use Payment Handles, this address information will be ignored if the *paymentHandleTokenFrom* parameter is included in the Payment Handle creation request and there is already address information associated with that customer.
     + street:`100 Queen` (string)  - This is the first line of the street address in the billing address.
@@ -7325,6 +7930,18 @@ Use the *singleUseCustomerToken* returned in the response in the Payments Checko
     + totalAmount:504000 (number) - This is the total amount of the line item, typically calculated as price multiplied by quantity, in minor units.
         _length<=99999999999_
 
+## Mandate
++ `mandate` (object) - This object contains mandate information like id, reference and status of mandate.
+    _Mandatory_
+
+    + Properties
+        + `id`: `abcdc28d-486e-4b0a-bbf9-314033863542` (string) - This is the id of the mandate that got created.
+             _Read Only_
+        + `reference`: `ABCDEF0796` (string) - This is the identifier of the mandate in the banking system.
+            _Mandatory_
+        + `status`: `PENDING` (number) - This is the status of the mandate.
+             _Read Only_
+
 ## Merchant Descriptor
 + merchantDescriptor (object)
     _Optional_
@@ -7383,6 +8000,8 @@ Use the *singleUseCustomerToken* returned in the response in the Payments Checko
         + INSTANTACH
         + ACH
         + EFT
+        + BACS
+        + SEPA
         + PAYPAL
 + `status`: `PENDING` (enum) - This is the status of the transaction request.
     _Read Only_
@@ -7423,6 +8042,8 @@ Use the *singleUseCustomerToken* returned in the response in the Payments Checko
             + VIPPREFERRED
             + ACH
             + EFT
+            + BACS
+            + SEPA
             + PAYPAL
     + currencyCode:`USD` (string) - This is the [currency of the merchant account](#currencycodes), e.g., USD or CAD.
         _Read Only, max=3_
@@ -7543,6 +8164,10 @@ Use the *singleUseCustomerToken* returned in the response in the Payments Checko
     _Mandatory_
     + Members
         + CARD
+        + ACH
+        + EFT
+        + BACS
+        + SEPA
 + `executionMode`: `SYNCHRONOUS`(enum) - This specifies the action of the merchant server in order to complete the Payment.
     _Read Only_
     + Members
@@ -7554,7 +8179,7 @@ Use the *singleUseCustomerToken* returned in the response in the Payments Checko
     _Read Only, max=3_
 + `paymentHandleToken`:`842778a0-03a2-11e9-8eb2-f2801f1b9fd1` (string) - This is the payment token generated by Paysafe that will be used by merchants for Payment API requests, provided its *status* is PAYABLE.
     _Read Only, length<=36_
-+ Include Card Customer
++ Include Payment Instrument Customer
 + `billingDetailsId`:`5d4db3bc-34c9-417f-a051-0d992ad9284e` (string) - This is the ID returned in the response to the [address creation request](#createaddressrequest).
     _Optional, length<=36_
 + `returnLinks` (object) - The URL endpoints to redirect the customer to after a redirection to an alternative payment or 3D Secure site. You can customize the return URL based on the transaction status. 
@@ -7912,6 +8537,54 @@ Use the *singleUseCustomerToken* returned in the response in the Payments Checko
         + `consumerId`:`550726575` (string) - The is the consumer social security number (SSN). As it is sensitive data the consumerId will not be passed in the response. Last 4 digits will be passed as lastDigits. 
             _Mandatory_
 
+
+## `Payment Instrument Customer`
+
++ One of
+
+    + Include Card Customer
+    
+    + Include Bacs
+    
+    + Include Sepa
+
+    + ach (object) - These are the details of the [ach account](#achobject) used for the request. Only one payment instrument object (e.g., *card* or *ach*) can be included in the request.
+        + Properties
+            + `accountHolderName`:`XYZ Company` (string) - This is the name of the customer or company.
+                _Mandatory, length<=22_
+            + `payMethod` :`WEB`(enum) - This is the payment type.
+            _Read Only_
+                + Members
+                    + WEB - Personal bank accounts only
+                    + TEL - Personal bank accounts only
+                    + PPD - Personal bank accounts only
+                    + CCD - Business bank accounts only
+            + `accountType` :`SAVINGS`(enum) - This is the bank account type.
+            _Read Only_
+                + Members
+                    + SAVINGS
+                    + CHECKING
+                    + LOAN
+            + `accountNumber`:`988772192` (string) - This is the bank account number.
+               _Mandatory, length=4-17_
+            + `routingNumber`:`211589828` (string) - For USD accounts, this is the 9-digit routing number of the bank.
+                _Mandatory, length<=9_
+            + `lastDigits`:`92` (string) - This is returned in response. It contains only last 2 digits of bank account.
+                _Read Only, length=2_
+    
+     + eft (object) - These are the details of the [eft account](#eftobject) used for the request. Only one payment instrument object (e.g., *card* or *eft*) can be included in the request.
+        + `accountHolderName`:`XYZ Company` (string) - This is the name of the customer or company.
+                _Mandatory, length<=30_
+        + `accountNumber`:`988772192` (string) - This is the bank account number.
+               _Mandatory, length=4-12_
+        + `transitNumber`:`211589828` (string) - This is the 5-digit transit number of the customer's bank branch.
+                _Mandatory, length<=5_
+        + `institutionId`:`001` (string) - This is the 3-digit institution ID of the customer’s bank branch.
+                _Optional, length<=3_
+        + `lastDigits`:`92` (string) - This is returned in response. It contains only last 2 digits of bank account.
+                _Read Only, length=2_
+
+
 ## PaymentsRequest (object)
 
 + `id`:`3aeb9c63-6386-46a3-9f8e-f452e722228a` (string) - This is the ID returned in the response. This ID can be used for future associated requests, e.g., looking up the Payment. 
@@ -7952,6 +8625,8 @@ Use the *singleUseCustomerToken* returned in the response in the Payments Checko
         + VIPPREFERRED
         + ACH
         + EFT
+        + BACS
+        + SEPA
 + `status`: `HELD`(enum) - This is the status of the transaction request.
     _Read Only_
     + Members
@@ -8059,6 +8734,24 @@ Use the *singleUseCustomerToken* returned in the response in the Payments Checko
     _Read Only_
 + Include Gateway Response
 + Include Metadata Object
+
+## `Sepa`
+
++ sepa (object) - These are the details of the [sepa](#sepaobject) used for the request.
+
+    + Properties
+
+        + nickName: `Sally's Barclays Account` (string) - This is an alias for this bank account.
+            _Optional, length<=50_
+        + accountHolderName: `XYZ Company` (string) - This is the name of the customer or company that owns the bank account.
+            _Mandatory, length<=32_
+        + bic: `ABNANL2APIP` (string) - This is the Bank Identifier Code for the consumer's bank account.
+            _Optional, length=8-11_
+        + iban: `DE89370400440532013000` (string) - This is the International Bank Account Number for the costumer's bank account.
+            _Mandatory, length=8-34_
+        + Include Mandate
+        + lastDigits:`11` (string) - These are the last two digits of the iban.
+            _Read Only, length=2_
 
 ## settlementsArray
 + Include Metadata Object
