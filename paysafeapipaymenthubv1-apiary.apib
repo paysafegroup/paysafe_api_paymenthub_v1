@@ -6814,9 +6814,11 @@ Click  **Create a Payment Handle for a Customer** above to see examples of how t
 
 >**Note:** Currently, only CARD, ACH, EFT, BACS and SEPA are supported as a *paymentType* parameter.
 
-> **Note:** Applicable only for card processing: The *paymentHandleToken* returned in the response can be used for [payment requests in the Payments API](#paymentrequest), once it has the *status* of PAYABLE. To modify its *status* to PAYABLE, include this *paymentHandleToken* as the value for the *paymentHandleTokenFrom* parameter in a request to [create a regular Payment Handle](#paymenthandlerequest).  
+For card processing, the *paymentHandleToken* returned in the response can be used for [payment requests in the Payments API](#paymentrequest), once it has the *status* of PAYABLE. To modify its *status* to PAYABLE, include this *paymentHandleToken* as the value for the *paymentHandleTokenFrom* parameter in a request to [create a regular Payment Handle](#paymenthandlerequest).  
 That response in turn contains a *paymentHandleToken* with a status of PAYABLE, with the *usage* parameter set to SINGLE_USE. Once you use this single-use *paymentHandleToken* 
 in a [successful payment request](#paymentrequest), then the *status* of the Customer *paymentHandleToken* created here will change to PAYABLE. 
+
+For ACH, EFT, BACS and SEPA processing, the *paymentHandleToken* returned in the response has the *status* of PAYABLE and can be used for [payment requests in the Payments API](#paymentrequest) directly.
 
 **Note:** Although the *billingDetails* parameter is optional, it is recommended that you include it when you create the customer Payment Handle 
 because a Payment request that uses the *paymentHandleToken* in the response will fail AVS checks unless there is a billing address associated with it. 
