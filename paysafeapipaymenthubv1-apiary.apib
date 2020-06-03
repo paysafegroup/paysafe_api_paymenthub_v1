@@ -474,7 +474,7 @@ When the merchant wants to process a BACS payment request for a new customer, yo
  5. After 7 days, once the mandate becomes Active, the payment status will become COMPLETED, and a webhook notification will be sent to the merchant. Merchant will receive webhooks for the changes in the mandate status as well. 
  6. After setting payment status to COMPLETED, settlement resource will be created in PENDING, and respective webhook notification will be sent to the merchant. The settlement will be batched in the next batch. After settlement gets batched, it will be set to COMPLETED, and the respective webhook will be sent to the merchant.
 
-> **Note:** Payment will fail if merchant tries to trigger payment using a single use payment handle token. For BACS Payment, the *settleWithAuth* parameter must be set to *true*. 
+> **Note:** For BACS Payment, the *settleWithAuth* parameter must be set to *true*. 
 
 **API Requests to Use:** [Customer](#createcustomerrequest) + [Multi-Use Payment Handle for Customer](#createcustomerpaymenthandlerequest)+ [Payments](#paymentrequest)
 
@@ -484,11 +484,10 @@ When the merchant wants to process a SEPA payment request for a new customer, yo
  1. Create a new customer using the merchantCustomerId and other details.
  2. Create a multi-use Payment Handle for the customer with the *paymentType* parameter set to SEPA.
  3. Multi-use payment handle token gets created in PAYABLE status after mandate reference number validations. Mandate reference along with status "PENDING" is returned in response.
- 4. Use the multi-use *paymentHandleToken* returned in the response to process the Payment request &ndash; the *settleWithAuth* parameter must be set to *true* in this case. Merchant can use the flag payOnActiveMandates as true to block the payments on non active mandates. Default value for payOnActiveMandates is false.   
- 5. After 7 days, once the mandate becomes Active, the payment status will become COMPLETED, and a webhook notification will be sent to the merchant. Merchant will receive webhooks for the changes in the mandate status as well. 
- 6. After setting payment status to COMPLETED, settlement resource will be created in PENDING, and respective webhook notification will be sent to the merchant. The settlement will be batched in the next batch. After settlement gets batched, it will be set to COMPLETED, and the respective webhook will be sent to the merchant.
+ 4. Use the multi-use *paymentHandleToken* returned in the response to process the Payment request &ndash; the *settleWithAuth* parameter must be set to *true* in this case.  
+ 5. After setting payment status to COMPLETED, settlement resource will be created in PENDING, and respective webhook notification will be sent to the merchant. The settlement will be batched in the next batch. After settlement gets batched, it will be set to COMPLETED, and the respective webhook will be sent to the merchant.
 
-> **Note:** Payment will fail if merchant tries to trigger payment using a single use payment handle token. For SEPA Payment, the *settleWithAuth* parameter must be set to *true*. 
+> **Note:** For SEPA Payment, the *settleWithAuth* parameter must be set to *true*. 
 
 **API Requests to Use:** [Customer](#createcustomerrequest) + [Multi-Use Payment Handle for Customer](#createcustomerpaymenthandlerequest)+ [Payments](#paymentrequest)
 
@@ -5331,7 +5330,7 @@ Click on **Get Payment Using Merchant Reference Number** above to see how to loo
 ### Cancel Payments [PUT /v1/payments/{paymentId}]
 <a name="cancelpayment" title="Cancel a Payment"></a>
 
-Click on **Cancel Payments** above to see how to cancel a Payment using the ID returned in the response to the original request. This is only valid for BACS And SEPA.
+Click on **Cancel Payments** above to see how to cancel a Payment using the ID returned in the response to the original request. This is only valid for BACS.
 
 + Parameter
 
@@ -6815,9 +6814,7 @@ Click  **Create a Payment Handle for a Customer** above to see examples of how t
 
 >**Note:** Currently, only CARD, ACH, EFT, BACS and SEPA are supported as a *paymentType* parameter.
 
-The *paymentHandleToken* returned in the response can be used for [payment requests in the Payments API](#paymentrequest), once it has the *status* of PAYABLE.
-
-To modify its *status* to PAYABLE, include this *paymentHandleToken* as the value for the *paymentHandleTokenFrom* parameter in a request to [create a regular Payment Handle](#paymenthandlerequest).  
+> **Note:** Applicable only for card processing: The *paymentHandleToken* returned in the response can be used for [payment requests in the Payments API](#paymentrequest), once it has the *status* of PAYABLE. To modify its *status* to PAYABLE, include this *paymentHandleToken* as the value for the *paymentHandleTokenFrom* parameter in a request to [create a regular Payment Handle](#paymenthandlerequest).  
 That response in turn contains a *paymentHandleToken* with a status of PAYABLE, with the *usage* parameter set to SINGLE_USE. Once you use this single-use *paymentHandleToken* 
 in a [successful payment request](#paymentrequest), then the *status* of the Customer *paymentHandleToken* created here will change to PAYABLE. 
 
