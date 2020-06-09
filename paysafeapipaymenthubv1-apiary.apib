@@ -915,7 +915,7 @@ This involves two easy steps:
 When you use this single-use customer token as the *singleUseCustomerToken* parameter in the Payments Checkout, any 
 card and address information associated with the customer will be displayed on the Checkout page.
 
-> Note: A successful payments call is mandatory to save the card.
+> **Note:** The customer can save a card by clicking on 'save my card for future transactions'. However, this card will only be saved if the customer completes a Payment in the same session.  
 
 ### Creating a Customer Profile
 To use this functionality, the merchant needs to first create a customer profile with Paysafe. There are two ways to create a customer profile:
@@ -1095,10 +1095,10 @@ When the Checkout is loaded, the customer will be able to see their saved paymen
 ### Save Cards for Play+ (Sightline) Deposits
 
 Additional notes on Save Cards feature in Play+ Deposit:
-+ A successful payments call is mandatory to save the card used to make the deposit.  
++ The customer can save a card in Play+ deposit (load funds) flow by clicking on 'save my card for future transactions'. However, this card will only be saved if the customer completes a Payment using Play+ wallet balance after the deposit in the same session.
 + If the customer makes multiple deposits using multiple cards and then makes a payment, the last card used to make the deposit is the one that will be saved.
-+ When a customer makes a deposit but uses a different payment method for making the payment, the card used to make the deposit will not be saved.
-+ The saved card feature is available in Play+ Deposit and Card Payment. If the customer saves a card in Play+, it will be reflected in the Card Payment and vice-versa. 
++ When a customer makes a Play+ deposit but uses a different payment method to complete the payment, the card used to make the deposit will not be saved.
++ The save card feature is available in Play+ Deposit and Card Payment. If the customer saves a card in Play+ deposit screen, it will be reflected in the Card Payment screen and vice-versa. 
 
 <a name="paymentswebhooks" title="Payments Webhooks"></a>
 # Using Webhooks
