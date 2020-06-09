@@ -695,7 +695,7 @@ paysafe.checkout.setup(apiKey, options, resultCallback, closeCallback?)
 |apiKey|string|yes||This is your [Public API key](#publicapikey), available in the Business Portal.|
 |[options](#options)|object|yes||This is the merchant's configuration for rendering the Checkout.|
 |[resultCallback](#resultcallback)|function|yes||The function to be invoked when the payment handle needs to be passed to the merchant, who then uses it to make the payment.|
-|[closeCallback](#closecallback)|function|no||The function to be invoked when the user closes the Checkout without making a payment.|
+|[closeCallback](#closecallback)|function|no||This notifies the merchant script when the Checkout gets closed.|
 
 <a name="options"></a>
 **options**
@@ -894,13 +894,15 @@ The *resultCallback* contains the following elements.
 
 <a name="closecallback"></a>
 #### closeCallback
-Invoked when the checkout overlay is closed by the customer. 
-
+This notifies the merchant script when the Checkout gets closed. The following actions invoke the closeCallback:
+ 1. When the customer closes the Checkout.
+ 2. When Merchant closes the Checkout using instance.close() method in the result callback after payments call.
+     
 The *closeCallback* contains the following elements.
 
 |Parameter|Type|Required|Description|
 |---------|-------|---------------|-----------|
-|stage|string|yes|Stage during which the Checkout overlay is closed. Possible values are: *PAYMENT_HANDLE_NOT_CREATED*, *PAYMENT_HANDLE_CREATED*, *PAYMENT_HANDLE_REDIRECT*, *PAYMENT_HANDLE_PAYABLE* <ul><li>PAYMENT_HANDLE_NOT_CREATED: User did not click on the pay button, and did not proceed with the payment.</li><li>PAYMENT_HANDLE_CREATED: User clicked on the pay button, but Payment flow is incomplete.</li><li>PAYMENT_HANDLE_REDIRECT: User is redirected for authentication, but payment flow is incomplete.</li><li>PAYMENT_HANDLE_PAYABLE: Payment flow is complete, and payment handle token is returned. You can now proceed with payment using the payment handle token.</li>  </ul>|
+|stage|string|yes|Stage during which the Checkout overlay is closed. Possible values are: *PAYMENT_HANDLE_NOT_CREATED*, *PAYMENT_HANDLE_CREATED*, *PAYMENT_HANDLE_REDIRECT*, *PAYMENT_HANDLE_PAYABLE* <ul><li>PAYMENT_HANDLE_NOT_CREATED: Checkout did not initiate a session with Paysafe or PSP.</li><li>PAYMENT_HANDLE_CREATED: Checkout initiated a session with Paysafe/PSP and obtained the details required to initiate a payment.</li><li>PAYMENT_HANDLE_REDIRECT:  Checkout successfully redirected the customer to the PSP hosted page and is waiting for the callback from the hosted page. This is applicable only for flows where the customer is redirected to a different page. Indicates the payment is in progress in the redirected page. </li><li>PAYMENT_HANDLE_PAYABLE: The customer completed the payment, and either customer closes the Checkout after seeing the success/failure screen (This can be initiated by merchant script in result callback using instance.showSuccessScreen()/instance.showFailureScreen() methods) or merchant script closes the Checkout after payments call from result callback by calling instance.close() method.</li>  </ul>|
 |expired|boolean|yes|Indicates whether the *close* event was triggered after the Checkout expired.|
 |{return}|undefined|false|
 
@@ -914,6 +916,8 @@ This involves two easy steps:
 
 When you use this single-use customer token as the *singleUseCustomerToken* parameter in the Payments Checkout, any 
 card and address information associated with the customer will be displayed on the Checkout page.
+
+> **Note:** The customer can save a card by clicking on 'save my card for future transactions'. However, this card will only be saved if the customer completes a Payment in the same session.  
 
 ### Creating a Customer Profile
 To use this functionality, the merchant needs to first create a customer profile with Paysafe. There are two ways to create a customer profile:
@@ -1089,6 +1093,14 @@ The following are the 2 steps are involved.
 ```
 
 When the Checkout is loaded, the customer will be able to see their saved payment details.
+
+### Save Cards for Play+ (Sightline) Deposits
+
+Additional notes on Save Cards feature in Play+ Deposit:
++ The customer can save a card in Play+ deposit (load funds) flow by clicking on 'save my card for future transactions'. However, this card will only be saved if the customer completes a Payment using Play+ wallet balance after the deposit in the same session.
++ If the customer makes multiple deposits using multiple cards and then makes a payment, the last card used to make the deposit is the one that will be saved.
++ When a customer makes a Play+ deposit but uses a different payment method to complete the payment, the card used to make the deposit will not be saved.
++ The save card feature is available in Play+ Deposit and Card Payment. If the customer saves a card in Play+ deposit screen, it will be reflected in the Card Payment screen and vice-versa. 
 
 <a name="paymentswebhooks" title="Payments Webhooks"></a>
 # Using Webhooks
