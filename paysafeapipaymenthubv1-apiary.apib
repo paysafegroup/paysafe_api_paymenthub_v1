@@ -1090,6 +1090,14 @@ The following are the 2 steps are involved.
 
 When the Checkout is loaded, the customer will be able to see their saved payment details.
 
+### Save Cards for Play+ (Sightline) Deposits
+
+Additional notes on Save Cards feature in Play+ Deposit:
++ A successful payments call is mandatory to save the card used to make the deposit.  
++ If the customer makes multiple deposits using multiple cards and then makes a payment, the last card used to make the deposit is the one that will be saved.
++ When a customer makes a deposit but uses a different payment method for making the payment, the card used to make the deposit will not be saved.
++ The saved card feature is available in Play+ Deposit and Card Payment. If the customer saves a card in Play+, it will be reflected in the Card Payment and vice-versa. 
+
 <a name="paymentswebhooks" title="Payments Webhooks"></a>
 # Using Webhooks
 
