@@ -478,7 +478,20 @@ When the merchant wants to process a BACS payment request for a new customer, yo
 
 **API Requests to Use:** [Customer](#createcustomerrequest) + [Multi-Use Payment Handle for Customer](#createcustomerpaymenthandlerequest)+ [Payments](#paymentrequest)
 
-### Scenario 15: SEPA Payment for a new Customer
+### Scenario 15: BACS Payment for an existing Customer with new Mandate
+
+When the merchant wants to process a BACS payment request for a new customer, you would do the following:
+ 1. Create a multi-use Payment Handle for the customer using the same bank details with the new MANDATE and the *paymentType* parameter set to BACS and 
+ 3. Multi-use payment handle token gets created in PAYABLE status after mandate reference number validations. Mandate reference along with status "PENDING" is returned in response.
+ 4. Use the multi-use *paymentHandleToken* returned in response to process the Payment request &ndash; the *settleWithAuth* parameter must be set to *true* in this case. Merchant can use the flag *payOnActiveMandates* as *true* to block the payments on non active mandates. Default value for *payOnActiveMandates* is *false*.   
+ 5. After 7 days, once the mandate becomes Active, the payment status will become COMPLETED, and a webhook notification will be sent to the merchant. Merchant will receive webhooks for the changes in the mandate status as well. 
+ 6. After setting payment status to COMPLETED, settlement resource will be created in PENDING, and respective webhook notification will be sent to the merchant. The settlement will be batched in the next batch. After settlement gets batched, it will be set to COMPLETED, and the respective webhook will be sent to the merchant.
+
+> **Note:** For BACS Payment, the *settleWithAuth* parameter must be set to *true*. 
+
+**API Requests to Use:** [Multi-Use Payment Handle for Customer](#createcustomerpaymenthandlerequest)+ [Payments](#paymentrequest)
+
+### Scenario 16: SEPA Payment for a new Customer
 
 When the merchant wants to process a SEPA payment request for a new customer, you would do the following:
  1. Create a new customer using the merchantCustomerId and other details.
@@ -490,6 +503,22 @@ When the merchant wants to process a SEPA payment request for a new customer, yo
 > **Note:** For SEPA Payment, the *settleWithAuth* parameter must be set to *true*. 
 
 **API Requests to Use:** [Customer](#createcustomerrequest) + [Multi-Use Payment Handle for Customer](#createcustomerpaymenthandlerequest)+ [Payments](#paymentrequest)
+
+### Scenario 17: BACS Payment for an existing Customer with new Mandate
+
+When the merchant wants to process a SEPA payment request for a new customer, you would do the following:
+ 1. Create a multi-use Payment Handle for the customer using the same bank details with the new MANDATE and the *paymentType* parameter set to SEPA. 
+ 3. Multi-use payment handle token gets created in PAYABLE status after mandate reference number validations. Mandate reference along with status "PENDING" is returned in response.
+ 4. Use the multi-use *paymentHandleToken* returned in response to process the Payment request &ndash; the *settleWithAuth* parameter must be set to *true* in this case. Merchant can use the flag *payOnActiveMandates* as *true* to block the payments on non active mandates. Default value for *payOnActiveMandates* is *false*.   
+ 5. After 7 days, once the mandate becomes Active, the payment status will become COMPLETED, and a webhook notification will be sent to the merchant. Merchant will receive webhooks for the changes in the mandate status as well. 
+ 6. After setting payment status to COMPLETED, settlement resource will be created in PENDING, and respective webhook notification will be sent to the merchant. The settlement will be batched in the next batch. After settlement gets batched, it will be set to COMPLETED, and the respective webhook will be sent to the merchant.
+
+> **Note:** For SEPA Payment, the *settleWithAuth* parameter must be set to *true*. 
+
+**API Requests to Use:** [Multi-Use Payment Handle for Customer](#createcustomerpaymenthandlerequest)+ [Payments](#paymentrequest)
+
+
+
 
 <a name="paymentscheckout" title="Payments Checkout"></a>
 # Payments Checkout
@@ -6808,9 +6837,11 @@ Click on **Delete an Address** above to see how delete an Address.
 
 Click  **Create a Payment Handle for a Customer** above to see examples of how to  create a Payment Handle for a [Customer you have already created](#createcustomerequest):
 
-* A Payment Handle for an CARD payment
-* A Payment Handle for an BACS payment
-* A Payment Handle for an SEPA payment
+* A Payment Handle for a CARD payment
+* A Payment Handle for a BACS payment
+* A Payment Handle for a SEPA payment
+* A Payment Handle for a BACS payment with existing bank and new Mandate
+* A Payment Handle for a SEPA payment with existing bank and new Mandate
 
 >**Note:** Currently, only CARD, ACH, EFT, BACS and SEPA are supported as a *paymentType* parameter.
 
@@ -7018,6 +7049,146 @@ If you do not include it when creating the customer Payment Handle, you should t
             }
             }
 
++ Request Create a Multi-Use Payment Handle for a BACS payment with existing bank and new Mandate (application/json)
+
+    + Headers
+
+            Authorization: Basic YOUR-BASE64-ENCODED-API-KEY
+            Simulator: "EXTERNAL"
+        
+    + Body
+
+            {
+               {
+               "merchantRefNum": "Oc019787c398-fd45-4e8e-906f-47fd741asdsbavz803",
+               "paymentType": "BACS",
+               "bacs": {
+                  "nickName": "Sally's Barclays Account",
+                  "accountHolderName": "Sally Barnes",
+                  "accountNumber": "51120171",
+                  "sortCode": "086081",
+                  "mandate": {
+                     "reference" : "ABCDEF0796"
+                  }
+               },
+               "billingDetails": {
+                  "nickName": "sam",
+                  "street": "123 Street1",
+                  "city": "Toronto",
+                  "state": "ON",
+                  "country": "CA",
+                  "zip": "M5H2N2"
+               },
+               "customerIp": "204.91.0.0"
+            }
+            }
+
++ Response 200 (application/json)
+    
+    + Body
+
+             {
+                {
+               "id": "fe60c28d-486e-4b0a-bbf9-314033863542",
+               "merchantRefNum": "Oc019787c398-fd45-4e8e-906f-47fd741asdsbavz803",
+               "usage": "MULTI_USE", 
+               "status": "PAYABLE",
+               "paymentType": "BACS",
+               "paymentHandleToken": "MAbz0rAAOIIEqu79",
+               "executionMode" : "ASYNCHRONOUS",
+               "bacs": {
+                  "nickName": "Sally's Barclays Account",
+                  "accountHolderName": "Sally Barnes",
+                  "lastDigits": "71",
+                  "sortCode": "086081",
+                  "mandate": {
+                     "id" : "abcdc28d-486e-4b0a-bbf9-314033863542",
+                     "reference" : "ABCDEF0796",
+                     "status" : "PENDING"
+                  }
+               },
+               "billingDetails": {
+                  "nickName": "sam",
+                  "street": "123 Street1",
+                  "city": "Toronto",
+                  "state": "ON",
+                  "country": "CA",
+                  "zip": "M5H2N2"
+               },
+               "customerIp": "204.91.0.0"
+            }
+            }
+
++ Request Create a Multi-Use Payment Handle for a SEPA payment with existing bank and new Mandate (application/json)
+
+    + Headers
+
+            Authorization: Basic YOUR-BASE64-ENCODED-API-KEY
+            Simulator: "EXTERNAL"
+        
+    + Body
+
+            {
+               {
+               "merchantRefNum": "Oc019787c398-fd45-4e8e-906f-47fd741asdsbavz803",
+               "paymentType": "SEPA",
+               "sepa": {
+                  "nickName": "Sally's Barclays Account",
+                  "accountHolderName": "Sally Barnes",
+                  "iban": "NL77ABNA0492122466",
+                  "bic": "ABNANL2A",
+                  "mandate": {
+                     "reference" : "ABCDEF0796"
+                  }
+               },
+               "billingDetails": {
+                  "nickName": "sam",
+                  "street": "123 Street1",
+                  "city": "Toronto",
+                  "state": "ON",
+                  "country": "CA",
+                  "zip": "M5H2N2"
+               },
+               "customerIp": "204.91.0.0"
+            }
+            }
+
++ Response 200 (application/json)
+    
+    + Body
+
+             {
+               {
+               "id": "fe60c28d-486e-4b0a-bbf9-314033863542",
+               "merchantRefNum": "Oc019787c398-fd45-4e8e-906f-47fd741asdsbavz803",
+               "usage": "MULTI_USE", 
+               "status": "PAYABLE",
+               "paymentType": "SEPA",
+               "executionMode": "SYNCHRONOUS",
+               "paymentHandleToken": "Mbz0rAAOIIEqu79",
+               "sepa": {
+                  "nickName": "Sally's Barclays Account",
+                  "accountHolderName": "Sally Barnes",
+                  "lastDigits": "71",
+                  "bic": "ABNANL2A",
+                  "mandate": {
+                     "id" : "20de4b06-d4dc-4388-99be-1f390627d7b0",
+                     "reference" : "ABCDEF0796",
+                     "status" : "ACTIVE"
+                  }
+               },
+               "billingDetails": {
+                  "nickName": "sam",
+                  "street": "123 Street1",
+                  "city": "Toronto",
+                  "state": "ON",
+                  "country": "CA",
+                  "zip": "M5H2N2"
+               },
+               "customerIp": "204.91.0.0"
+            }
+            }
+            
 
 ## Create a Multi-Use Payment Handle Using a Single-Use Payment Handle Token [POST /v1/customers/{customer_id}/paymenthandles]
 <a name="createpaymenthandlerequestsut" title="Create a Payment Handle Using a Single-Use Payment Handle Token"></a>
