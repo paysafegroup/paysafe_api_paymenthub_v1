@@ -34,6 +34,7 @@ The Paysafe Payments API currently supports the following payment methods:
 - Paypal
 - BACS
 - SEPA
+- Interac
 
 
 **Here is a step-by-step guide to get you started:**
@@ -517,6 +518,20 @@ When the merchant wants to process a SEPA payment request for a new customer, yo
 
 **API Requests to Use:** [Multi-Use Payment Handle for Customer](#createcustomerpaymenthandlerequest)+ [Payments](#paymentrequest)
 
+### Scenario 18: Interac Payment
+
+When the merchant wants to process a Interac payment request, you would do the following:
+ 1. Create a Payment Handle with the *transactionType* parameter set to PAYMENT and the *paymentType* parameter set to INTERAC.
+ 2. Since the customer has to complete payment authentication by providing Interac details, Paysafe returns a response with the following:
+    * The *action* parameter is set to REDIRECT
+    * A *payment_redirect* link points to the Interac redirect URL
+ 3. Redirect the customer to the Interac redirect URL so they can provide the email address and password details to complete the money transfer.
+ 4. Upon successful customer authentication, the merchant gets notified at the URL specified in the *on_completed* parameter included with their request.
+ 5. At this point, the status of the Payment Handle becomes PAYABLE.
+ 6. Use the *paymentHandleToken* returned in the response to process the Payment request.
+ 7. Once the Payment request is successfully completed, the funds are immediately transferred to the merchant's account.
+ 
+**API Requests to Use:** [Payment Handles](#paymenthandlerequest) + [Payments](#paymentrequest)
 
 
 
@@ -769,7 +784,7 @@ paysafe.checkout.setup(apiKey, options, resultCallback, closeCallback?)
 |canEditAmount|boolean|no||If *true*, the customer can edit the amount in the Checkout before clicking Pay. If false, the amount is not editable.|
 |[customer](#customer)|object|no||In case the customer is a first-time user and has no customer profile, the merchant can choose to pass an existing customer profile in the call to create a payment handle.|
 |displayPaymentMethods|Array |no | | This field serves 2 purposes. You can use it to restrict the payment methods that a customer can see. You can also use it to order the payment methods based on your preference. If this field is present, then a customer will only see those payment methods in the order specified, so ensure that you provide all payment methods if you are using it only for the purpose of payment method ordering. |
-|[paymentMethodDetails](#paymentmethoddetails)|object|conditional||Required for Paysafecash, Paysafecard, Skrill, Instant ACH, Paypal, Play+ (Sightline) payment types.|
+|[paymentMethodDetails](#paymentmethoddetails)|object|conditional||Required for Paysafecash, Paysafecard, Skrill, Instant ACH, Interac, Paypal, Play+ (Sightline) payment types.|
 |payout |boolean |no | | If true, **Withdrawal** Checkout screen will be launched. If false, **Payment** Checkout will be launched.<br/> Defaults to false. |
 |[payoutConfig](#payoutconfig) |object | conditional | | Required for withdrawal checkout only. This configuration is used to specify withdrawal limitations. |
 |[merchantDescriptor](#merchantDescriptor)|object|no||This is a merchant descriptor.| 
@@ -790,7 +805,7 @@ paysafe.checkout.setup(apiKey, options, resultCallback, closeCallback?)
 **card**
 |Parameter|Type|Required|Validations|Description|
 |---------|-------|---------------|-----------|------------------|
-|accountID |string|Conditional|`length<=10`|Required when you have more than one account configured for the same payment method and currency.|
+|accountID |string|Conditional|`length<=10`|Required when you have more than one account configured for the same payment method and currency. If you are a partner using a shared API key, then this field is mandatory.|
 
 <a name="customer"></a>
 **customer**
@@ -840,14 +855,14 @@ paysafe.checkout.setup(apiKey, options, resultCallback, closeCallback?)
 |Parameter|Type|Required|Validations|Description|
 |---------|-------|---------------|-----------|------------------|
 |consumerId|string|yes|`length<=50`|This is a consumer ID that the merchant has stored for Paysafecard payments.|
-|accountID |string|Conditional|`length<=10`|Required when you have more than one account configured for the same payment method and currency.|
+|accountID |string|Conditional|`length<=10`|Required when you have more than one account configured for the same payment method and currency. If you are a partner using a shared API key, then this field is mandatory.|
 
 <a name="paysafecash"></a>
 **paysafecash**
 |Parameter|Type|Required|Validations|Description|
 |---------|-------|---------------|-----------|------------------|
 |consumerId|string|yes|`length<=50`|This is a consumer ID that the merchant has stored for Paysafecash payments.|
-|accountID |string|Conditional|`length<=10`|Required when you have more than one account configured for the same payment method and currency.|
+|accountID |string|Conditional|`length<=10`|Required when you have more than one account configured for the same payment method and currency. If you are a partner using a shared API key, then this field is mandatory.|
 
 <a name="sightline"></a>
 **sightline**
@@ -856,7 +871,7 @@ paysafe.checkout.setup(apiKey, options, resultCallback, closeCallback?)
 |consumerId|string|yes|`length<=50`|This is a consumer ID that the merchant has stored for Play+ (Sightline) payments. This will be used by Play+ for customer enrollment.|
 |SSN|string|no|`length=9`|This is the customer's Social Security Number.If provided, then the last 4 SSN field will be prefilled and locked in enrollment as well as during Payment flow. If not provided, Customer has to enter their full SSN in the enrollment and the last 4 SSN in the Payment flow.|
 |last4ssn|string|no|`length=4`|This the customer’s last 4 digits of Social Security Number. If the customer is already enrolled for Sightline, then instead of sending the full ‘SSN’ field, you can send the last 4 digits of SSN which will get prefilled during Payment flow. If not provided, then the system will check if ‘SSN’ field is present to prefill the last 4 digits. If both these fields are not provided, then the customer has to enter the last 4 digits of SSN to complete the payment.|
-|accountID |string|Conditional|`length<=10`|Required when you have more than one account configured for the same payment method and currency.|
+|accountID |string|Conditional|`length<=10`|Required when you have more than one account configured for the same payment method and currency. If you are a partner using a shared API key, then this field is mandatory.|
 
 <a name="skrill"></a>
 **skrill**
@@ -870,7 +885,7 @@ paysafe.checkout.setup(apiKey, options, resultCallback, closeCallback?)
 |logoUrl                 |string|no |             |The URL of the logo which you would like to appear in the top right of the Skrill page. The logo must be accessible via HTTPS or it will not be shown. The logo will be resized to fit. To avoid scaling distortion, the minimum size should be as follows:<br>If the logo width > height - at least 107px wide.<br>If logo width > height - at least 65px high<br>Avoid large images (much greater than 256 by 256px) to minimize the page loading time.|
 |detail1Description      |string|no |             |You can show additional details about the product in the More information section in the header of Quick Checkout.|
 |detail1Text             |string|no |             |The detail1Text is shown next to the detail1Description in the More Information section in the header of the payment form with the other payment details. The detail1Description combined with the detail1Text is shown in the more information field of the merchant account history CSV file.|
-|accountID |string|Conditional|`length<=10`|Required when you have more than one account configured for the same payment method and currency.|
+|accountID |string|Conditional|`length<=10`|Required when you have more than one account configured for the same payment method and currency. If you are a partner using a shared API key, then this field is mandatory.|
 
 <a name="instantach"></a>
 **instantach**
@@ -885,14 +900,14 @@ paysafe.checkout.setup(apiKey, options, resultCallback, closeCallback?)
 |logoUrl                 |string|no |             |The URL of the logo which you would like to appear in the top right of the Instant ACH page. The logo must be accessible via HTTPS or it will not be shown. The logo will be resized to fit. To avoid scaling distortion, the minimum size should be as follows:<br>If the logo width > height - at least 107px wide.<br>If logo width > height - at least 65px high<br>Avoid large images (much greater than 256 by 256px) to minimize the page loading time.|
 |detail1Description      |string|no |             |You can show additional details about the product in the More information section in the header of Quick Checkout.|
 |detail1Text             |string|no |             |The detail1Text is shown next to the detail1Description in the More Information section in the header of the payment form with the other payment details. The detail1Description combined with the detail1Text is shown in the more information field of the merchant account history CSV file.|
-|accountID |string|Conditional|`length<=10`|Required when you have more than one account configured for the same payment method and currency.|
+|accountID |string|Conditional|`length<=10`|Required when you have more than one account configured for the same payment method and currency. If you are a partner using a shared API key, then this field is mandatory.|
 
 <a name="vippreferredobject" title="VIP Preferred"></a>
 **vippreferred**
 |Parameter          |Type|Required|Validations|Description|
 |---                |---|---|---|---|
 |consumerId         |string|yes|`length=9`|This is the customer's Social Security Number.|
-|accountID |string|Conditional|`length<=10`|Required when you have more than one account configured for the same payment method and currency.|
+|accountID |string|Conditional|`length<=10`|Required when you have more than one account configured for the same payment method and currency. If you are a partner using a shared API key, then this field is mandatory.|
 
 <a name="paypal"></a>
 **paypal**
@@ -2444,7 +2459,7 @@ This is an authorization that is approved for an amount lower than the requested
 |Element                |Type                       |Required|Description                        |
 |---                    |---                        |---  |---     |
 |id                     |string<br/>`length<=32`    |Read Only|This is the ID returned in the response. This ID can be used to retrieve the Payment Handle.|
-|accountId              |string<br/>`length<=10`    |Conditional|This is the merchant account number used for the request. Include this parameter if you have more than one merchant account for the currency/payment type combination you are specifying. |
+|accountId              |string<br/>`length<=10`    |Conditional|This is the merchant account number used for the request. Include this parameter if you have more than one merchant account for the currency/payment type combination you are specifying. If you are a partner using a shared API key, then this field is mandatory.|
 |paymentHandleTokenFrom |string<br/>`length<=36`    |Optional|This is an existing Payment Handle Token, from which the payment instrument and profile details are retrieved. |
 |merchantRefNum         |string<br/>`length<=255`   |Mandatory|This is the merchant reference number created by the merchant and submitted as part of the request. It must be unique for each request. |
 |transactionType        |enum                       |Mandatory|This specifies the transaction type for which the Payment Handle is created. Possible values are: <ul><li>PAYMENT</li><li> STANDALONE_CREDIT</li><li>ORIGINAL_CREDIT</li><li>VERIFICATION</li></ul>|
@@ -2456,11 +2471,11 @@ This is an authorization that is approved for an amount lower than the requested
 |amount                 |number<br/>`max=99999999999` |Mandatory|This is the amount of the request, in minor units.<br/>**Note:** This field is mandatory if *transactionType* is included. <br/>The *amount* specified in the Payment Handle request must match the *amount* specified in the Payments API request the *paymentHandleToken* is used for. |
 |currencyCode           |string<br/>`length=3`      |Mandatory|This is the currency of the merchant account, e.g., USD or CAD. See [Currency Codes](#currencycodes). <br/>The *currencyCode* specified in the Payment Handle request must match the *currencyCode* specified in the Payments API request the *paymentHandleToken* is used for.|
 |paymentHandleToken     |string                     |Read Only|This is the payment token generated by Paysafe that will be used by merchants for Payment API requests.|
-|card \| paysafecard \| paysafecash \| sightline \| vippreferred \| skrill \| instant ACH \| paypal \| ACH \|EFT \| bacs \| sepa |Mandatory| [card](#cardobject) \| [paysafecard](#paysafecardobject)\| [paysafecash](#paysafecashobject) \|[sightline](#sightlineobject) \| [vippreferred](#vippreferredobject) \| [skrill](#skrillobject) \| [instant ACH](#instantachobject)  \| [paypal](#paypalobject) \| [ACH](#achobject)    \| [EFT](#eftobject) \| [BACS](#bacsobject)\| [SEPA](#sepaobject) |These are details of the payment instrument used in the request. |
+|card \| paysafecard \| paysafecash \| sightline \| vippreferred \| skrill \| instant ACH \| paypal \| ACH \|EFT \| bacs \| sepa \| interac |Mandatory| [card](#cardobject) \| [paysafecard](#paysafecardobject)\| [paysafecash](#paysafecashobject) \|[sightline](#sightlineobject) \| [vippreferred](#vippreferredobject) \| [skrill](#skrillobject) \| [instant ACH](#instantachobject)  \| [paypal](#paypalobject) \| [ACH](#achobject)    \| [EFT](#eftobject) \| [BACS](#bacsobject)\| [SEPA](#sepaobject) \| interac | These are details of the payment instrument used in the request. |
 |billingDetails         |[billingDetails](#billingdetailsobject)        |Conditional |These are billing details for the request.<br/>**Note:** For single-use Payment Handles, this address information will be ignored if the *paymentHandleTokenFrom* parameter is included and there is already address information associated with that customer.|
 |profile                |[profile](#profileobject)  |Optional|This is the customer's profile. |
 |merchantDescriptor     |[merchantDescriptor](#merchantdescriptorobject) |Optional|This is the merchant descriptor that will be displayed on the customer's card or bank statement.<br/>**Note:** Not all processing gateways support this parameter. Contact your account manager for more information.|
-|returnLinks            |[returnLinks](#returnlinksobject)         |Conditional|These are links to which to redirect the customer, where applicable. Mandatory for the following Payment Methods: Cards, Skrill, Paypal, Paysafecash, Paysafecard, Sightline, Vip Preferred. |
+|returnLinks            |[returnLinks](#returnlinksobject)         |Conditional|These are links to which to redirect the customer, where applicable. Mandatory for the following Payment Methods: Cards, Skrill, Paypal, Paysafecash, Paysafecard, Sightline, Vip Preferred, Interac. |
 |customerIp             |string<br/>`length<=39`    |Optional|This is the customer's IP address. |
 |timeToLiveSeconds      |number<br/>`length<=899`   |Read Only|This is the period of time, in seconds, the *paymentHandleToken* is valid before expiration.|
 |links            |[links](#linksobject)         |Read Only|These are links to which to redirect the customer, where applicable. |
@@ -2540,7 +2555,7 @@ This is an authorization that is approved for an amount lower than the requested
 |error              |[error](#errorobject)                  |Read Only| Details of the error.    |
 |statusReason       |string<br/>`length<=255`               |Read Only|This is reason for the status. This is present in the case where *status* is ERROR, FAILURE, or HELD. |
 |authentication     |[authentication](#authenticationobject)|Read Only|These are 3D Secure details.|
-|paymentType            |enum                       |Optional|This is the payment type associated with this Payment Handle. Possible values are:<ul><li>CARD</li><li>PAYSAFECASH</li><li>PAYSAFECARD</li><li>VIP PREFERRED</li><li>SIGHTLINE</li><li>SKRILL</li><li>INSTANT ACH</li><li>PAYPAL</li><li>ACH</li><li>EFT</li><li>BACS</li><li>SEPA</li></ul>|
+|paymentType            |enum                       |Optional|This is the payment type associated with this Payment Handle. Possible values are:<ul><li>CARD</li><li>PAYSAFECASH</li><li>PAYSAFECARD</li><li>VIP PREFERRED</li><li>SIGHTLINE</li><li>SKRILL</li><li>INSTANT ACH</li><li>PAYPAL</li><li>ACH</li><li>EFT</li><li>BACS</li><li>SEPA</li><li>INTERAC</li></ul>|
 |gatewayReconciliationId |string                 |Optional|Transaction identifier that can be used to reconcile this transaction with the provider gateway.<br/><i>Read Only</i>|
 |updatedTime             |datetime               |Optional|ISO 8601 format (UTC) </b>This is the date and time the resource was last updated, e.g., `2014-01-26T10:32:28Z`<br/><i>Read Only</i>|
 |statusTime              |datetime               |Optional|ISO 8601 format (UTC) </b>This is the date and time the resource status was last updated, e.g., `2014-01-26T10:32:28Z`<br/><i>Read Only</i>|
@@ -2872,7 +2887,7 @@ If you [look up an authorization request](#getauth)  that used the *visaAddition
 |merchantRefNum     |string <br/>`length<=255`              |Mandatory|This is the merchant reference number created by the merchant and submitted as part of the request. It must be unique for each request.|
 |paymentHandleToken |string                                 |Mandatory|This is the payment token generated by Paysafe that will be used by merchants for Standalone Credit requests.|
 |currencyCode       |string<br/>`length=3`                  |Mandatory|This is the currency of the merchant account, e.g., USD or CAD, returned in the request response. See [Currency Codes](#currencycodes). <br/>**Note:** The *currencyCode* specified in the Credit request must match the *currencyCode* specified in the Payment Handle request from which the *paymentHandleToken* is taken.|
-|card \| paysafecard \| paysafecash \| sightline \| vippreferred \| skrill \| instant ACH \| paypal \| ACH \|EFT \| BACS \| SEPA \|[card](#cardobject) \| [paysafecard](#paysafecardobject)\| [paysafecash](#paysafecashobject) \|[sightline](#sightlineobject) \| [vippreferred](#vippreferredobject) \| [skrill](#skrillobject) \| [instant ACH](#instantachobject)  \| [paypal](#paypalobject) \| [ACH](#achobject)    \| [EFT](#eftobject) \| [BACS](#bacsobject) \| [SEPA](#sepaobject)|Read Only|These are the details of the payment method used.|
+|card \| paysafecard \| paysafecash \| sightline \| vippreferred \| skrill \| instant ACH \| paypal \| ACH \|EFT \| BACS \| SEPA \|INTERAC| [card](#cardobject) \| [paysafecard](#paysafecardobject)\| [paysafecash](#paysafecashobject) \|[sightline](#sightlineobject) \| [vippreferred](#vippreferredobject) \| [skrill](#skrillobject) \| [instant ACH](#instantachobject)  \| [paypal](#paypalobject) \| [ACH](#achobject)    \| [EFT](#eftobject) \| [BACS](#bacsobject) \| [SEPA](#sepaobject)\| INTERAC |Read Only|These are the details of the payment method used.|
 |billingDetails     |[billingDetails](#billingdetailsobject)|Optional|These are the billing details for the request.|
 |customerIp         |string<br/>`length<=39`                |Optional|This is the customer's IP address.|
 |description        |string<br/>`length<=255`               |Optional|This is a description of the transaction, provided by the merchant.|
@@ -3524,6 +3539,7 @@ Click on **Create a Payment Handle** above to see the examples of how to create 
 * A Payment Handle for an ACH payment
 * A Payment Handle for an EFT payment
 * A Payment Handle for a VIP Preferred payment
+* A Payment Handle for an Interac payment
 * A Payment Handle for a credit card Standalone Credit
 * A Payment Handle for a credit card Verification
 
@@ -4603,6 +4619,117 @@ Click on **Create a Payment Handle** above to see the examples of how to create 
                 }
             }
             }
+
++ Request Create Payment Handle for Interac (application/json)
+
+    + Headers
+
+            Authorization: "Basic YOUR-BASE64-ENCODED-API-KEY"
+            Simulator: "EXTERNAL"
+            
+    + Body
+
+            {
+             {
+               "merchantRefNum":"164795c1-6e2e-4aa9-b1ce-ec3b1d12c09f",
+               "transactionType":"PAYMENT",
+               "paymentType":"INTERAC",
+               "interac":{
+                  "consumerId":"merchantclientid"
+               },
+               "amount":100,
+               "currencyCode":"CAD",
+               "customerIp":"172.0.0.1",
+               "billingDetails":{
+                  "nickName":"Home",
+                  "street":"100 Queen",
+                  "street2":"Unit 201",
+                  "city":"Toronto",
+                  "zip":"M5H 2N2",
+                  "country":"CA"
+               },
+               "merchantDescriptor":{
+                  "dynamicDescriptor":"OnlineStore",
+                  "phone":"12345678"
+               },
+               "returnLinks":[
+                  {
+                     "rel":"default",
+                     "href":"https://usgaminggamblig.com/payment/return/success"
+                  },
+                  {
+                     "rel":"on_failed",
+                     "href":"https://usgaminggamblig.com/payment/return/failed"
+                  },
+                  {
+                     "rel":"on_cancelled",
+                     "href":"https://usgaminggamblig.com/payment/return/cancelled"
+                  }
+               ]
+            }
+            }
+
++ Response 200 (application/json)
+
+    + Body
+
+            {
+               {
+               "id":"5bac96ad-9196-4a41-ac3b-013e69d989d9",
+               "paymentType":"INTERAC",
+               "paymentHandleToken":"PHxdMj0zO1kvdQhK",
+               "merchantRefNum":"a6d4aa73-71ef-4832-9fbd-cee704fe2b41",
+               "currencyCode":"CAD",
+               "txnTime":"2020-06-26T09:33:48Z",
+               "billingDetails":{
+                  "street":"100 Queen",
+                  "street2":"Unit 201",
+                  "city":"Toronto",
+                  "zip":"M5H 2N2",
+                  "country":"CA"
+               },
+               "customerIp":"172.0.0.1",
+               "status":"INITIATED",
+               "links":[
+                  {
+                     "rel":"redirect_payment",
+                     "href":"https://api.qa.paysafe.com/alternatepayments/v1/redirect?accountId=88940812&paymentHandleId=5bac96ad-9196-4a41-ac3b-013e69d989d9&token=eyJhbGciOiJIUzI1NiJ9.eyJhY2QiOiI4ODk0MDgxMiIsInB5ZCI6IjViYWM5NmFkLTkxOTYtNGE0MS1hYzNiLTAxM2U2OWQ5ODlkOSIsImV4cCI6MTU5MzE2NTgyOH0.TE2PR9YxcvYyKitKAj8YUTUGpPIW2gBD41jx5vGqYvM"
+                  }
+               ],
+               "liveMode":false,
+               "usage":"SINGLE_USE",
+               "action":"REDIRECT",
+               "executionMode":"SYNCHRONOUS",
+               "amount":100,
+               "merchantDescriptor":{
+                  "dynamicDescriptor":"OnlineStore",
+                  "phone":"12345678"
+               },
+               "timeToLiveSeconds":899,
+               "gatewayResponse":{
+                  "iDebitInvoice":"AIAAAAAAAAAAAAABGD4A",
+                  "processor":"INTERAC"
+               },
+               "returnLinks":[
+                  {
+                     "rel":"on_cancelled",
+                     "href":"https://usgaminggamblig.com/payment/return/cancelled"
+                  },
+                  {
+                     "rel":"on_failed",
+                     "href":"https://usgaminggamblig.com/payment/return/failed"
+                  },
+                  {
+                     "rel":"default",
+                     "href":"https://usgaminggamblig.com/payment/return/success"
+                  }
+               ],
+               "transactionType":"PAYMENT",
+               "updatedTime":"2020-06-26T09:33:48Z",
+               "statusTime":"2020-06-26T09:33:48Z"
+            }
+            }
+
 
 
 + Request Create Payment Handle for Card for Standalone Credit (application/json)
@@ -8188,6 +8315,7 @@ Click  **Cancel a Mandate** above to see how to cancel a Mandate.
         + BACS
         + SEPA
         + PAYPAL
+        + INTERAC
 + `status`: `PENDING` (enum) - This is the status of the transaction request.
     _Read Only_
     + Members
@@ -8230,9 +8358,10 @@ Click  **Cancel a Mandate** above to see how to cancel a Mandate.
             + BACS
             + SEPA
             + PAYPAL
+            + INTERAC
     + currencyCode:`USD` (string) - This is the [currency of the merchant account](#currencycodes), e.g., USD or CAD.
         _Read Only, max=3_
-    + `accountId`: `1009355920` (string) - This is the merchant account for which the payment method and currency are enabled.
+    + `accountId`: `1009355920` (string) - This is the merchant account for which the payment method and currency are enabled. If you are a partner using a shared API key, then this field is mandatory.
         _Read Only, length<=10_
             
 
@@ -8249,7 +8378,7 @@ Click  **Cancel a Mandate** above to see how to cancel a Mandate.
         + STANDALONE_CREDIT - Payment Handle is created to continue the Standalone Credit.
         + ORIGINAL_CREDIT - Payment Handle is created to continue the Original Credit.
         + VERIFICATION - Payment Handle is created to continue the Verification request.
-+ `accountId`:`9876543210` (string) - This is the merchant account number used for the request. Include this optional parameter if you have more than one merchant account for the currency/payment type combination you are specifying.
++ `accountId`:`9876543210` (string) - This is the merchant account number used for the request. Include this optional parameter if you have more than one merchant account for the currency/payment type combination you are specifying. If you are a partner using a shared API key, then this field is mandatory.
     _Conditional, length<=10_
 + `status`:`PAYABLE` (enum) - This is the status of the payment handle.
     _Read Only_
@@ -8277,6 +8406,7 @@ Click  **Cancel a Mandate** above to see how to cancel a Mandate.
         + VIPPREFERRED
         + ACH
         + EFT
+        + INTERAC
 + Include Payment Instrument
 + `action`:`NONE` (enum) - This specifies the next step of the user journey once they proceed to the Payment.
     _Read Only_
@@ -8299,6 +8429,7 @@ Click  **Cancel a Mandate** above to see how to cancel a Mandate.
 + Include Profile
 + Include Billing Details
 + Include Merchant Descriptor
++ Include Splitpay
 + `returnLinks` (object) - The URL endpoints to redirect the customer to after a redirection to an alternative payment or 3D Secure site. You can customize the return URL based on the transaction status. 
     _Conditional_
     + `rel`(enum) - This is the link type, allowing different endpoints to be targeted depending on the end state of the transaction. The link relation describes how this link relates to the previous call. 
@@ -8508,6 +8639,7 @@ Click  **Cancel a Mandate** above to see how to cancel a Mandate.
             + ACH
             + EFT
             + VIPPREFERRED
+            + INTERAC
     + Include Payment Instrument
     + `action`: (enum) - This specifies the next step of the user journey once they proceed to the Payment.
         + Members
@@ -8525,6 +8657,7 @@ Click  **Cancel a Mandate** above to see how to cancel a Mandate.
         _Read Only, length<=36_
     + Include Profile
     + Include Billing Details
+    + Include Splitpay
     + `returnLinks` (object) - The URL endpoints to redirect the customer to after a redirection to an alternative payment or 3D Secure site. You can customize the return URL based on the transaction status. 
         + `rel` (enum) - This is the link type, allowing different endpoints to be targeted depending on the end state of the transaction. The link relation describes how this link relates to the previous call. 
             + default (string, required) - The default return URL that will be used if specific status return URL is not defined.
@@ -8875,6 +9008,7 @@ Click  **Cancel a Mandate** above to see how to cancel a Mandate.
         + EFT
         + BACS
         + SEPA
+        + INTERAC
 + `status`: `HELD`(enum) - This is the status of the transaction request.
     _Read Only_
     + Members
