@@ -805,7 +805,7 @@ paysafe.checkout.setup(apiKey, options, resultCallback, closeCallback?)
 **card**
 |Parameter|Type|Required|Validations|Description|
 |---------|-------|---------------|-----------|------------------|
-|accountID |string|Conditional|`length<=10`|Required when you have more than one account configured for the same payment method and currency. If you are a partner using a shared API key, then this field is mandatory.|
+|accountID |string|Conditional|`length<=10`|If you are a merchant, then this field is required only if you have more than one account configured for the same payment method and currency. If you are a partner using a shared API key, then this field is mandatory.|
 
 <a name="customer"></a>
 **customer**
@@ -855,14 +855,14 @@ paysafe.checkout.setup(apiKey, options, resultCallback, closeCallback?)
 |Parameter|Type|Required|Validations|Description|
 |---------|-------|---------------|-----------|------------------|
 |consumerId|string|yes|`length<=50`|This is a consumer ID that the merchant has stored for Paysafecard payments.|
-|accountID |string|Conditional|`length<=10`|Required when you have more than one account configured for the same payment method and currency. If you are a partner using a shared API key, then this field is mandatory.|
+|accountID |string|Conditional|`length<=10`|If you are a merchant, then this field is required only if you have more than one account configured for the same payment method and currency. If you are a partner using a shared API key, then this field is mandatory.|
 
 <a name="paysafecash"></a>
 **paysafecash**
 |Parameter|Type|Required|Validations|Description|
 |---------|-------|---------------|-----------|------------------|
 |consumerId|string|yes|`length<=50`|This is a consumer ID that the merchant has stored for Paysafecash payments.|
-|accountID |string|Conditional|`length<=10`|Required when you have more than one account configured for the same payment method and currency. If you are a partner using a shared API key, then this field is mandatory.|
+|accountID |string|Conditional|`length<=10`|If you are a merchant, then this field is required only if you have more than one account configured for the same payment method and currency. If you are a partner using a shared API key, then this field is mandatory.|
 
 <a name="sightline"></a>
 **sightline**
@@ -871,7 +871,7 @@ paysafe.checkout.setup(apiKey, options, resultCallback, closeCallback?)
 |consumerId|string|yes|`length<=50`|This is a consumer ID that the merchant has stored for Play+ (Sightline) payments. This will be used by Play+ for customer enrollment.|
 |SSN|string|no|`length=9`|This is the customer's Social Security Number.If provided, then the last 4 SSN field will be prefilled and locked in enrollment as well as during Payment flow. If not provided, Customer has to enter their full SSN in the enrollment and the last 4 SSN in the Payment flow.|
 |last4ssn|string|no|`length=4`|This the customer’s last 4 digits of Social Security Number. If the customer is already enrolled for Sightline, then instead of sending the full ‘SSN’ field, you can send the last 4 digits of SSN which will get prefilled during Payment flow. If not provided, then the system will check if ‘SSN’ field is present to prefill the last 4 digits. If both these fields are not provided, then the customer has to enter the last 4 digits of SSN to complete the payment.|
-|accountID |string|Conditional|`length<=10`|Required when you have more than one account configured for the same payment method and currency. If you are a partner using a shared API key, then this field is mandatory.|
+|accountID |string|Conditional|`length<=10`|If you are a merchant, then this field is required only if you have more than one account configured for the same payment method and currency. If you are a partner using a shared API key, then this field is mandatory.|
 
 <a name="skrill"></a>
 **skrill**
@@ -885,7 +885,7 @@ paysafe.checkout.setup(apiKey, options, resultCallback, closeCallback?)
 |logoUrl                 |string|no |             |The URL of the logo which you would like to appear in the top right of the Skrill page. The logo must be accessible via HTTPS or it will not be shown. The logo will be resized to fit. To avoid scaling distortion, the minimum size should be as follows:<br>If the logo width > height - at least 107px wide.<br>If logo width > height - at least 65px high<br>Avoid large images (much greater than 256 by 256px) to minimize the page loading time.|
 |detail1Description      |string|no |             |You can show additional details about the product in the More information section in the header of Quick Checkout.|
 |detail1Text             |string|no |             |The detail1Text is shown next to the detail1Description in the More Information section in the header of the payment form with the other payment details. The detail1Description combined with the detail1Text is shown in the more information field of the merchant account history CSV file.|
-|accountID |string|Conditional|`length<=10`|Required when you have more than one account configured for the same payment method and currency. If you are a partner using a shared API key, then this field is mandatory.|
+|accountID |string|Conditional|`length<=10`|If you are a merchant, then this field is required only if you have more than one account configured for the same payment method and currency. If you are a partner using a shared API key, then this field is mandatory.|
 
 <a name="instantach"></a>
 **instantach**
@@ -900,14 +900,14 @@ paysafe.checkout.setup(apiKey, options, resultCallback, closeCallback?)
 |logoUrl                 |string|no |             |The URL of the logo which you would like to appear in the top right of the Instant ACH page. The logo must be accessible via HTTPS or it will not be shown. The logo will be resized to fit. To avoid scaling distortion, the minimum size should be as follows:<br>If the logo width > height - at least 107px wide.<br>If logo width > height - at least 65px high<br>Avoid large images (much greater than 256 by 256px) to minimize the page loading time.|
 |detail1Description      |string|no |             |You can show additional details about the product in the More information section in the header of Quick Checkout.|
 |detail1Text             |string|no |             |The detail1Text is shown next to the detail1Description in the More Information section in the header of the payment form with the other payment details. The detail1Description combined with the detail1Text is shown in the more information field of the merchant account history CSV file.|
-|accountID |string|Conditional|`length<=10`|Required when you have more than one account configured for the same payment method and currency. If you are a partner using a shared API key, then this field is mandatory.|
+|accountID |string|Conditional|`length<=10`|If you are a merchant, then this field is required only if you have more than one account configured for the same payment method and currency. If you are a partner using a shared API key, then this field is mandatory.|
 
 <a name="vippreferredobject" title="VIP Preferred"></a>
 **vippreferred**
 |Parameter          |Type|Required|Validations|Description|
 |---                |---|---|---|---|
 |consumerId         |string|yes|`length=9`|This is the customer's Social Security Number.|
-|accountID |string|Conditional|`length<=10`|Required when you have more than one account configured for the same payment method and currency. If you are a partner using a shared API key, then this field is mandatory.|
+|accountID |string|Conditional|`length<=10`|If you are a merchant, then this field is required only if you have more than one account configured for the same payment method and currency. If you are a partner using a shared API key, then this field is mandatory.|
 
 <a name="paypal"></a>
 **paypal**
@@ -2459,7 +2459,7 @@ This is an authorization that is approved for an amount lower than the requested
 |Element                |Type                       |Required|Description                        |
 |---                    |---                        |---  |---     |
 |id                     |string<br/>`length<=32`    |Read Only|This is the ID returned in the response. This ID can be used to retrieve the Payment Handle.|
-|accountId              |string<br/>`length<=10`    |Conditional|This is the merchant account number used for the request. Include this parameter if you have more than one merchant account for the currency/payment type combination you are specifying. If you are a partner using a shared API key, then this field is mandatory.|
+|accountId              |string<br/>`length<=10`    |Conditional|If you are a merchant, then this field is required only if you have more than one account configured for the same payment method and currency. If you are a partner using a shared API key, then this field is mandatory.|
 |paymentHandleTokenFrom |string<br/>`length<=36`    |Optional|This is an existing Payment Handle Token, from which the payment instrument and profile details are retrieved. |
 |merchantRefNum         |string<br/>`length<=255`   |Mandatory|This is the merchant reference number created by the merchant and submitted as part of the request. It must be unique for each request. |
 |transactionType        |enum                       |Mandatory|This specifies the transaction type for which the Payment Handle is created. Possible values are: <ul><li>PAYMENT</li><li> STANDALONE_CREDIT</li><li>ORIGINAL_CREDIT</li><li>VERIFICATION</li></ul>|
@@ -8361,7 +8361,7 @@ Click  **Cancel a Mandate** above to see how to cancel a Mandate.
             + INTERAC
     + currencyCode:`USD` (string) - This is the [currency of the merchant account](#currencycodes), e.g., USD or CAD.
         _Read Only, max=3_
-    + `accountId`: `1009355920` (string) - This is the merchant account for which the payment method and currency are enabled. If you are a partner using a shared API key, then this field is mandatory.
+    + `accountId`: `1009355920` (string) - If you are a merchant, then this field is required only if you have more than one account configured for the same payment method and currency. If you are a partner using a shared API key, then this field is mandatory.
         _Read Only, length<=10_
             
 
@@ -8378,7 +8378,7 @@ Click  **Cancel a Mandate** above to see how to cancel a Mandate.
         + STANDALONE_CREDIT - Payment Handle is created to continue the Standalone Credit.
         + ORIGINAL_CREDIT - Payment Handle is created to continue the Original Credit.
         + VERIFICATION - Payment Handle is created to continue the Verification request.
-+ `accountId`:`9876543210` (string) - This is the merchant account number used for the request. Include this optional parameter if you have more than one merchant account for the currency/payment type combination you are specifying. If you are a partner using a shared API key, then this field is mandatory.
++ `accountId`:`9876543210` (string) - If you are a merchant, then this field is required only if you have more than one account configured for the same payment method and currency. If you are a partner using a shared API key, then this field is mandatory.
     _Conditional, length<=10_
 + `status`:`PAYABLE` (enum) - This is the status of the payment handle.
     _Read Only_
