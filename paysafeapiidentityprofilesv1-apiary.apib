@@ -58,22 +58,19 @@ For example:
 
 `https://api.paysafe.com/customeridentification/v1/identityprofiles`
 
+# Pagination
+
+In the case where an API GET request returns multiple results, Paysafe returns the first 10 records by default and uses HATEOAS links to provide page navigation. In addition to the default behavior, it is also possible to control the number of results and starting point by passing in query parameters  as described in this [section](https://developer.paysafe.com/en/resources-and-support/pagination/).
+
 <a name="globalinvalidcharacters" title="Global Invalid Characters"></a>
 # Global Invalid Characters
 
-You must not include any of the characters in the following table as values in any of your request parameters. If you do, your request will result in an error.
+You must not include any of the characters in this [table](https://developer.paysafe.com/en/resources-and-support/global-invalid-characters/) as values in any of your request parameters. Object. If you do, your request will result in an error.
 
-|    Character    |    HEX    |    Description                     |
-|-----------------|-----------|------------------------------------|
-| "               | 22        | Double quotes (or speech marks)    |
-| ;               | 3B        | Semicolon                          |
-| ^               | 5E        | Caret, circumflex                  |
-| *               | 2A        | Asterisk                           |
-| <               | 3C        | Less than (or open angled bracket) |
-| /               | 2F        | Slash or divide                    |
-| [               | 5B        | Opening bracket                    |
-| ]               | 5D        | Closing bracket                    |
-| \               | 5C        | Backslash                          |
+<a name="isostandards" title="ISO Standards"></a>
+# ISO Standards
+
+ISO standards add value by providing the common business process data semantics to be used in the API based exchanges. This [section](https://developer.paysafe.com/en/resources-and-support/iso-standards/) presents you codes for four areas - Currency, Province, State, and Country. 
 
 # API
 
