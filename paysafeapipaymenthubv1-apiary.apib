@@ -2338,14 +2338,33 @@ merchants who provide more detailed information when processing card-not-present
 
 ```apib
 {
-    {
-     "meta": {
-               "id" : "abcdc28d-486e-4b0a-bbf9-314033863542",
-               "reference" : "ABCDEF0796",
-               "status" : "PENDING"
-            }
-    }
+    "links": [{
+            "rel": "on_completed",
+            "href": "https://US_commerce_site/payment/return/success",
+        },
+        {
+            "rel": "on_failed",
+            "href": "https://US_commerce_site/payment/return/failed",
+        }
+    ]
 }
+```
+<a name="mazoomaobject" title="Mazooma Object"></a>
+## Mazooma
+
+|Element                 |Type           |Required      |Description|
+|---                     |---            |---           |---|
+|consumerId              |string         |Mandatory     |This is the merchant's unique identifier of the customer.|
+|ach.paymentHandleToken  |string         |Conditional   |This is a unique identifier for each user bank account which is saved at Mazooma end.|
+
+
+```apib
+"mazooma": {
+    "consumerId": "PP_100222",
+    "ach": {
+      "paymentHandleToken": "BAru0JIKuktMcLsy"
+    }
+  }
 ```
 
 <a name="merchantdescriptorobject" title="merchantDescriptor Object"></a>
@@ -4746,7 +4765,150 @@ Click on **Create a Payment Handle** above to see the examples of how to create 
                 "lastDigits": "3670"
               }
             }
+            
++ Request Create Payment Handle for Mazooma (application/json)
 
+    + Headers
+
+            Authorization: "Basic YOUR-BASE64-ENCODED-API-KEY"
+            Content-Type: application/json
+            
+    + Body
+
+            {
+              "merchantRefNum": "ba7dd492-aac3-4147-9857-d98aa062a4ab",
+              "transactionType": "PAYMENT",
+              "paymentType": "MAZOOMA",
+              "amount": 100,
+              "currencyCode": "USD",
+              "customerIp": "172.0.0.1",
+              "mazooma": {
+                "consumerId": "PP_100222",
+                "ach": {
+                  "paymentHandleToken": "BAru0JIKuktMcLsy"
+                }
+              },
+              "profile": {
+                "firstName": "ALBERTA",
+                "lastName": "BOBBETHCHARLESON",
+                "email": "accountholder0@example.com",
+                "dateOfBirth": {
+                  "day": "23",
+                  "month": "12",
+                  "year": "1990"
+                },
+                "phone": 1234567890
+              },
+              "billingDetails": {
+                "nickName": "Home",
+                "street": "Queen Street West",
+                "street2": "Queen Street",
+                "city": "Imphal",
+                "state": "NY",
+                "country": "US",
+                "zip": "14236"
+              },
+              "merchantDescriptor": {
+                "dynamicDescriptor": "OnlineStore",
+                "phone": "12345678"
+              },
+              "returnLinks": [
+                {
+                  "rel": "default",
+                  "href": "http://www.amazon.ca"
+                },
+                {
+                  "rel": "on_failed",
+                  "href": "http://www.costco.ca"
+                },
+                {
+                  "rel": "on_cancelled",
+                  "href": "http://www.bestbuy.ca"
+                }
+  ]
+}
+
+
+
++ Response 200 (application/json)
+
+    + Body
+
+            {
+                "id": "e2c25a88-4794-4eda-9190-cff621c9c773",
+                "paymentType": "MAZOOMA",
+                "paymentHandleToken": "PHefzhWkEiXpKJcp",
+                "merchantRefNum": "32daa6db-1f2f-4f72-99d9-e29804307732",
+                "currencyCode": "USD",
+                "txnTime": "2022-02-23T11:41:25Z",
+                "billingDetails": {
+                "street": "Queen Street West",
+                "street2": "Queen Street",
+                "city": "Imphal",
+                "zip": "14236",
+                "state": "NY",
+                "country": "US"
+                },
+                "customerIp": "172.0.0.1",
+                "status": "INITIATED",
+                "links": [
+                {
+                "rel": "redirect_payment",
+                "href": "https://api.dev.paysafe.com/alternatepayments/v1/redirect?accountId=1005138890&paymentHandleId=e2c25a88-4794-4eda-9190-cff621c9c773&token=eyJhbGciOiJIUzI1NiJ9.eyJhY2QiOiIxMDA1MTM4ODkwIiwicHlkIjoiZTJjMjVhODgtNDc5NC00ZWRhLTkxOTAtY2ZmNjIxYzljNzczIiwiZXhwIjoxNjQ1NjE4Mjg3fQ.lkEPDGRc_3kSk0X0IP3KRQ-4WTYnXQtGLMutb9JU0Bs"
+                }
+                ],
+                "liveMode": false,
+                "simulator": "EXTERNAL",
+                "usage": "SINGLE_USE",
+                "action": "REDIRECT",
+                "executionMode": "SYNCHRONOUS",
+                "amount": 216,
+                "merchantDescriptor": {
+                "dynamicDescriptor": "OnlineStore",
+                "phone": "12345678"
+                },
+                "timeToLiveSeconds": 898,
+                "gatewayResponse": {
+                "txnStatus": "REDIRECT",
+                "orderId": "306582048",
+                "id": "4081b4df-16f9-4c97-8feb-78823504f509",
+                "internalRequestId": "399205438",
+                "processor": "MAZOOMA",
+                "status": "SUCCESS"
+                },
+                "returnLinks": [
+                {
+                "rel": "default",
+                "href": "https://codepen.io/warrendunlop/full/YmVKzm"
+                },
+                {
+                "rel": "on_failed",
+                "href": "https://codepen.io/jayDilz/full/ONjORo"
+                },
+                {
+                "rel": "on_cancelled",
+                "href": "https://codepen.io/jayDilz/full/ONjORo"
+                }
+                ],
+                "transactionType": "PAYMENT",
+                "gatewayReconciliationId": "4081b4df-16f9-4c97-8feb-78823504f509",
+                "updatedTime": "2022-02-23T11:41:27Z",
+                "statusTime": "2022-02-23T11:41:27Z",
+                "mazooma": {
+                "consumerId": "PP_100222"
+                },
+                "profile": {
+                "firstName": "ALBERTA",
+                "lastName": "BOBBETHCHARLESON",
+                "email": "accountholder0@example.com",
+                "dateOfBirth": {
+                "day": 23,
+                "month": 12,
+                "year": 1990
+                },
+                "phone": "1234567890"
+                }
+}
 
 
 
