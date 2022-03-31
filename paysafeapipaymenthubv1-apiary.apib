@@ -2017,7 +2017,7 @@ You will not be able to use your Test credentials to process transaction request
 |holderName         |string<br/>`length<=160`   |Optional|This is the name of the card holder. |
 |nickName           |string<br/>`length<=50`    |Optional|This is the nickname the merchant has for the card holder. |
 |cardType           |enum                       |Read Only|This is the type of card used for the request, returned in the response. Possible values are:<br/><ul><li>AM &ndash; American Express</li><li>DI &ndash; Discover</li><li>JC &ndash; JCB</li><li>MC &ndash; Mastercard</li><li>MD &ndash; Maestro</li><li>SO &ndash; Solo</li><li>VI &ndash; Visa</li><li>VD &ndash; Visa Debit</li><li>VE &ndash; Visa Electron</li></ul>
-|cardBin            |string<br/>`length=6`      |Read Only|This is the card BIN (typically the first 6 digits).|
+|cardBin            |string<br/>`length=6`      |Read Only|These are the first 6 digits of the card Bank Identification Number (BIN), i.e. the first 6 digits of the card number.|
 
 ```apib
     {
@@ -8068,7 +8068,7 @@ Click  **Cancel a Mandate** above to see how to cancel a Mandate.
             _Read Only_
         + nickName:`Jane's Card` (string) - This is the nickname the merchant has for the card holder.
             _Optional, length<=50_
-        + cardBin:`411111` (string) - This is the card BIN (typically the first 6 digits).
+        + cardBin:`411111` (string) - These are the first 6 digits of the card Bank Identification Number (BIN), i.e. the first 6 digits of the card number.
             _Read Only, length=6_
         + cardType: `AM` (enum) - This is the type of card used for the request, returned in the response.
             _Read Only_
@@ -8117,7 +8117,7 @@ Click  **Cancel a Mandate** above to see how to cancel a Mandate.
                 _length=4_
         + lastDigits:`1111` (string) - These are the last four digits of the card used for the request.
             _Read Only, length=4_
-        + cardBin:`411111` (string) - This is the card BIN (typically the first 6 digits).
+        + cardBin:`411111` (string) - These are the first 6 digits of the card Bank Identification Number (BIN), i.e. the first 6 digits of the card number.
             _Read Only, length=6_
 
 ## Customer Base
@@ -8741,7 +8741,7 @@ Click  **Cancel a Mandate** above to see how to cancel a Mandate.
                 _Read Only, length=4_
             + nickName:`Jane's Card` (string) - This is the nickname the merchant has for the card holder.
                 _Optional, length<=50_
-            + cardBin:`411111` (string) - This is the card BIN (typically the first 6 digits).
+            + cardBin:`411111` (string) - These are the first 6 digits of the card Bank Identification Number (BIN), i.e. the first 6 digits of the card number.
                 _Read Only, length=6_
         
     + paysafecard (object) - These are the details of the [paysafecard](#paysafecardobject) used for the request. Only one payment instrument object (e.g., *card* or *paysafecard* or *sightline*) can be included in the request.
